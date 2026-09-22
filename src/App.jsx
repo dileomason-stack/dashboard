@@ -12,7 +12,10 @@ const MARGIN = 12
 // Below this width the 12-column grid gets too cramped, so widgets stack.
 const STACK_BELOW = 700
 
-const STORAGE_KEY = 'dashboard:v1'
+// Bumped when widget sizes change so old saved layouts don't squash widgets.
+// To-do items are stored separately, so they survive the bump.
+const STORAGE_KEY = 'dashboard:v2'
+removeKey('dashboard:v1')
 
 const isDashboard = (value) =>
   value && Array.isArray(value.widgets) && Array.isArray(value.layout)
@@ -42,7 +45,14 @@ export default function App() {
     const { minW, minH, w, h } = WIDGETS[widget.type].size
     const saved = dashboard.layout.find((item) => item.i === widget.id)
     const position = saved ?? { i: widget.id, x: 0, y: bottom(layout), w, h }
-    layout.push({ ...position, minW, minH })
+    // Never smaller than the widget's minimum, even if an old save says so.
+    layout.push({
+      ...position,
+      w: Math.max(position.w, minW),
+      h: Math.max(position.h, minH),
+      minW,
+      minH,
+    })
   }
 
   function handleLayoutChange(newLayout) {
@@ -83,9 +93,9 @@ export default function App() {
   }
 
   function renderWidget(widget) {
-    const { title, component: Component } = WIDGETS[widget.type]
+    const { tab, component: Component } = WIDGETS[widget.type]
     return (
-      <WidgetFrame title={title} onRemove={() => removeWidget(widget.id)}>
+      <WidgetFrame tab={tab} onRemove={() => removeWidget(widget.id)}>
         <Component id={widget.id} />
       </WidgetFrame>
     )
@@ -126,7 +136,7 @@ export default function App() {
             width={width}
             layout={layout}
             gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [MARGIN, MARGIN] }}
-            dragConfig={{ handle: '.widget-header', cancel: '.widget-remove' }}
+            dragConfig={{ handle: '.widget-chrome', cancel: '.widget-remove, .address-link' }}
             onLayoutChange={handleLayoutChange}
           >
             {widgets.map((widget) => (
