@@ -1873,3 +1873,62 @@ a.canvas-title:hover {
 .card.card-new {
   animation: card-glow 1.8s ease-out;
 }
+
+/* ---------- Dashboard tabs ---------- */
+
+.toolbar-start {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.dash-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.dash-tab,
+.dash-tab-add {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.dash-tab:hover:not(:disabled),
+.dash-tab-add:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dash-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.dash-tab-add {
+  padding: 4px 10px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.dash-tab-input {
+  width: 160px;
+  padding: 3px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+}

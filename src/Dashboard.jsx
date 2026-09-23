@@ -44,9 +44,9 @@ function newGridItem(type, id, grid, at) {
   return { i: id, x: 0, y: bottom(grid), w, h }
 }
 
-export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetExample }) {
+export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample }) {
   const store = useStore()
-  const [layout, setLayout] = useStoreValue('layout', OWN_DEFAULT_LAYOUT, isLayout)
+  const [layout, setLayout] = useStoreValue(layoutKey, OWN_DEFAULT_LAYOUT, isLayout)
   const [maximizedId, setMaximizedId] = useState(null)
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
@@ -181,7 +181,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       onResetExample()
       return
     }
-    if (!window.confirm('Clear your dashboard? All widgets and what’s in them (to-dos, links) will be removed.')) return
+    if (!window.confirm('Clear this dashboard? All its widgets and what’s in them (to-dos, links) will be removed.')) return
     for (const widget of [...layout.sidebar, ...layout.workspace]) {
       store.remove(widgetDataKey(widget.id))
       store.remove(`style:${widget.id}`)
@@ -277,6 +277,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
             <span aria-hidden="true">◧</span> {layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           </button>
           <h1>OnlyOneScreen</h1>
+          {tabs}
         </div>
         <div className="toolbar-actions">
           <AddWidgetMenu onAdd={addWidget} />

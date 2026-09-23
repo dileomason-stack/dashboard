@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Dashboard from './Dashboard.jsx'
+import DashboardTabs from './DashboardTabs.jsx'
 import { exampleSeed } from './example.js'
 import { createStore, readJSON, removeKey, StoreContext, writeJSON } from './storage.js'
+import { layoutKeyFor, useDashboards } from './useDashboards.js'
 
 // "example": Alex's sample dashboard (memory only, resets on reload).
 // "own": the visitor's own dashboard, saved in this browser.
@@ -34,7 +36,7 @@ export default function App() {
 
   return (
     <StoreContext.Provider value={store}>
-      <Dashboard
+      <DashboardSwitcher
         key={generation}
         hasOwn={readJSON(HAS_OWN_KEY, false)}
         onBuildOwn={() => switchTo('own')}
@@ -42,5 +44,20 @@ export default function App() {
         onResetExample={() => switchTo('example')}
       />
     </StoreContext.Provider>
+  )
+}
+
+// Shows the active dashboard, with tabs to switch between dashboards. Each
+// switch remounts Dashboard so nothing (like a full-screen card) carries over.
+function DashboardSwitcher(props) {
+  const dashboards = useDashboards()
+  const [editingId, setEditingId] = useState(null)
+  return (
+    <Dashboard
+      key={dashboards.active.id}
+      layoutKey={layoutKeyFor(dashboards.active.id)}
+      tabs={<DashboardTabs dashboards={dashboards} editingId={editingId} setEditingId={setEditingId} />}
+      {...props}
+    />
   )
 }

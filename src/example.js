@@ -71,6 +71,15 @@ const EXAMPLE_PLAYLIST = 'https://open.spotify.com/playlist/0vvXsWCC9xrXsKd4FyS8
 
 export function exampleSeed() {
   return {
+    // Alex's three dashboards. "main" uses the "layout" key.
+    dashboards: {
+      list: [
+        { id: 'main', name: '⭐ Everything' },
+        { id: 'morning', name: '☀️ Morning check' },
+        { id: 'project', name: '💻 CSC 202 project' },
+      ],
+      activeId: 'main',
+    },
     layout: {
       sidebarOpen: true,
       sidebarSize: 28,
@@ -111,5 +120,67 @@ export function exampleSeed() {
     'widget:ex-scores': { league: 'nfl', teams: ['SF'] },
     'widget:ex-news': { source: 'mustang' },
     'widget:ex-sleeper': { sample: true },
+    // ☀️ Morning check: what's today, what's due, and the news.
+    'layout:morning': {
+      sidebarOpen: true,
+      sidebarSize: 28,
+      sidebar: [
+        { id: 'exm-todo', type: 'todo' },
+        { id: 'exm-calendar', type: 'calendar' },
+      ],
+      sidebarSizes: { 'exm-todo': 40, 'exm-calendar': 60 },
+      workspace: [
+        { id: 'exm-canvas', type: 'canvas' },
+        { id: 'exm-news', type: 'news' },
+        { id: 'exm-scores', type: 'scores' },
+        { id: 'exm-search', type: 'search' },
+      ],
+      grid: [
+        { i: 'exm-canvas', x: 0, y: 0, w: 18, h: 52 },
+        { i: 'exm-news', x: 18, y: 0, w: 16, h: 52 },
+        { i: 'exm-scores', x: 34, y: 0, w: 14, h: 52 },
+        { i: 'exm-search', x: 0, y: 52, w: 34, h: 40 },
+      ],
+      gridVersion: 2,
+    },
+    'widget:exm-todo': [
+      { id: 'm1', text: 'Reply to group chat about Friday', done: false },
+      { id: 'm2', text: 'Submit parking permit form', done: false },
+      { id: 'm3', text: 'Refill water bottle', done: true },
+    ],
+    'widget:exm-calendar': { sample: true },
+    'widget:exm-canvas': { sample: true, done: {} },
+    'widget:exm-news': { source: 'npr' },
+    'widget:exm-scores': { league: 'nfl', teams: ['SF'] },
+    // 💻 CSC 202 project: music, project tasks, and help when stuck.
+    'layout:project': {
+      sidebarOpen: true,
+      sidebarSize: 26,
+      sidebar: [
+        { id: 'exp-spotify', type: 'spotify' },
+        { id: 'exp-todo', type: 'todo' },
+      ],
+      sidebarSizes: { 'exp-spotify': 20, 'exp-todo': 80 },
+      workspace: [
+        { id: 'exp-claude', type: 'claude' },
+        { id: 'exp-search', type: 'search' },
+        { id: 'exp-canvas', type: 'canvas' },
+      ],
+      grid: [
+        { i: 'exp-claude', x: 0, y: 0, w: 22, h: 50 },
+        { i: 'exp-search', x: 22, y: 0, w: 26, h: 50 },
+        { i: 'exp-canvas', x: 0, y: 50, w: 22, h: 44 },
+      ],
+      gridVersion: 2,
+    },
+    'widget:exp-spotify': { url: EXAMPLE_PLAYLIST },
+    'widget:exp-todo': [
+      { id: 'p1', text: 'Read the project spec', done: true },
+      { id: 'p2', text: 'Implement the LinkedList class', done: false },
+      { id: 'p3', text: 'Write test cases for remove()', done: false },
+      { id: 'p4', text: 'Office hours Thursday 2pm', done: false },
+      { id: 'p5', text: 'Push to GitHub before 11:59', done: false },
+    ],
+    'widget:exp-canvas': { sample: true, done: {} },
   }
 }
