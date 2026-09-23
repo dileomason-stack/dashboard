@@ -2481,3 +2481,106 @@ a.canvas-title:hover {
 .typing-stats .link-button {
   margin-left: auto;
 }
+
+/* ---------- Google file ---------- */
+
+.card-body:has(.google-file),
+.widget-body:has(.google-file) {
+  padding: 0;
+  overflow: hidden;
+}
+
+.google-file {
+  height: 100%;
+}
+
+.google-file iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+/* ---------- Mail ---------- */
+
+.inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inbox-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.inbox-actions button {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+.inbox-count {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.inbox-count span {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.inbox-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.inbox-list button {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 2px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font-weight: 700;
+}
+
+.inbox-list button:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+
+.inbox-list button.read {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.inbox-from {
+  font-size: 0.85rem;
+}
+
+.inbox-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.inbox-subject,
+.inbox-snippet {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+
+.inbox-snippet {
+  font-weight: 400;
+  color: var(--text-muted);
+}

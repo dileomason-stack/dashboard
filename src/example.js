@@ -155,12 +155,14 @@ export function exampleSeed() {
         { id: 'exm-news', type: 'news' },
         { id: 'exm-scores', type: 'scores' },
         { id: 'exm-search', type: 'search' },
+        { id: 'exm-mail', type: 'inbox' },
       ],
       grid: [
         { i: 'exm-canvas', x: 0, y: 0, w: 18, h: 52 },
         { i: 'exm-news', x: 18, y: 0, w: 16, h: 52 },
         { i: 'exm-scores', x: 34, y: 0, w: 14, h: 52 },
-        { i: 'exm-search', x: 0, y: 52, w: 34, h: 40 },
+        { i: 'exm-search', x: 0, y: 52, w: 30, h: 44 },
+        { i: 'exm-mail', x: 30, y: 52, w: 18, h: 44 },
       ],
       gridVersion: 2,
     },
@@ -173,6 +175,7 @@ export function exampleSeed() {
     'widget:exm-canvas': { sample: true, done: {} },
     'widget:exm-news': { source: 'npr' },
     'widget:exm-scores': { league: 'nfl', teams: ['SF'] },
+    'widget:exm-mail': { sample: true, read: {} },
     // 💻 CSC 202 project: music, project tasks, and help when stuck.
     'layout:project': {
       sidebarOpen: true,
@@ -186,11 +189,13 @@ export function exampleSeed() {
         { id: 'exp-claude', type: 'claude' },
         { id: 'exp-search', type: 'search' },
         { id: 'exp-canvas', type: 'canvas' },
+        { id: 'exp-drive', type: 'googlefile' },
       ],
       grid: [
         { i: 'exp-claude', x: 0, y: 0, w: 22, h: 50 },
         { i: 'exp-search', x: 22, y: 0, w: 26, h: 50 },
         { i: 'exp-canvas', x: 0, y: 50, w: 22, h: 44 },
+        { i: 'exp-drive', x: 22, y: 50, w: 26, h: 44 },
       ],
       gridVersion: 2,
     },
@@ -203,6 +208,8 @@ export function exampleSeed() {
       { id: 'p5', text: 'Push to GitHub before 11:59', done: false },
     ],
     'widget:exp-canvas': { sample: true, done: {} },
+    // A real shared Google Drive folder ("Anyone with the link" can view).
+    'widget:exp-drive': { url: 'https://drive.google.com/drive/folders/13uCwzCKaJvj9dXLJOqZotZX4Zpdk3reb' },
     'layout:tools': tools.layout,
     ...toolsData,
     'layout:fun': fun.layout,

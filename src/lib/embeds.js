@@ -54,3 +54,52 @@ export function toCalendarEmbed(input) {
   if (!url.searchParams.has('mode')) url.searchParams.set('mode', 'AGENDA')
   return { ok: true, embedUrl: url.toString() }
 }
+
+
+// Google Docs/Sheets/Slides, Drive files, and shared Drive folders all have
+// official embeddable versions; convert a normal share link to that version.
+// (They only show for everyone if shared "Anyone with the link".)
+const GOOGLE_KINDS = { document: 'Google Doc', spreadsheets: 'Google Sheet', presentation: 'Google Slides' }
+
+export function toGoogleEmbed(input) {
+  const text = String(input ?? '').trim()
+  if (!text) return { ok: false, error: 'Paste a Google Docs, Sheets, Slides, or Drive link first.' }
+  let url
+  try {
+    url = new URL(text)
+  } catch {
+    return { ok: false, error: 'That isn’t a link. In Google Drive, click Share → Copy link.' }
+  }
+
+  if (url.hostname === 'drive.google.com') {
+    const folder = url.pathname.match(/\/folders\/([\w-]+)/)?.[1] ?? (url.pathname === '/embeddedfolderview' && url.searchParams.get('id'))
+    if (folder) {
+      return { ok: true, kind: 'Drive folder', embedUrl: `https://drive.google.com/embeddedfolderview?id=${folder}#list`, openUrl: `https://drive.google.com/drive/folders/${folder}` }
+    }
+    const file = url.pathname.match(/\/file\/d\/([\w-]+)/)?.[1] ?? (url.pathname === '/open' && url.searchParams.get('id'))
+    if (file) {
+      return { ok: true, kind: 'Drive file', embedUrl: `https://drive.google.com/file/d/${file}/preview`, openUrl: `https://drive.google.com/file/d/${file}/view` }
+    }
+  }
+
+  if (url.hostname === 'docs.google.com') {
+    const [, type, rest] = url.pathname.match(/^\/(document|spreadsheets|presentation)\/d\/(.+)$/) ?? []
+    if (type) {
+      // Published-to-web links (/d/e/2PACX…/pub) are already embeddable.
+      if (rest.startsWith('e/')) {
+        const embed = new URL(url)
+        if (type === 'document') embed.searchParams.set('embedded', 'true')
+        return { ok: true, kind: GOOGLE_KINDS[type], embedUrl: embed.toString(), openUrl: url.toString() }
+      }
+      const id = rest.split('/')[0]
+      return {
+        ok: true,
+        kind: GOOGLE_KINDS[type],
+        embedUrl: `https://docs.google.com/${type}/d/${id}/preview`,
+        openUrl: `https://docs.google.com/${type}/d/${id}/edit`,
+      }
+    }
+  }
+
+  return { ok: false, error: 'Use a link from Google Docs, Sheets, Slides, or Google Drive (Share → Copy link).' }
+}

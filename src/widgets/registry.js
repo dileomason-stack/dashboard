@@ -11,6 +11,9 @@ import TodoWidget from './TodoWidget.jsx'
 import ToolWidget, { GameWidget } from './ToolWidget.jsx'
 import DailyWordWidget from './DailyWordWidget.jsx'
 import LinksWidget from './LinksWidget.jsx'
+import GoogleFileWidget from './GoogleFileWidget.jsx'
+import InboxWidget from './InboxWidget.jsx'
+import { toGoogleEmbed } from '../lib/embeds.js'
 import SnakeWidget from './SnakeWidget.jsx'
 import TypingWidget from './TypingWidget.jsx'
 import { GAMES, TOOLS } from '../lib/tools.js'
@@ -18,10 +21,12 @@ import {
   CalendarIcon,
   CanvasIcon,
   ClaudeIcon,
+  DriveIcon,
   GameIcon,
   GoogleIcon,
   KeyboardIcon,
   LinksIcon,
+  MailIcon,
   NewsIcon,
   NotesIcon,
   ScoresIcon,
@@ -189,6 +194,26 @@ export const WIDGETS = {
     component: TypingWidget,
     size: { w: 24, h: 32, minW: 14, minH: 26 },
     tab: { title: 'Typing test', address: 'Typing speed test', icon: KeyboardIcon },
+  },
+  googlefile: {
+    title: 'Google Doc / Drive',
+    description: 'View a Doc, Sheet, Slides, or Drive folder',
+    component: GoogleFileWidget,
+    editLabel: 'Change file or folder',
+    size: { w: 22, h: 52, minW: 12, minH: 24 },
+    tab: { title: 'Google Drive', address: 'drive.google.com', href: 'https://drive.google.com', icon: DriveIcon },
+    tabFor: (settings) => {
+      const embed = settings?.url ? toGoogleEmbed(settings.url) : null
+      return embed?.ok ? { title: embed.kind, address: new URL(embed.openUrl).hostname, href: embed.openUrl } : null
+    },
+  },
+  inbox: {
+    title: 'Mail',
+    description: 'Open Gmail, compose, or search your mail',
+    component: InboxWidget,
+    brandColor: '#fce8e6',
+    size: { w: 16, h: 50, minW: 12, minH: 20 },
+    tab: { title: 'Mail', address: 'mail.google.com', href: 'https://mail.google.com', icon: MailIcon },
   },
 }
 

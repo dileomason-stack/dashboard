@@ -229,3 +229,23 @@ export function KeyboardIcon() {
     </svg>
   )
 }
+
+export function DriveIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <path d="M5.6 1.5h4.8l4.8 8.3-2.4 4.2H3.2L.8 9.8z" fill="#fff" />
+      <path d="M5.6 1.5L.8 9.8l2.4 4.2L8 5.7z" fill="#0f9d58" />
+      <path d="M10.4 1.5H5.6L8 5.7l2.4 4.1h4.8z" fill="#f4b400" />
+      <path d="M3.2 14h9.6l2.4-4.2H5.6z" fill="#4285f4" />
+    </svg>
+  )
+}
+
+export function MailIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="1" y="3" width="14" height="10" rx="2" fill="#fff" stroke="#c5221f" strokeWidth="1" />
+      <path d="M1.8 4l6.2 4.8L14.2 4" fill="none" stroke="#ea4335" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  )
+}
