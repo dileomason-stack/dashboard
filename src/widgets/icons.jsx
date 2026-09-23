@@ -176,3 +176,37 @@ export function NotesIcon() {
     </svg>
   )
 }
+
+export function GameIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#7c3aed" />
+      <rect x="2.5" y="5" width="11" height="6.5" rx="3.2" fill="#fff" />
+      <path d="M5.2 7v2.4M4 8.2h2.4" stroke="#7c3aed" strokeWidth="1.1" strokeLinecap="round" />
+      <circle cx="10.4" cy="7.4" r="0.8" fill="#7c3aed" />
+      <circle cx="11.6" cy="9" r="0.8" fill="#7c3aed" />
+    </svg>
+  )
+}
+
+export function WordIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0.5" y="4.5" width="4.5" height="4.5" rx="1" fill="#6aaa64" />
+      <rect x="5.75" y="4.5" width="4.5" height="4.5" rx="1" fill="#c9b458" />
+      <rect x="11" y="4.5" width="4.5" height="4.5" rx="1" fill="#787c7e" />
+      <rect x="0.5" y="9.75" width="4.5" height="4.5" rx="1" fill="#787c7e" />
+      <rect x="5.75" y="9.75" width="4.5" height="4.5" rx="1" fill="#6aaa64" />
+      <rect x="11" y="9.75" width="4.5" height="4.5" rx="1" fill="#6aaa64" />
+    </svg>
+  )
+}
+
+export function LinksIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#0f9d58" />
+      <path d="M6.8 9.2l2.4-2.4M7.3 5.6l1-1a2 2 0 012.9 2.9l-1 1M8.7 10.4l-1 1a2 2 0 01-2.9-2.9l1-1" fill="none" stroke="#fff" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}

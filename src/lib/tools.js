@@ -11,3 +11,17 @@ export const TOOLS = {
   pythontutor: { name: 'Python Tutor (step through code)', url: 'https://pythontutor.com/visualize.html', address: 'pythontutor.com' },
   timer: { name: 'Focus timer (Pomofocus)', url: 'https://pomofocus.io', address: 'pomofocus.io' },
 }
+
+// Games the Game widget can show; each was checked to play inside a card.
+// (Wordle, Immaculate Grid, Poeltl and others refuse, so they're in the Fun
+// template's Links card instead.)
+export const GAMES = {
+  hoopgrids: { name: 'HoopGrids (NBA grid)', url: 'https://www.hoopgrids.com', address: 'hoopgrids.com' },
+  globle: { name: 'Globle (guess the country)', url: 'https://globle-game.com', address: 'globle-game.com' },
+  semantle: { name: 'Semantle (word meaning)', url: 'https://www.semantle.com', address: 'semantle.com' },
+  costcodle: { name: 'Costcodle (guess the price)', url: 'https://costcodle.com', address: 'costcodle.com' },
+  framed: { name: 'Framed (guess the movie)', url: 'https://framed.wtf', address: 'framed.wtf' },
+  chesspuzzle: { name: 'Chess puzzle of the day', url: 'https://lichess.org/training/frame', address: 'lichess.org' },
+  chesstv: { name: 'Live chess (Lichess TV)', url: 'https://lichess.org/tv/frame', address: 'lichess.org' },
+  coolmath: { name: 'Coolmath Games', url: 'https://www.coolmathgames.com', address: 'coolmathgames.com' },
+}

@@ -51,6 +51,40 @@ export const TEMPLATES = {
         ],
       }),
   },
+  fun: {
+    label: '🎮 Fun: daily word, HoopGrids, Globle, chess, game links',
+    name: '🎮 Fun',
+    build: (idFor) =>
+      assemble(idFor, {
+        sidebarSize: 26,
+        sidebar: [
+          ['word', 68],
+          [
+            'links',
+            32,
+            {
+              links: [
+                ['Wordle', 'https://www.nytimes.com/games/wordle/index.html'],
+                ['Connections', 'https://www.nytimes.com/games/connections'],
+                ['Immaculate Grid', 'https://www.immaculategrid.com'],
+                ['Poeltl', 'https://poeltl.nbpa.com'],
+                ['Worldle', 'https://worldle.teuteuf.fr'],
+                ['Travle', 'https://travle.earth'],
+                ['Flagle', 'https://www.flagle.io'],
+                ['Metazooa', 'https://www.metazooa.com'],
+              ].map(([title, url], index) => ({ id: `game-link-${index}`, title, url })),
+            },
+          ],
+        ],
+        workspace: [
+          ['game', 0, 0, 18, 58, { tool: 'hoopgrids' }],
+          ['game', 18, 0, 15, 58, { tool: 'globle' }],
+          ['game', 33, 0, 15, 58, { tool: 'chesspuzzle' }],
+          ['game', 0, 58, 24, 52, { tool: 'costcodle' }],
+          ['game', 24, 58, 24, 52, { tool: 'framed' }],
+        ],
+      }),
+  },
   morning: {
     label: '☀️ Morning check: to-dos, calendar, due dates, news',
     name: '☀️ Morning check',

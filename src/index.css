@@ -2142,3 +2142,184 @@ a.canvas-title:hover {
 
 .slot-IR { background: #b91c1c; }
 .slot-SF { background: #d9468f; }
+
+/* ---------- Daily word game ---------- */
+
+.card-body:has(.daily-word) {
+  container-type: size;
+}
+
+.daily-word {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  outline: none;
+}
+
+.word-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.word-board {
+  display: grid;
+  gap: 4px;
+}
+
+.word-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.word-row.shake {
+  animation: word-shake 0.35s;
+}
+
+@keyframes word-shake {
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+.word-tile {
+  width: clamp(20px, 8.5cqh, 44px);
+  height: clamp(20px, 8.5cqh, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  font-weight: 700;
+  font-size: clamp(0.75rem, 4.5cqh, 1.4rem);
+  text-transform: uppercase;
+}
+
+.word-tile.filled {
+  border-color: var(--text-muted);
+}
+
+.word-tile.correct,
+.key.correct {
+  background: #6aaa64;
+  border-color: #6aaa64;
+  color: #fff;
+}
+
+.word-tile.present,
+.key.present {
+  background: #c9b458;
+  border-color: #c9b458;
+  color: #fff;
+}
+
+.word-tile.absent,
+.key.absent {
+  background: #787c7e;
+  border-color: #787c7e;
+  color: #fff;
+}
+
+.word-message {
+  min-height: 1.2em;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.word-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+}
+
+.key {
+  flex: 1;
+  max-width: 34px;
+  height: clamp(22px, 6.5cqh, 40px);
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.key.wide {
+  max-width: 54px;
+  flex: 1.5;
+  font-size: 0.7rem;
+}
+
+/* ---------- Links ---------- */
+
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.link-tile {
+  position: relative;
+}
+
+.link-tile a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-muted);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.link-tile a:hover {
+  outline: 2px solid var(--accent);
+}
+
+.link-tile span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.link-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 0;
+}
+
+.link-tile:hover .link-remove,
+.link-remove:focus-visible {
+  opacity: 1;
+}
+
+.link-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

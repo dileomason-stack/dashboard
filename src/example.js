@@ -79,6 +79,13 @@ export function exampleSeed() {
     return `ext-${type}-${toolCount[type]}`
   })
   const toolsData = Object.fromEntries(Object.entries(tools.data).map(([id, settings]) => [`widget:${id}`, settings]))
+  // …and 🎮 Fun is the Fun template.
+  const funCount = {}
+  const fun = TEMPLATES.fun.build((type) => {
+    funCount[type] = (funCount[type] ?? 0) + 1
+    return `exf-${type}-${funCount[type]}`
+  })
+  const funData = Object.fromEntries(Object.entries(fun.data).map(([id, settings]) => [`widget:${id}`, settings]))
 
   return {
     // Alex's three dashboards. "main" uses the "layout" key.
@@ -88,6 +95,7 @@ export function exampleSeed() {
         { id: 'morning', name: '☀️ Morning check' },
         { id: 'project', name: '💻 CSC 202 project' },
         { id: 'tools', name: '🧰 Tools' },
+        { id: 'fun', name: '🎮 Fun' },
       ],
       activeId: 'main',
     },
@@ -197,6 +205,8 @@ export function exampleSeed() {
     'widget:exp-canvas': { sample: true, done: {} },
     'layout:tools': tools.layout,
     ...toolsData,
+    'layout:fun': fun.layout,
+    ...funData,
     'widget:ext-notes-1':
       'CHEM 124 lab notes\n- Molar mass of NaCl: 58.44 g/mol\n- Remember sig figs on the final answer\n\nEssay intro draft goes here…',
   }

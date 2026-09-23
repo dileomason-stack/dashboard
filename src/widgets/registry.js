@@ -8,13 +8,17 @@ import SearchWidget from './SearchWidget.jsx'
 import SleeperWidget from './SleeperWidget.jsx'
 import SpotifyWidget from './SpotifyWidget.jsx'
 import TodoWidget from './TodoWidget.jsx'
-import ToolWidget from './ToolWidget.jsx'
-import { TOOLS } from '../lib/tools.js'
+import ToolWidget, { GameWidget } from './ToolWidget.jsx'
+import DailyWordWidget from './DailyWordWidget.jsx'
+import LinksWidget from './LinksWidget.jsx'
+import { GAMES, TOOLS } from '../lib/tools.js'
 import {
   CalendarIcon,
   CanvasIcon,
   ClaudeIcon,
+  GameIcon,
   GoogleIcon,
+  LinksIcon,
   NewsIcon,
   NotesIcon,
   ScoresIcon,
@@ -22,6 +26,7 @@ import {
   SpotifyIcon,
   TodoIcon,
   ToolIcon,
+  WordIcon,
 } from './icons.jsx'
 
 // Every widget type the dashboard knows about. Adding a new widget means
@@ -140,6 +145,32 @@ export const WIDGETS = {
     brandColor: '#fff3b0',
     size: { w: 20, h: 46, minW: 12, minH: 20 },
     tab: { title: 'Notes', address: 'Saved in this browser', icon: NotesIcon },
+  },
+  game: {
+    title: 'Game',
+    description: 'HoopGrids, Globle, Semantle, chess, and more',
+    component: GameWidget,
+    editLabel: 'Change game',
+    size: { w: 18, h: 56, minW: 12, minH: 24 },
+    tab: { title: 'Game', address: 'Game', icon: GameIcon },
+    tabFor: (settings) => {
+      const game = GAMES[settings?.tool]
+      return game ? { title: game.name, address: game.address, href: game.url } : null
+    },
+  },
+  word: {
+    title: 'Daily word',
+    description: 'A Wordle-style daily word game',
+    component: DailyWordWidget,
+    size: { w: 16, h: 64, minW: 12, minH: 50 },
+    tab: { title: 'Daily word', address: 'Daily word game', icon: WordIcon },
+  },
+  links: {
+    title: 'Links',
+    description: 'Buttons for sites that open in a new tab (Gmail, Wordle…)',
+    component: LinksWidget,
+    size: { w: 16, h: 30, minW: 10, minH: 16 },
+    tab: { title: 'Links', address: 'Quick links', icon: LinksIcon },
   },
 }
 

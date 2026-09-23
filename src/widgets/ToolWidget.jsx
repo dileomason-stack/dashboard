@@ -1,21 +1,22 @@
-import { TOOLS } from '../lib/tools.js'
+import { GAMES, TOOLS } from '../lib/tools.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 
-// Settings: { tool: 'graphing' }. Shows the chosen tool's real site inside
-// the card; "Change tool" in the card menu goes back to the picker.
+// Settings: { tool: 'graphing' }. Shows the chosen site inside the card;
+// "Change tool" / "Change game" in the card menu goes back to the picker.
+// Used for both the Academic tool and Game widgets, with different catalogs.
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 
-export default function ToolWidget({ id }) {
+function EmbedPicker({ id, catalog, heading }) {
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)
-  const tool = TOOLS[settings.tool]
+  const tool = catalog[settings.tool]
 
   if (!tool) {
     return (
       <div className="tool-picker">
-        <p className="link-setup-heading">Pick a tool to show here:</p>
+        <p className="link-setup-heading">{heading}</p>
         <div className="tool-grid">
-          {Object.entries(TOOLS).map(([key, item]) => (
+          {Object.entries(catalog).map(([key, item]) => (
             <button key={key} type="button" onClick={() => setSettings({ tool: key })}>
               {item.name}
             </button>
@@ -30,4 +31,12 @@ export default function ToolWidget({ id }) {
       <iframe title={tool.name} src={tool.url} loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" />
     </div>
   )
+}
+
+export default function ToolWidget({ id }) {
+  return <EmbedPicker id={id} catalog={TOOLS} heading="Pick a tool to show here:" />
+}
+
+export function GameWidget({ id }) {
+  return <EmbedPicker id={id} catalog={GAMES} heading="Pick a game to play here:" />
 }
