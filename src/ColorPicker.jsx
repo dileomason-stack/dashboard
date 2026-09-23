@@ -20,7 +20,7 @@ const PRESETS = [
 // level (a portal) so it never picks up the card's own colors.
 // Swatches and Match Spotify close it; "Any color…" keeps it open while the
 // color is being adjusted.
-export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, onClose }) {
+export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, onClose, title = 'Card color' }) {
   const ref = useRef(null)
   const [position, setPosition] = useState({ left: x, top: y })
   const [matching, setMatching] = useState(false)
@@ -63,8 +63,8 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
   }
 
   return createPortal(
-    <div ref={ref} className="color-picker" style={position} role="dialog" aria-label="Card color">
-      <p className="color-picker-title">Card color</p>
+    <div ref={ref} className="color-picker" style={position} role="dialog" aria-label={title}>
+      <p className="color-picker-title">{title}</p>
       <div className="swatches">
         <button
           type="button"

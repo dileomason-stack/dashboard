@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
+import ColorPicker from './ColorPicker.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
@@ -48,6 +49,8 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const store = useStore()
   const [layout, setLayout] = useStoreValue(layoutKey, OWN_DEFAULT_LAYOUT, isLayout)
   const [maximizedId, setMaximizedId] = useState(null)
+  // Where the "Sidebar color" picker is open, if it is.
+  const [sidebarPicker, setSidebarPicker] = useState(null)
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
@@ -193,6 +196,25 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     setLayout(OWN_DEFAULT_LAYOUT)
   }
 
+  // "Sidebar color": give every sidebar card the same background (Spotify's
+  // player covers its card, so it's skipped). Each card can still be
+  // recolored on its own afterwards.
+  function colorSidebar(color) {
+    for (const widget of sidebarWidgets) {
+      if (WIDGETS[widget.type].colorable === false) continue
+      if (color) store.set(`style:${widget.id}`, { background: color })
+      else store.remove(`style:${widget.id}`)
+    }
+  }
+
+  // The color the sidebar cards share, if they all have the same one.
+  function sharedSidebarColor() {
+    const colors = sidebarWidgets
+      .filter((widget) => WIDGETS[widget.type].colorable !== false)
+      .map((widget) => store.get(`style:${widget.id}`)?.background ?? null)
+    return colors.length && colors.every((color) => color === colors[0]) ? colors[0] : null
+  }
+
   // For "Match Spotify playlist": the first Spotify widget with a playlist.
   function getSpotifyEmbedUrl() {
     const spotify = [...layout.sidebar, ...layout.workspace].find((widget) => widget.type === 'spotify')
@@ -282,6 +304,18 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           >
             <span aria-hidden="true">◧</span> {layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           </button>
+          {layout.sidebarOpen && sidebarWidgets.length > 0 && !stacked && (
+            <button
+              type="button"
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setSidebarPicker({ x: rect.left, y: rect.bottom + 6 })
+              }}
+              title="Color every sidebar card at once"
+            >
+              🎨 Sidebar color
+            </button>
+          )}
           <h1>OnlyOneScreen</h1>
           {tabs}
         </div>
@@ -350,6 +384,18 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       </main>
 
       <Dock widgets={dockWidgets} tabFor={tabFor} onRestore={restoreWidget} />
+
+      {sidebarPicker && (
+        <ColorPicker
+          title="Sidebar color"
+          x={sidebarPicker.x}
+          y={sidebarPicker.y}
+          value={sharedSidebarColor()}
+          spotifyEmbedUrl={getSpotifyEmbedUrl()}
+          onChange={colorSidebar}
+          onClose={() => setSidebarPicker(null)}
+        />
+      )}
 
       {maximized && (
         <div className="maximized-layer" onClick={(event) => event.target === event.currentTarget && setMaximizedId(null)}>
