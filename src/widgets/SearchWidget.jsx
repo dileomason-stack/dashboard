@@ -12,8 +12,11 @@ const LOGO = [
 
 const googleUrl = (query) => `https://www.google.com/search?q=${encodeURIComponent(query)}`
 // igu=1 is an undocumented Google setting that allows its results page to be
-// shown inside another site. See api/google-embed.js for the fallback check.
-const embeddedUrl = (query) => `https://www.google.com/search?igu=1&q=${encodeURIComponent(query)}`
+// shown inside another site (see api/google-embed.js for the fallback check).
+// newwindow=1 is Google's "open results in a new window" preference: most
+// sites refuse to load inside the card, so clicked results open in a new tab.
+const embeddedUrl = (query) =>
+  `https://www.google.com/search?igu=1&newwindow=1&q=${encodeURIComponent(query)}`
 
 function openInGoogle(query) {
   window.open(query ? googleUrl(query) : 'https://www.google.com', '_blank', 'noopener,noreferrer')
@@ -49,6 +52,12 @@ export default function SearchWidget() {
   const [text, setText] = useState('')
   const [query, setQuery] = useState('')
   const [loadedQuery, setLoadedQuery] = useState(null)
+  // Bumped by "Back to results" to reload the results page.
+  const [reloads, setReloads] = useState(0)
+  // How many pages the results frame has loaded for this search. More than
+  // one means something navigated inside the card, often a clicked link to a
+  // site that won't show here, so we offer a way back.
+  const [frameLoads, setFrameLoads] = useState(0)
   const inputRef = useRef(null)
   const embeddable = useEmbeddable()
 
@@ -61,6 +70,7 @@ export default function SearchWidget() {
     }
     if (embeddable) {
       setQuery(trimmed)
+      setFrameLoads(0)
     } else {
       openInGoogle(trimmed)
       setText('')
@@ -132,9 +142,30 @@ export default function SearchWidget() {
         {searchBox}
       </div>
       {loadedQuery !== query && <p className="google-loading">Loading Google results…</p>}
+      {frameLoads > 1 && (
+        <div className="google-nav-bar" role="status">
+          <span>Page not showing? Some sites only open in their own tab.</span>
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => {
+              setFrameLoads(0)
+              setReloads((count) => count + 1)
+            }}
+          >
+            ← Back to results
+          </button>
+          <button type="button" className="link-button" onClick={() => openInGoogle(query)}>
+            Open in Google ↗
+          </button>
+        </div>
+      )}
       <iframe
-        key={query}
-        onLoad={() => setLoadedQuery(query)}
+        key={`${query}-${reloads}`}
+        onLoad={() => {
+          setLoadedQuery(query)
+          setFrameLoads((count) => count + 1)
+        }}
         title={`Google results for ${query}`}
         src={embeddedUrl(query)}
         // Google's page can run normally, but it can never take over the

@@ -1812,3 +1812,21 @@ a.canvas-title:hover {
 .card-grip {
   cursor: grab;
 }
+
+.google-nav-bar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 6px 12px;
+  background: var(--banner);
+  border-bottom: 1px solid var(--banner-border);
+  font-size: 0.8rem;
+}
+
+.google-nav-bar span {
+  color: var(--text-muted);
+  margin-right: auto;
+}
