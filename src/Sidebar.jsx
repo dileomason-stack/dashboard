@@ -14,8 +14,8 @@ function sharesFor(ids, saved) {
 }
 
 // The collapsible column on the left: widgets stacked top to bottom, with a
-// draggable divider between each pair. Cards can be dragged (by their ⠿ grip)
-// to a new position.
+// draggable divider between each pair. Cards can be dragged to a new position
+// by grabbing any empty spot on them.
 export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, renderWidget, stacked }) {
   const [dragId, setDragId] = useState(null)
   const [dropTarget, setDropTarget] = useState(null)
@@ -24,7 +24,9 @@ export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, rend
     onDragStart: (event) => {
       event.dataTransfer.effectAllowed = 'move'
       event.dataTransfer.setData('text/plain', id)
-      event.dataTransfer.setDragImage(event.currentTarget.closest('.card'), 24, 16)
+      const card = event.currentTarget.closest('.card')
+      const rect = card.getBoundingClientRect()
+      event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top)
       // Changing the page during dragstart can cancel the drag in Chrome.
       setTimeout(() => setDragId(id))
     },

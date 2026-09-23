@@ -1690,82 +1690,125 @@ a.canvas-title:hover {
   background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-/* Resize handles: invisible strips along the edges (the cursor shows where
-   they are), plus a small corner mark that appears on hover. */
-.react-grid-item > .react-resizable-handle {
-  background-image: none;
+/* Resize handles. The library's own rules are specific
+   (.react-grid-item > .react-resizable-handle.react-resizable-handle-e) and
+   its stylesheet loads after ours, so ties go to it: these rules are one
+   class more specific, and repeat transform/margin to undo its rotation.
+   - right and bottom edges: 14px strips that show a blue line on hover
+   - bottom-right corner: a grip that's always faintly visible */
+.react-grid-layout .react-grid-item > .react-resizable-handle {
+  z-index: 3;
   opacity: 1;
+  background-image: none;
+  transform: none;
+  margin: 0;
 }
 
-.react-grid-item > .react-resizable-handle::after {
+.react-grid-layout .react-grid-item > .react-resizable-handle::after {
   display: none;
 }
 
-.react-grid-item > .react-resizable-handle-e,
-.react-grid-item > .react-resizable-handle-w {
-  top: 24px;
-  bottom: 24px;
-  width: 10px;
-  height: auto;
-  margin: 0;
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-e {
   transform: none;
+  margin: 0;
+  top: 20px;
+  bottom: 28px;
+  right: 0;
+  width: 14px;
+  height: auto;
   cursor: ew-resize;
 }
 
-.react-grid-item > .react-resizable-handle-e {
-  right: 0;
-}
-
-.react-grid-item > .react-resizable-handle-w {
-  left: 0;
-}
-
-.react-grid-item > .react-resizable-handle-s {
-  left: 24px;
-  right: 24px;
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
+  transform: none;
+  margin: 0;
+  left: 20px;
+  right: 28px;
   bottom: 0;
   width: auto;
-  height: 10px;
-  margin: 0;
-  transform: none;
+  height: 14px;
   cursor: ns-resize;
 }
 
-.react-grid-item > .react-resizable-handle-se,
-.react-grid-item > .react-resizable-handle-sw {
-  width: 20px;
-  height: 20px;
-  bottom: 0;
-  transform: none;
+.react-grid-layout .react-grid-item > .react-resizable-handle-e:hover::before,
+.react-grid-layout .react-grid-item > .react-resizable-handle-s:hover::before,
+.react-grid-layout .react-grid-item.resizing > .react-resizable-handle-e::before,
+.react-grid-layout .react-grid-item.resizing > .react-resizable-handle-s::before {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
-.react-grid-item > .react-resizable-handle-se {
+.react-grid-layout .react-grid-item > .react-resizable-handle-e::before {
+  top: 0;
+  bottom: 0;
+  right: 5px;
+  width: 3px;
+}
+
+.react-grid-layout .react-grid-item > .react-resizable-handle-s::before {
+  left: 0;
   right: 0;
+  bottom: 5px;
+  height: 3px;
+}
+
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+  transform: none;
+  margin: 0;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
   cursor: nwse-resize;
 }
 
-.react-grid-item > .react-resizable-handle-sw {
-  left: 0;
-  cursor: nesw-resize;
-}
-
-.react-grid-item:hover > .react-resizable-handle-se::after,
-.react-grid-item:hover > .react-resizable-handle-sw::after {
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-se::after {
   display: block;
   content: '';
   position: absolute;
-  bottom: 9px;
-  width: 8px;
-  height: 8px;
-  border-bottom: 2px solid var(--text-muted);
+  right: 11px;
+  bottom: 11px;
+  width: 11px;
+  height: 11px;
+  border-right: 3px solid var(--text-muted);
+  border-bottom: 3px solid var(--text-muted);
+  border-bottom-right-radius: 4px;
+  opacity: 0.5;
 }
 
-.react-grid-item:hover > .react-resizable-handle-se::after {
-  right: 9px;
-  border-right: 2px solid var(--text-muted);
+.react-grid-layout .react-grid-item:hover > .react-resizable-handle.react-resizable-handle-se::after {
+  opacity: 1;
 }
 
-.react-grid-item:hover > .react-resizable-handle-sw::after {
-  left: 9px;
-  border-left: 2px solid var(--text-muted);
+.react-grid-layout .react-grid-item > .react-resizable-handle.react-resizable-handle-se:hover::after,
+.react-grid-layout .react-grid-item.resizing > .react-resizable-handle.react-resizable-handle-se::after {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+/* Cards can be grabbed anywhere that isn't a control. */
+.react-grid-item .card,
+.sidebar-panel .card {
+  cursor: grab;
+}
+
+.react-grid-item.react-draggable-dragging .card,
+.card[draggable='true'] {
+  cursor: grabbing;
+}
+
+.card input,
+.card textarea {
+  cursor: text;
+}
+
+.card a,
+.card label {
+  cursor: pointer;
+}
+
+.card-grip {
+  cursor: grab;
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ReactGridLayout, { bottom, useContainerWidth } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { NOT_DRAGGABLE } from './lib/drag.js'
 import { COLS, createPushDownCompactor, GAP, ROW_HEIGHT } from './lib/grid.js'
 import { WIDGETS } from './widgets/registry.js'
 
@@ -27,10 +28,11 @@ function buildLayout(widgets, grid) {
 // Keep only the fields worth saving.
 const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 
-// The open area next to the sidebar. Cards are dragged by their ⠿ grip (or
-// tab bar on phones) and stay exactly where they're dropped: nothing slides up
-// to fill gaps. Dropping onto another card pushes that card down, so cards
-// never hide each other. Resize from the sides, bottom, or bottom corners.
+// The open area next to the sidebar. Grab a card anywhere (except its buttons,
+// links and text boxes) to move it; it stays exactly where it's dropped and
+// nothing slides up to fill gaps. Dropping onto another card pushes that card
+// down, so cards never hide each other. Resize from the corner grip or the
+// right/bottom edges.
 export default function Workspace({ widgets, grid, onGridChange, onAddWidget, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid)
@@ -97,8 +99,8 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
           width={width}
           layout={layout}
           gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
-          dragConfig={{ handle: '.grid-drag-handle', cancel: '.widget-control' }}
-          resizeConfig={{ handles: ['e', 'w', 's', 'se', 'sw'] }}
+          dragConfig={{ cancel: `${NOT_DRAGGABLE}, .widget-control` }}
+          resizeConfig={{ handles: ['e', 's', 'se'] }}
           compactor={compactor}
           onDragStart={setActive}
           onResizeStart={setActive}

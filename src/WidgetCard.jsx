@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import ColorPicker from './ColorPicker.jsx'
 import ContextMenu from './ContextMenu.jsx'
 import { isDark, isValidHex } from './lib/colors.js'
+import { NOT_DRAGGABLE } from './lib/drag.js'
 import { useStoreValue } from './storage.js'
 
 const NO_STYLE = {}
@@ -9,11 +10,12 @@ const isStyle = (value) => value && typeof value === 'object'
 
 // Widgets are plain cards: no tab bar or address bar. Options live in a menu
 // opened by right-click, double-click, or the ⋯ button that appears on hover.
-// The ⠿ grip moves the card: in the sidebar it's an HTML drag (reorder); in
-// the workspace the grid library uses it as its drag handle.
 //
+// Grab a card anywhere (except buttons, links, text boxes, see NOT_DRAGGABLE)
+// to move it. In the workspace the grid library handles that; in the sidebar
+// the card becomes an HTML drag (to reorder) when pressed on an empty spot.
 // Clicks inside embedded players (Spotify, Google Calendar) go to that site,
-// not to us, which is why the hover handle exists.
+// so those cards are grabbed by the strip or ⠿ grip on top.
 //
 // With `colorable`, the menu has "Card color…" and the chosen background is
 // saved under style:<widgetId>.
@@ -24,12 +26,14 @@ export default function WidgetCard({
   menuItems,
   colorable,
   getSpotifyEmbedUrl,
-  gridHandle,
   onDragStart,
   onDragEnd,
   children,
 }) {
   const [menu, setMenu] = useState(null)
+  // Sidebar only: the card is draggable while pressed on an empty spot, so
+  // selecting text in its inputs still works.
+  const [armed, setArmed] = useState(false)
   const [picker, setPicker] = useState(null)
   const [style, setStyle] = useStoreValue(`style:${widgetId}`, NO_STYLE, isStyle)
   const closeMenu = useCallback(() => setMenu(null), [])
@@ -56,18 +60,20 @@ export default function WidgetCard({
       className={`card card-${type}${color ? (isDark(color) ? ' card-colored card-dark' : ' card-colored card-light') : ''}`}
       style={color ? { '--card-bg': color } : undefined}
       aria-label={title}
+      title="Drag to move · Right-click for options"
       onContextMenu={openMenuAt}
       onDoubleClick={handleDoubleClick}
+      draggable={armed}
+      onMouseDown={(event) => onDragStart && !event.target.closest(NOT_DRAGGABLE) && setArmed(true)}
+      onMouseUp={() => setArmed(false)}
+      onDragStart={onDragStart}
+      onDragEnd={(event) => {
+        setArmed(false)
+        onDragEnd?.(event)
+      }}
     >
       <div className="card-handle">
-        <span
-          className={`card-grip${gridHandle ? ' grid-drag-handle' : ''}`}
-          draggable={!gridHandle && !!onDragStart}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          title={gridHandle ? 'Drag to move' : 'Drag to reorder'}
-          aria-hidden="true"
-        >
+        <span className="card-grip" aria-hidden="true">
           ⠿
         </span>
         <button

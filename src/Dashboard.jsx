@@ -169,7 +169,6 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
           menuItems={menuItemsFor(widget, area, isMaximized)}
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
-          gridHandle={area === 'workspace' && !isMaximized}
           {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
           <Component id={widget.id} />
