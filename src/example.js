@@ -89,12 +89,13 @@ export function exampleSeed() {
         { id: 'ex-sleeper', type: 'sleeper' },
       ],
       grid: [
-        { i: 'ex-search', x: 0, y: 0, w: 5, h: 7 },
-        { i: 'ex-claude', x: 5, y: 0, w: 3, h: 7 },
-        { i: 'ex-scores', x: 8, y: 0, w: 4, h: 7 },
-        { i: 'ex-news', x: 0, y: 7, w: 7, h: 8 },
-        { i: 'ex-sleeper', x: 7, y: 7, w: 5, h: 8 },
+        { i: 'ex-search', x: 0, y: 0, w: 20, h: 46 },
+        { i: 'ex-claude', x: 20, y: 0, w: 12, h: 46 },
+        { i: 'ex-scores', x: 32, y: 0, w: 16, h: 46 },
+        { i: 'ex-news', x: 0, y: 46, w: 28, h: 52 },
+        { i: 'ex-sleeper', x: 28, y: 46, w: 20, h: 52 },
       ],
+      gridVersion: 2,
     },
     'widget:ex-spotify': { url: EXAMPLE_PLAYLIST },
     'widget:ex-todo': [

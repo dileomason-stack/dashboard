@@ -1,11 +1,9 @@
+import { useState } from 'react'
 import ReactGridLayout, { bottom, useContainerWidth } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { COLS, createPushDownCompactor, GAP, ROW_HEIGHT } from './lib/grid.js'
 import { WIDGETS } from './widgets/registry.js'
-
-export const ROW_HEIGHT = 40
-const COLS = 12
-const MARGIN = 12
 
 // Saved position + the widget type's min size. A widget with no saved
 // position goes at the bottom, and nothing is ever smaller than its minimum.
@@ -29,12 +27,18 @@ function buildLayout(widgets, grid) {
 // Keep only the fields worth saving.
 const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 
-// The open area next to the sidebar: a free grid where widgets can be
-// dragged by their ⠿ grip (or tab bar on phones) and resized from the
-// bottom-right corner.
+// The open area next to the sidebar. Cards are dragged by their ⠿ grip (or
+// tab bar on phones) and stay exactly where they're dropped: nothing slides up
+// to fill gaps. Dropping onto another card pushes that card down, so cards
+// never hide each other. Resize from the sides, bottom, or bottom corners.
 export default function Workspace({ widgets, grid, onGridChange, onAddWidget, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid)
+  // Created once. It remembers which card is being dragged/resized, since that
+  // card wins any overlap.
+  const [compactor] = useState(createPushDownCompactor)
+  const setActive = (current, item) => compactor.setActive(item?.i ?? null, current)
+  const clearActive = () => compactor.setActive(null)
 
   function handleLayoutChange(newLayout) {
     const positions = newLayout.map(pickPosition)
@@ -78,7 +82,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
     return (
       <div className="workspace stack" ref={containerRef}>
         {ordered.map((item) => (
-          <div key={item.i} style={{ height: item.h * ROW_HEIGHT + (item.h - 1) * MARGIN }}>
+          <div key={item.i} style={{ height: item.h * ROW_HEIGHT }}>
             {renderWidget(widgets.find((widget) => widget.id === item.i))}
           </div>
         ))}
@@ -92,12 +96,20 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
         <ReactGridLayout
           width={width}
           layout={layout}
-          gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [MARGIN, MARGIN] }}
+          gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
           dragConfig={{ handle: '.grid-drag-handle', cancel: '.widget-control' }}
+          resizeConfig={{ handles: ['e', 'w', 's', 'se', 'sw'] }}
+          compactor={compactor}
+          onDragStart={setActive}
+          onResizeStart={setActive}
+          onDragStop={clearActive}
+          onResizeStop={clearActive}
           onLayoutChange={handleLayoutChange}
         >
           {widgets.map((widget) => (
-            <div key={widget.id}>{renderWidget(widget)}</div>
+            <div key={widget.id} className="grid-cell">
+              {renderWidget(widget)}
+            </div>
           ))}
         </ReactGridLayout>
       )}

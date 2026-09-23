@@ -3,6 +3,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
+import { upgradeGrid } from './lib/grid.js'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
@@ -49,6 +50,13 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
   const sidebarWidgets = layout.sidebar.filter(known)
   const workspaceWidgets = layout.workspace.filter(known)
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
+
+  // Layouts saved before the fine grid get converted once.
+  useEffect(() => {
+    if (layout.gridVersion !== 2) {
+      setLayout((current) => ({ ...current, grid: upgradeGrid(current.grid), gridVersion: 2 }))
+    }
+  }, [layout.gridVersion, setLayout])
 
   useEffect(() => {
     if (!maximizedId) return

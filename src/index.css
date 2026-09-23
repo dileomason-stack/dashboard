@@ -1668,3 +1668,104 @@ a.canvas-title:hover {
 .standings li.me {
   font-weight: 700;
 }
+
+/* ---------- Free-form workspace grid ---------- */
+
+/* The gap between cards lives inside each cell, so grid rows are exact. */
+.grid-cell {
+  padding: 6px;
+}
+
+.react-grid-layout .react-grid-item.react-grid-placeholder {
+  background: transparent;
+  opacity: 1;
+}
+
+.react-grid-layout .react-grid-item.react-grid-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  border: 2px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Resize handles: invisible strips along the edges (the cursor shows where
+   they are), plus a small corner mark that appears on hover. */
+.react-grid-item > .react-resizable-handle {
+  background-image: none;
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  display: none;
+}
+
+.react-grid-item > .react-resizable-handle-e,
+.react-grid-item > .react-resizable-handle-w {
+  top: 24px;
+  bottom: 24px;
+  width: 10px;
+  height: auto;
+  margin: 0;
+  transform: none;
+  cursor: ew-resize;
+}
+
+.react-grid-item > .react-resizable-handle-e {
+  right: 0;
+}
+
+.react-grid-item > .react-resizable-handle-w {
+  left: 0;
+}
+
+.react-grid-item > .react-resizable-handle-s {
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  width: auto;
+  height: 10px;
+  margin: 0;
+  transform: none;
+  cursor: ns-resize;
+}
+
+.react-grid-item > .react-resizable-handle-se,
+.react-grid-item > .react-resizable-handle-sw {
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  transform: none;
+}
+
+.react-grid-item > .react-resizable-handle-se {
+  right: 0;
+  cursor: nwse-resize;
+}
+
+.react-grid-item > .react-resizable-handle-sw {
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.react-grid-item:hover > .react-resizable-handle-se::after,
+.react-grid-item:hover > .react-resizable-handle-sw::after {
+  display: block;
+  content: '';
+  position: absolute;
+  bottom: 9px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--text-muted);
+}
+
+.react-grid-item:hover > .react-resizable-handle-se::after {
+  right: 9px;
+  border-right: 2px solid var(--text-muted);
+}
+
+.react-grid-item:hover > .react-resizable-handle-sw::after {
+  left: 9px;
+  border-left: 2px solid var(--text-muted);
+}
