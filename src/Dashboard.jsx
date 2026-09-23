@@ -5,8 +5,8 @@ import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
-import SidebarCard from './SidebarCard.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
+import WidgetCard from './WidgetCard.jsx'
 import WidgetFrame from './WidgetFrame.jsx'
 import { OWN_DEFAULT_LAYOUT, WIDGETS } from './widgets/registry.js'
 import Workspace from './Workspace.jsx'
@@ -108,7 +108,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     })
   }
 
-  function menuItemsFor(widget) {
+  function menuItemsFor(widget, area, isMaximized) {
     const { editLabel, tab } = WIDGETS[widget.type]
     return [
       editLabel && { label: editLabel, onSelect: () => store.set(widgetDataKey(widget.id), {}) },
@@ -116,8 +116,13 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
         label: `Open ${tab.address}`,
         onSelect: () => window.open(tab.href, '_blank', 'noopener,noreferrer'),
       },
-      { label: 'Full screen', onSelect: () => setMaximizedId(widget.id) },
-      { label: 'Move to workspace', onSelect: () => moveWidget(widget.id) },
+      isMaximized
+        ? { label: 'Exit full screen', onSelect: () => setMaximizedId(null) }
+        : { label: 'Full screen', onSelect: () => setMaximizedId(widget.id) },
+      !isMaximized && {
+        label: area === 'sidebar' ? 'Move to workspace' : 'Move to sidebar',
+        onSelect: () => moveWidget(widget.id),
+      },
       { label: 'Remove', danger: true, onSelect: () => removeWidget(widget.id) },
     ].filter(Boolean)
   }
@@ -148,19 +153,22 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
   function renderWidget(widget, area, dragProps = {}) {
     const { tab, component: Component } = WIDGETS[widget.type]
     const isMaximized = maximizedId === widget.id
-    if (area === 'sidebar' && !isMaximized && !stacked) {
+    // Phones get the browser-window frame, whose buttons are always visible
+    // (no hover or right-click there). Everywhere else widgets are cards.
+    if (!stacked) {
       return (
-        <SidebarCard
+        <WidgetCard
           widgetId={widget.id}
           type={widget.type}
           title={tab.title}
-          menuItems={menuItemsFor(widget)}
+          menuItems={menuItemsFor(widget, area, isMaximized)}
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
-          {...dragProps}
+          gridHandle={area === 'workspace' && !isMaximized}
+          {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
           <Component id={widget.id} />
-        </SidebarCard>
+        </WidgetCard>
       )
     }
     return (

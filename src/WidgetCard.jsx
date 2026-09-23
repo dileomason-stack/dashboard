@@ -7,22 +7,24 @@ import { useStoreValue } from './storage.js'
 const NO_STYLE = {}
 const isStyle = (value) => value && typeof value === 'object'
 
-// Sidebar widgets are plain cards: no tab bar or address bar. Options live in
-// a menu opened by right-click, double-click, or the ⋯ button that appears on
-// hover. The ⠿ grip drags the card to a new spot in the sidebar.
+// Widgets are plain cards: no tab bar or address bar. Options live in a menu
+// opened by right-click, double-click, or the ⋯ button that appears on hover.
+// The ⠿ grip moves the card: in the sidebar it's an HTML drag (reorder); in
+// the workspace the grid library uses it as its drag handle.
 //
 // Clicks inside embedded players (Spotify, Google Calendar) go to that site,
 // not to us, which is why the hover handle exists.
 //
 // With `colorable`, the menu has "Card color…" and the chosen background is
 // saved under style:<widgetId>.
-export default function SidebarCard({
+export default function WidgetCard({
   widgetId,
   type,
   title,
   menuItems,
   colorable,
   getSpotifyEmbedUrl,
+  gridHandle,
   onDragStart,
   onDragEnd,
   children,
@@ -59,11 +61,11 @@ export default function SidebarCard({
     >
       <div className="card-handle">
         <span
-          className="card-grip"
-          draggable
+          className={`card-grip${gridHandle ? ' grid-drag-handle' : ''}`}
+          draggable={!gridHandle && !!onDragStart}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
-          title="Drag to reorder"
+          title={gridHandle ? 'Drag to move' : 'Drag to reorder'}
           aria-hidden="true"
         >
           ⠿

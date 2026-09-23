@@ -30,7 +30,8 @@ function buildLayout(widgets, grid) {
 const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 
 // The open area next to the sidebar: a free grid where widgets can be
-// dragged by their tab bar and resized from the bottom-right corner.
+// dragged by their ⠿ grip (or tab bar on phones) and resized from the
+// bottom-right corner.
 export default function Workspace({ widgets, grid, onGridChange, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid)
@@ -72,7 +73,7 @@ export default function Workspace({ widgets, grid, onGridChange, renderWidget, s
           width={width}
           layout={layout}
           gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [MARGIN, MARGIN] }}
-          dragConfig={{ handle: '.widget-chrome', cancel: '.widget-control' }}
+          dragConfig={{ handle: '.grid-drag-handle', cancel: '.widget-control' }}
           onLayoutChange={handleLayoutChange}
         >
           {widgets.map((widget) => (

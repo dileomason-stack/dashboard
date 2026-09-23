@@ -316,6 +316,15 @@ button:focus-visible {
   height: 100%;
 }
 
+/* A full-screen card always shows its ⠿ ⋯ handle (for "Exit full screen"). */
+.maximized-window .card-handle {
+  opacity: 1;
+}
+
+.react-grid-item.react-draggable-dragging .card-grip {
+  cursor: grabbing;
+}
+
 .maximized-placeholder {
   height: 100%;
   display: flex;
@@ -643,7 +652,8 @@ a.address:hover {
 
 /* ---------- Google search ---------- */
 
-.widget-body:has(.google) {
+.widget-body:has(.google),
+.card-body:has(.google) {
   padding: 0;
   container-type: size;
 }
@@ -949,8 +959,13 @@ a.canvas-title:hover {
 
 /* ---------- Claude ---------- */
 
-.widget-body:has(.claude) {
+.widget-body:has(.claude),
+.card:has(.claude) {
   background: var(--claude-bg);
+}
+
+.widget-body:has(.claude),
+.card-body:has(.claude) {
   container-type: size;
 }
 
@@ -1181,7 +1196,7 @@ a.canvas-title:hover {
 
 /* Colored cards re-define the color tokens so every widget inside (inputs,
    chips, highlights, muted text) stays readable on the chosen background. */
-.card-colored {
+.card.card-colored {
   background: var(--card-bg);
   border-color: transparent;
 }
