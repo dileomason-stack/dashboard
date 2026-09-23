@@ -62,7 +62,7 @@ export const WIDGETS = {
   },
   search: {
     title: 'Google Search',
-    description: 'Search Google in a new tab',
+    description: 'Real Google results right in the card',
     component: SearchWidget,
     size: { w: 6, h: 6, minW: 4, minH: 5 },
     tab: { title: 'Google', address: 'google.com', href: 'https://www.google.com', icon: GoogleIcon },
@@ -76,24 +76,13 @@ export const WIDGETS = {
   },
 }
 
-// "Build your own" starts with the same layout as the example, but every
-// widget empty and showing its setup screen.
+// "Build your own" starts blank: no widgets and the sidebar closed. The empty
+// workspace offers one-click buttons to add each widget.
 export const OWN_DEFAULT_LAYOUT = {
-  sidebarOpen: true,
+  sidebarOpen: false,
   sidebarSize: 28,
-  sidebar: [
-    { id: 'my-spotify', type: 'spotify' },
-    { id: 'my-todo', type: 'todo' },
-    { id: 'my-canvas', type: 'canvas' },
-    { id: 'my-calendar', type: 'calendar' },
-  ],
-  sidebarSizes: { 'my-spotify': 22, 'my-todo': 24, 'my-canvas': 28, 'my-calendar': 26 },
-  workspace: [
-    { id: 'my-search', type: 'search' },
-    { id: 'my-claude', type: 'claude' },
-  ],
-  grid: [
-    { i: 'my-search', x: 0, y: 0, w: 7, h: 8 },
-    { i: 'my-claude', x: 7, y: 0, w: 5, h: 8 },
-  ],
+  sidebar: [],
+  sidebarSizes: {},
+  workspace: [],
+  grid: [],
 }

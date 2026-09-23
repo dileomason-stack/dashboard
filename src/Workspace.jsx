@@ -32,7 +32,7 @@ const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 // The open area next to the sidebar: a free grid where widgets can be
 // dragged by their ⠿ grip (or tab bar on phones) and resized from the
 // bottom-right corner.
-export default function Workspace({ widgets, grid, onGridChange, renderWidget, stacked }) {
+export default function Workspace({ widgets, grid, onGridChange, onAddWidget, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid)
 
@@ -44,10 +44,30 @@ export default function Workspace({ widgets, grid, onGridChange, renderWidget, s
   if (widgets.length === 0) {
     return (
       <div className="workspace" ref={containerRef}>
-        <div className="empty-area">
-          <h2>This space is yours</h2>
-          <p>Use “+ Add widget” to put something here, or move a widget over from the sidebar with ⇄.</p>
-        </div>
+        {showStarter ? (
+          <div className="empty-area starter">
+            <h2>Start building your dashboard</h2>
+            <p>Click a widget to add it. Drag it by its ⠿ grip, resize it from the corner, and right-click for more.</p>
+            <div className="starter-grid">
+              {Object.entries(WIDGETS).map(([type, widget]) => {
+                const Icon = widget.tab.icon
+                return (
+                  <button key={type} type="button" className="starter-button" onClick={() => onAddWidget(type)}>
+                    <Icon />
+                    <strong>{widget.title}</strong>
+                    <span>{widget.description}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="setup-note">Want a sidebar? Use “+ Add widget” and choose Sidebar.</p>
+          </div>
+        ) : (
+          <div className="empty-area">
+            <h2>This space is yours</h2>
+            <p>Use “+ Add widget” to put something here, or move a card over from the sidebar (right-click → Move to workspace).</p>
+          </div>
+        )}
       </div>
     )
   }

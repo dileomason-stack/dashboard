@@ -132,13 +132,10 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       onResetExample()
       return
     }
-    if (!window.confirm('Reset your dashboard to the starting layout? Widgets you added will be removed.')) return
-    const keep = new Set([...OWN_DEFAULT_LAYOUT.sidebar, ...OWN_DEFAULT_LAYOUT.workspace].map((widget) => widget.id))
+    if (!window.confirm('Clear your dashboard? All widgets and what’s in them (to-dos, links) will be removed.')) return
     for (const widget of [...layout.sidebar, ...layout.workspace]) {
-      if (!keep.has(widget.id)) {
-        store.remove(widgetDataKey(widget.id))
-        store.remove(`style:${widget.id}`)
-      }
+      store.remove(widgetDataKey(widget.id))
+      store.remove(`style:${widget.id}`)
     }
     setMaximizedId(null)
     setLayout(OWN_DEFAULT_LAYOUT)
@@ -209,6 +206,8 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       widgets={workspaceWidgets}
       grid={layout.grid}
       onGridChange={(grid) => update(() => ({ grid }))}
+      onAddWidget={(type) => addWidget(type, 'workspace')}
+      showStarter={sidebarWidgets.length === 0}
       renderWidget={renderSlot('workspace')}
       stacked={stacked}
     />
@@ -232,7 +231,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
         <div className="toolbar-actions">
           <AddWidgetMenu onAdd={addWidget} />
           <button type="button" onClick={resetLayout}>
-            Reset
+            {store.example ? 'Reset' : 'Clear all'}
           </button>
           {!store.example && (
             <button type="button" className="link-button" onClick={onViewExample}>
