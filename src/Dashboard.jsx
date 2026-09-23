@@ -47,6 +47,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
   const stacked = useWindowWidth() < STACK_BELOW
 
   const sidebarWidgets = layout.sidebar.filter(known)
+  const sidebarMinWidth = Math.max(240, ...sidebarWidgets.map((widget) => WIDGETS[widget.type].sidebarMinWidth ?? 0))
   const workspaceWidgets = layout.workspace.filter(known)
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
 
@@ -261,7 +262,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
               if (meta?.isUserInteraction && sizes.sidebar) update(() => ({ sidebarSize: sizes.sidebar }))
             }}
           >
-            <Panel id="sidebar" minSize={240} maxSize="65%" className="sidebar">
+            <Panel id="sidebar" minSize={sidebarMinWidth} maxSize="65%" className="sidebar">
               {sidebar}
             </Panel>
             <Separator className="resize-handle vertical" />
