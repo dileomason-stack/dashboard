@@ -11,6 +11,8 @@ import TodoWidget from './TodoWidget.jsx'
 import ToolWidget, { GameWidget } from './ToolWidget.jsx'
 import DailyWordWidget from './DailyWordWidget.jsx'
 import LinksWidget from './LinksWidget.jsx'
+import SnakeWidget from './SnakeWidget.jsx'
+import TypingWidget from './TypingWidget.jsx'
 import { GAMES, TOOLS } from '../lib/tools.js'
 import {
   CalendarIcon,
@@ -18,11 +20,13 @@ import {
   ClaudeIcon,
   GameIcon,
   GoogleIcon,
+  KeyboardIcon,
   LinksIcon,
   NewsIcon,
   NotesIcon,
   ScoresIcon,
   SleeperIcon,
+  SnakeIcon,
   SpotifyIcon,
   TodoIcon,
   ToolIcon,
@@ -171,6 +175,20 @@ export const WIDGETS = {
     component: LinksWidget,
     size: { w: 16, h: 30, minW: 10, minH: 16 },
     tab: { title: 'Links', address: 'Quick links', icon: LinksIcon },
+  },
+  snake: {
+    title: 'Snake',
+    description: 'The classic arcade game',
+    component: SnakeWidget,
+    size: { w: 14, h: 58, minW: 10, minH: 40 },
+    tab: { title: 'Snake', address: 'Snake', icon: SnakeIcon },
+  },
+  typing: {
+    title: 'Typing speed test',
+    description: 'How many words per minute can you type?',
+    component: TypingWidget,
+    size: { w: 24, h: 32, minW: 14, minH: 26 },
+    tab: { title: 'Typing test', address: 'Typing speed test', icon: KeyboardIcon },
   },
 }
 

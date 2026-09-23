@@ -2323,3 +2323,161 @@ a.canvas-title:hover {
   flex-direction: column;
   gap: 6px;
 }
+
+/* ---------- Snake ---------- */
+
+.card-body:has(.snake) {
+  container-type: size;
+}
+
+.snake {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  outline: none;
+  cursor: default;
+}
+
+.snake-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.snake-header strong {
+  color: var(--text);
+}
+
+.snake-board {
+  position: relative;
+  width: min(100%, calc(100cqh - 90px));
+  aspect-ratio: 1;
+}
+
+.snake-board canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 0.45);
+  color: #fff;
+  text-align: center;
+}
+
+.snake-overlay p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.snake-hint {
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.snake:focus-visible .snake-board {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.snake-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 34px);
+  gap: 4px;
+}
+
+.snake-pad button {
+  height: 26px;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+/* ---------- Typing test ---------- */
+
+.typing {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: text;
+}
+
+.typing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.typing-header .segmented-tabs {
+  margin: 0;
+  width: 110px;
+}
+
+.typing-timer {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.typing-text {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.typing-text .right {
+  color: var(--text);
+}
+
+.typing-text .wrong {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+}
+
+.typing-text .cursor {
+  border-left: 2px solid var(--accent);
+  margin-left: -2px;
+}
+
+.typing-input {
+  flex: none;
+}
+
+.typing-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.typing-stats strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.typing-stats .link-button {
+  margin-left: auto;
+}

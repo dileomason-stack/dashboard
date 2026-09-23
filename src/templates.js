@@ -52,7 +52,7 @@ export const TEMPLATES = {
       }),
   },
   fun: {
-    label: '🎮 Fun: daily word, HoopGrids, Globle, chess, game links',
+    label: '🎮 Fun: daily word, Snake, typing test, HoopGrids, chess, 2048…',
     name: '🎮 Fun',
     build: (idFor) =>
       assemble(idFor, {
@@ -82,6 +82,9 @@ export const TEMPLATES = {
           ['game', 33, 0, 15, 58, { tool: 'chesspuzzle' }],
           ['game', 0, 58, 24, 52, { tool: 'costcodle' }],
           ['game', 24, 58, 24, 52, { tool: 'framed' }],
+          ['snake', 0, 110, 14, 58],
+          ['typing', 14, 110, 20, 34],
+          ['game', 34, 110, 14, 58, { tool: 'g2048' }],
         ],
       }),
   },

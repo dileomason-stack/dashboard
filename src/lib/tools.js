@@ -24,4 +24,9 @@ export const GAMES = {
   chesspuzzle: { name: 'Chess puzzle of the day', url: 'https://lichess.org/training/frame', address: 'lichess.org' },
   chesstv: { name: 'Live chess (Lichess TV)', url: 'https://lichess.org/tv/frame', address: 'lichess.org' },
   coolmath: { name: 'Coolmath Games', url: 'https://www.coolmathgames.com', address: 'coolmathgames.com' },
+  g2048: { name: '2048', url: 'https://www.2048.org', address: '2048.org' },
+  solitaire: { name: 'Solitaire', url: 'https://www.solitr.com', address: 'solitr.com' },
+  dino: { name: 'Chrome Dino runner', url: 'https://chromedino.com', address: 'chromedino.com' },
+  sporcle: { name: 'Sporcle quizzes', url: 'https://www.sporcle.com', address: 'sporcle.com' },
+  minesweeper: { name: 'Minesweeper', url: 'https://minesweeper.online', address: 'minesweeper.online' },
 }

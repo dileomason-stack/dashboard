@@ -210,3 +210,22 @@ export function LinksIcon() {
     </svg>
   )
 }
+
+export function SnakeIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#1c2a1c" />
+      <path d="M3 12h5V8h5V4" fill="none" stroke="#4ade80" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12.5" cy="11.5" r="1.4" fill="#ef4444" />
+    </svg>
+  )
+}
+
+export function KeyboardIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0.5" y="3.5" width="15" height="9" rx="2" fill="#374151" />
+      <path d="M3 6.2h1M5.5 6.2h1M8 6.2h1M10.5 6.2h1M13 6.2h0.5M3 8.2h1M5.5 8.2h1M8 8.2h1M10.5 8.2h1M4.5 10.3h7" stroke="#fff" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  )
+}
