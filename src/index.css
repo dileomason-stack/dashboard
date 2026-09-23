@@ -33,8 +33,10 @@
   color-scheme: light dark;
 }
 
+/* Follows the computer's dark mode unless the dashboard is set to Light
+   (data-theme on <html>, see Dashboard.jsx). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #141414;
     --surface: #1f1f1f;
     --surface-muted: #2a2a2a;
@@ -127,6 +129,8 @@ button:focus-visible {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .toolbar {
@@ -714,17 +718,31 @@ a.address:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  .google-search {
+  :root:not([data-theme='light']) .google-search {
     background: #303134;
     border-color: #5f6368;
     box-shadow: none;
   }
 
-  .google-search:hover,
-  .google-search:focus-within {
+  :root:not([data-theme='light']) .google-search:hover,
+  :root:not([data-theme='light']) .google-search:focus-within {
     background: #3c4043;
     box-shadow: none;
   }
+}
+
+:root[data-theme='dark'] .google-search {
+  background: #303134;
+  border-color: #5f6368;
+  box-shadow: none;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 /* ---------- Link setup (empty states) ---------- */
@@ -2604,7 +2622,7 @@ a.canvas-title:hover {
 
 /* ---------- Dark dashboard ("game room") ---------- */
 
-.app.theme-dark {
+:root[data-theme='dark'] {
   --bg: #0e1014;
   --surface: #1a1d23;
   --surface-muted: #242831;
@@ -2621,15 +2639,18 @@ a.canvas-title:hover {
   --claude-border: #3a3935;
   --warning-bg: rgb(255 170 60 / 0.14);
   --warning-text: #fbbf24;
-  background: var(--bg);
+  --chrome: #202124;
+  --chrome-border: #3c4043;
+  --chrome-hover: #4a4c50;
+  --tab: #35363a;
+  --omnibox: #202124;
+}
+
+:root[data-theme='dark'] .app button:not(.primary):not(.dash-tab):not(.dash-tab-add) {
   color: var(--text);
 }
 
-.app.theme-dark button:not(.primary):not(.dash-tab):not(.dash-tab-add) {
-  color: var(--text);
-}
-
-.app.theme-dark .dash-tab.active {
+:root[data-theme='dark'] .dash-tab.active {
   background: var(--surface-muted);
 }
 
@@ -2838,4 +2859,62 @@ a.canvas-title:hover {
 
 .example-tips li + li::before {
   content: '';
+}
+
+/* ---------- Share (QR code) ---------- */
+
+.share-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.share-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 28px 36px;
+  border-radius: 20px;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.35);
+  text-align: center;
+}
+
+.share-kicker {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2f6fed;
+}
+
+.share-qr {
+  width: min(56vh, 420px, 80vw);
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.share-url {
+  margin: 0;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.share-note {
+  margin: 0 0 6px;
+  color: #666;
+}
+
+.share-card button:not(.primary) {
+  background: #f2f2f2;
+  color: #111;
+  border-color: #ddd;
 }

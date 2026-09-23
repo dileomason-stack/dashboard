@@ -58,7 +58,13 @@ export default function ArcadeWidget({ id }) {
             <BuiltIn id={`${id}-${current}`} />
           </div>
         ) : (
-          <iframe key={current} title={embedded.name} src={embedded.url} allow="clipboard-read; clipboard-write; fullscreen" />
+          <iframe
+            key={current}
+            title={embedded.name}
+            src={embedded.url}
+            loading="lazy"
+            allow="clipboard-read; clipboard-write; fullscreen"
+          />
         )}
       </div>
     </div>

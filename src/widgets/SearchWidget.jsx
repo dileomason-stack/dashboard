@@ -167,6 +167,7 @@ export default function SearchWidget() {
           setFrameLoads((count) => count + 1)
         }}
         title={`Google results for ${query}`}
+        loading="lazy"
         src={embeddedUrl(query)}
         // Google's page can run normally, but it can never take over the
         // dashboard tab itself; links that open new tabs still work.

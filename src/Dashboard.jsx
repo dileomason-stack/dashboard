@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
 import ColorPicker from './ColorPicker.jsx'
+import ShareDialog from './ShareDialog.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
@@ -53,6 +54,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   // or every card on this dashboard.
   const [colorsPicker, setColorsPicker] = useState(null)
   const [colorScope, setColorScope] = useState('sidebar')
+  const [sharing, setSharing] = useState(false)
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
@@ -80,6 +82,13 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [maximizedId])
+
+  // Light / Dark forces this dashboard's look; no theme follows the computer.
+  // Set on <html> so menus and pop-ups (drawn outside .app) match too.
+  useEffect(() => {
+    if (layout.theme) document.documentElement.dataset.theme = layout.theme
+    else delete document.documentElement.dataset.theme
+  }, [layout.theme])
 
   // Scroll a newly added card into view, then let its glow fade.
   useEffect(() => {
@@ -307,7 +316,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   )
 
   return (
-    <div className={`app${layout.theme === 'dark' ? ' theme-dark' : ''}`}>
+    <div className="app">
       <header className="toolbar">
         <div className="toolbar-start">
           <button
@@ -336,6 +345,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           {tabs}
         </div>
         <div className="toolbar-actions">
+          <button type="button" onClick={() => setSharing(true)} title="Show a QR code and link to this site">
+            📱 Share
+          </button>
           <AddWidgetMenu onAdd={addWidget} />
           <button type="button" onClick={resetLayout}>
             {store.example ? 'Reset' : 'Clear all'}
@@ -410,6 +422,8 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
 
       <Dock widgets={dockWidgets} tabFor={tabFor} onRestore={restoreWidget} />
 
+      {sharing && <ShareDialog onClose={() => setSharing(false)} />}
+
       {colorsPicker && (
         <ColorPicker
           title="Colors"
@@ -423,8 +437,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         >
           <div className="segmented-tabs" role="radiogroup" aria-label="Dashboard background">
             {[
-              [undefined, '☀️ Normal'],
+              ['light', '☀️ Light'],
               ['dark', '🌙 Dark'],
+              [undefined, '💻 Auto'],
             ].map(([theme, label]) => (
               <button
                 key={label}

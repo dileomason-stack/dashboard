@@ -78,6 +78,9 @@ export function exampleSeed() {
     toolCount[type] = (toolCount[type] ?? 0) + 1
     return `ext-${type}-${toolCount[type]}`
   })
+  // Alex's dashboards stay light even on a dark-mode computer (projectors
+  // show light screens better); only 🎮 Fun is dark.
+  tools.layout.theme = 'light'
   const toolsData = Object.fromEntries(Object.entries(tools.data).map(([id, settings]) => [`widget:${id}`, settings]))
   // …and 🎮 Fun is the Fun template.
   const funCount = {}
@@ -102,6 +105,7 @@ export function exampleSeed() {
       activeId: 'morning',
     },
     layout: {
+      theme: 'light',
       sidebarOpen: true,
       sidebarSize: 28,
       sidebar: [
@@ -145,6 +149,7 @@ export function exampleSeed() {
     'style:ex-sleeper': { background: '#18202f' },
     // ☀️ Morning check: what's today, what's due, and the news.
     'layout:morning': {
+      theme: 'light',
       sidebarOpen: true,
       sidebarSize: 28,
       sidebar: [
@@ -180,6 +185,7 @@ export function exampleSeed() {
     'widget:exm-mail': { sample: true, read: {} },
     // 💻 CSC 202 project: music, project tasks, and help when stuck.
     'layout:project': {
+      theme: 'light',
       sidebarOpen: true,
       sidebarSize: 26,
       sidebar: [
