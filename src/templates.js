@@ -72,6 +72,8 @@ export const TEMPLATES = {
                 ['Travle', 'https://travle.earth'],
                 ['Flagle', 'https://www.flagle.io'],
                 ['Metazooa', 'https://www.metazooa.com'],
+                // The official game is a phone app (browser copies are unofficial).
+                ['Bus Traffic Fever', 'https://play.google.com/store/apps/details?id=jp.co.goodroid.hyper.busflow'],
               ].map(([title, url], index) => ({ id: `game-link-${index}`, title, url })),
             },
           ],
