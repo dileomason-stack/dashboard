@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import UseBadge from './UseBadge.jsx'
 import { WIDGETS } from './widgets/registry.js'
 
 export default function AddWidgetMenu({ onAdd }) {
@@ -65,7 +66,9 @@ export default function AddWidgetMenu({ onAdd }) {
                   setOpen(false)
                 }}
               >
-                <strong>{widget.title}</strong>
+                <strong>
+                  {widget.title} <UseBadge use={widget.use} />
+                </strong>
                 <span>{widget.description}</span>
               </button>
             </li>

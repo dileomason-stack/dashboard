@@ -234,6 +234,15 @@ export const WIDGETS = {
   },
 }
 
+// What each card does, shown as a badge (see UseBadge.jsx): 'live' works
+// fully in the card, 'preview' shows it at a glance, 'jump' opens the real app.
+const USE = {
+  live: ['todo', 'spotify', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
+  preview: ['canvas', 'calendar', 'scores', 'news', 'sleeper', 'googlefile'],
+  jump: ['claude', 'inbox', 'links'],
+}
+for (const [use, types] of Object.entries(USE)) for (const type of types) WIDGETS[type].use = use
+
 // A card's tab info: the type's, adjusted by tabFor for that card's settings.
 export function tabOf(widget, settings) {
   const { tab, tabFor } = WIDGETS[widget.type]

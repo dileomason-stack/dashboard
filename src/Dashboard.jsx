@@ -7,6 +7,7 @@ import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
 import { COLS, upgradeGrid } from './lib/grid.js'
+import { openExternal, setOpenMode, useOpenMode } from './lib/openExternal.js'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
@@ -55,6 +56,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const [colorsPicker, setColorsPicker] = useState(null)
   const [colorScope, setColorScope] = useState('sidebar')
   const [sharing, setSharing] = useState(false)
+  const openMode = useOpenMode()
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
@@ -179,7 +181,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       editLabel && { label: editLabel, onSelect: () => store.set(widgetDataKey(widget.id), {}) },
       tab.href && {
         label: `Open ${tab.address}`,
-        onSelect: () => window.open(tab.href, '_blank', 'noopener,noreferrer'),
+        onSelect: () => openExternal(tab.href),
       },
       isMaximized
         ? { label: 'Exit full screen', onSelect: () => setMaximizedId(null) }
@@ -262,6 +264,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
           appColor={WIDGETS[widget.type].brandColor}
+          use={WIDGETS[widget.type].use}
           highlight={widget.id === newestId}
           {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
@@ -345,6 +348,17 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           {tabs}
         </div>
         <div className="toolbar-actions">
+          <button
+            type="button"
+            onClick={() => setOpenMode(openMode === 'side' ? 'tab' : 'side')}
+            title={
+              openMode === 'side'
+                ? 'Apps that can’t run in a card (Gmail, Claude, Docs editing…) open in a window beside your dashboard. Click to use new tabs instead.'
+                : 'Apps that can’t run in a card open in new tabs. Click to open them beside your dashboard instead.'
+            }
+          >
+            {openMode === 'side' ? '↗ Open beside' : '↗ New tabs'}
+          </button>
           <button type="button" onClick={() => setSharing(true)} title="Show a QR code and link to this site">
             📱 Share
           </button>

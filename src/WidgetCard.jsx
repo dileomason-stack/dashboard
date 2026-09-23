@@ -4,6 +4,7 @@ import ContextMenu from './ContextMenu.jsx'
 import { isDark, isValidHex } from './lib/colors.js'
 import { NOT_DRAGGABLE } from './lib/drag.js'
 import { useStoreValue } from './storage.js'
+import UseBadge from './UseBadge.jsx'
 
 const NO_STYLE = {}
 const isStyle = (value) => value && typeof value === 'object'
@@ -27,6 +28,7 @@ export default function WidgetCard({
   colorable,
   getSpotifyEmbedUrl,
   appColor,
+  use,
   highlight,
   onDragStart,
   onDragEnd,
@@ -74,22 +76,25 @@ export default function WidgetCard({
         onDragEnd?.(event)
       }}
     >
-      <div className="card-handle">
-        <span className="card-grip" aria-hidden="true">
-          ⠿
-        </span>
-        <button
-          type="button"
-          className="card-menu-button"
-          aria-label={`${title} options`}
-          aria-haspopup="menu"
-          onClick={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect()
-            setMenu({ x: rect.right - 180, y: rect.bottom + 4 })
-          }}
-        >
-          ⋯
-        </button>
+      <div className="card-top">
+        <UseBadge use={use} />
+        <div className="card-handle">
+          <span className="card-grip" aria-hidden="true">
+            ⠿
+          </span>
+          <button
+            type="button"
+            className="card-menu-button"
+            aria-label={`${title} options`}
+            aria-haspopup="menu"
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect()
+              setMenu({ x: rect.right - 180, y: rect.bottom + 4 })
+            }}
+          >
+            ⋯
+          </button>
+        </div>
       </div>
       <div className="card-body">{children}</div>
       {menu && <ContextMenu x={menu.x} y={menu.y} items={items} onClose={closeMenu} />}

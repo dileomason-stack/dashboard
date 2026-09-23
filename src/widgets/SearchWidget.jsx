@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { openExternal } from '../lib/openExternal.js'
 import { SearchIcon } from './icons.jsx'
 
 const LOGO = [
@@ -19,7 +20,7 @@ const embeddedUrl = (query) =>
   `https://www.google.com/search?igu=1&newwindow=1&q=${encodeURIComponent(query)}`
 
 function openInGoogle(query) {
-  window.open(query ? googleUrl(query) : 'https://www.google.com', '_blank', 'noopener,noreferrer')
+  openExternal(query ? googleUrl(query) : 'https://www.google.com')
 }
 
 // Asked once per page load and shared by every Google card.

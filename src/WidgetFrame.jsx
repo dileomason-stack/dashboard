@@ -1,8 +1,7 @@
+import { openExternal } from './lib/openExternal.js'
 import { DeviceIcon, LockIcon } from './widgets/icons.jsx'
 
-function openSite(href) {
-  window.open(href, '_blank', 'noopener,noreferrer')
-}
+const openSite = openExternal
 
 // Each widget is drawn as a small browser window: a tab with the site's icon
 // and name, an address bar, and the widget itself as the "page".

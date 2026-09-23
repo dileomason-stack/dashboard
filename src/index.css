@@ -2918,3 +2918,109 @@ a.canvas-title:hover {
   color: #111;
   border-color: #ddd;
 }
+
+/* ---------- What each card does (badges) ---------- */
+
+.card-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 22px;
+  padding: 3px 4px 0 10px;
+}
+
+.card-spotify .card-top {
+  height: 0;
+  padding: 0;
+}
+
+.card-top .card-handle {
+  margin-left: auto;
+}
+
+.use-badge {
+  display: inline-block;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+}
+
+.use-live {
+  color: #15803d;
+  background: color-mix(in srgb, #22c55e 14%, transparent);
+}
+
+.use-preview {
+  color: #1d4ed8;
+  background: color-mix(in srgb, #3b82f6 14%, transparent);
+}
+
+.use-jump {
+  color: #b45309;
+  background: color-mix(in srgb, #f59e0b 16%, transparent);
+}
+
+:root[data-theme='dark'] .use-live,
+.card-dark .use-live {
+  color: #86efac;
+}
+
+:root[data-theme='dark'] .use-preview,
+.card-dark .use-preview {
+  color: #93c5fd;
+}
+
+:root[data-theme='dark'] .use-jump,
+.card-dark .use-jump {
+  color: #fcd34d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .use-live { color: #86efac; }
+  :root:not([data-theme='light']) .use-preview { color: #93c5fd; }
+  :root:not([data-theme='light']) .use-jump { color: #fcd34d; }
+}
+
+.add-menu-list strong .use-badge,
+.starter-button .use-badge {
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+/* ---------- Google file: view-only bar ---------- */
+
+.google-file {
+  display: flex;
+  flex-direction: column;
+}
+
+.google-file-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.google-file-bar button {
+  padding: 3px 10px;
+  font-size: 0.8rem;
+}
+
+.google-file iframe {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}

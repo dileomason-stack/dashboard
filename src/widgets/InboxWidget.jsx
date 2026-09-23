@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { openExternal } from '../lib/openExternal.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 
 // Gmail can't be shown inside other sites, so this card offers quick ways in:
@@ -8,7 +9,7 @@ const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 
 const GMAIL = 'https://mail.google.com/mail/u/0/'
-const open = (url) => window.open(url, '_blank', 'noopener,noreferrer')
+const open = openExternal
 
 const SAMPLE_EMAILS = [
   { id: 'e1', from: 'Prof. Kim', subject: 'CSC 202 Lab 4: extension until Friday', snippet: 'Hi all, a few of you asked about the linked list lab…', time: '9:12 AM' },
@@ -78,7 +79,7 @@ export default function InboxWidget({ id }) {
         </>
       ) : (
         <p className="setup-note">
-          Gmail doesn’t allow itself to be shown inside other websites, so these open it in a new tab.
+          Gmail doesn’t allow itself to be shown inside other websites, so these open it beside your dashboard.
         </p>
       )}
     </div>

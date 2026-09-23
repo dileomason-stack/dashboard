@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { routeLinksBeside } from './lib/openExternal.js'
 import Dashboard from './Dashboard.jsx'
 import DashboardTabs from './DashboardTabs.jsx'
 import { exampleSeed } from './example.js'
@@ -25,6 +26,9 @@ export default function App() {
   const [store, setStore] = useState(() => storeFor(readJSON(MODE_KEY, 'example') === 'own' ? 'own' : 'example'))
   // Bumped on every switch so the dashboard starts fresh (no leftover full-screen widget, etc.).
   const [generation, setGeneration] = useState(0)
+
+  // Links that leave the dashboard open beside it (see openExternal.js).
+  useEffect(routeLinksBeside, [])
 
   function switchTo(mode) {
     writeJSON(MODE_KEY, mode)

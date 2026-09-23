@@ -5,6 +5,7 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { NOT_DRAGGABLE } from './lib/drag.js'
 import { COLS, createPushDownCompactor, GAP, ROW_HEIGHT } from './lib/grid.js'
+import UseBadge from './UseBadge.jsx'
 import { WIDGETS } from './widgets/registry.js'
 
 // Saved position + the widget type's min size. A widget with no saved
@@ -92,6 +93,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
                   <button key={type} type="button" className="starter-button" onClick={() => onAddWidget(type)}>
                     <Icon />
                     <strong>{widget.title}</strong>
+                    <UseBadge use={widget.use} />
                     <span>{widget.description}</span>
                   </button>
                 )
