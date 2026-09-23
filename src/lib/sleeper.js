@@ -22,8 +22,29 @@ export function checkUsername(input) {
   return { ok: true, username: text }
 }
 
+// Slot names Sleeper uses for flex spots, shortened for the card.
+const SLOT_LABELS = { SUPER_FLEX: 'SF', WRRB_FLEX: 'W/R', REC_FLEX: 'W/T', IDP_FLEX: 'IDP' }
+const slotLabel = (slot) => SLOT_LABELS[slot] ?? slot
+
+// Which projection matches the league's scoring (points per reception).
+function scoringKey(league) {
+  const rec = league.scoring_settings?.rec ?? 1
+  return rec >= 1 ? 'ppr' : rec > 0 ? 'half' : 'std'
+}
+
+async function loadPlayerDetails(ids, season, week) {
+  if (ids.length === 0) return {}
+  try {
+    const response = await fetch(`/api/sleeper-players?ids=${ids.join(',')}&season=${season}&week=${week}`)
+    if (!response.ok) return {}
+    return (await response.json()).players ?? {}
+  } catch {
+    return {}
+  }
+}
+
 // Everything the widget shows for one user: their leagues, and for the chosen
-// league this week's matchup and the standings.
+// league this week's matchup, their roster, waiver ideas, and the standings.
 export async function loadSleeper(username, leagueId) {
   const user = await get(`/user/${encodeURIComponent(username)}`)
   if (!user?.user_id) throw new Error(`No Sleeper account named “${username}”. Check the spelling.`)
@@ -35,10 +56,11 @@ export async function loadSleeper(username, leagueId) {
   if (leagues.length === 0) return { leagues: [], season, week }
 
   const league = leagues.find((item) => item.league_id === leagueId) ?? leagues[0]
-  const [rosters, users, matchups] = await Promise.all([
+  const [rosters, users, matchups, trending] = await Promise.all([
     get(`/league/${league.league_id}/rosters`),
     get(`/league/${league.league_id}/users`),
     get(`/league/${league.league_id}/matchups/${week}`),
+    get('/players/nfl/trending/add?lookback_hours=24&limit=60').catch(() => []),
   ])
 
   const teams = rosters.map((roster) => {
@@ -54,9 +76,49 @@ export async function loadSleeper(username, leagueId) {
     }
   })
   const me = teams.find((team) => team.isMe)
+  const myRoster = rosters.find((roster) => roster.owner_id === user.user_id)
   const myMatch = matchups?.find((item) => item.roster_id === me?.rosterId)
   const theirMatch = matchups?.find((item) => item.matchup_id === myMatch?.matchup_id && item.roster_id !== me?.rosterId)
   const opponent = teams.find((team) => team.rosterId === theirMatch?.roster_id)
+
+  // Roster: starters (by slot), bench, and injured reserve. '0' = empty slot.
+  const slots = (league.roster_positions ?? []).filter((slot) => slot !== 'BN' && slot !== 'IR')
+  const starterIds = myMatch?.starters ?? myRoster?.starters ?? []
+  const reserveIds = myRoster?.reserve ?? []
+  const benchIds = (myRoster?.players ?? []).filter((id) => !starterIds.includes(id) && !reserveIds.includes(id))
+  const theirStarters = (theirMatch?.starters ?? []).filter((id) => id && id !== '0')
+
+  // Waiver ideas: Sleeper's most-added players today that nobody in this
+  // league has rostered.
+  const rostered = new Set(rosters.flatMap((roster) => roster.players ?? []))
+  const available = (trending ?? []).filter((item) => !rostered.has(item.player_id)).slice(0, 12)
+
+  const details = await loadPlayerDetails(
+    [...starterIds, ...benchIds, ...reserveIds, ...theirStarters, ...available.map((item) => item.player_id)].filter(
+      (id) => id && id !== '0',
+    ),
+    season,
+    week,
+  )
+  const key = scoringKey(league)
+  const projOf = (id) => details[id]?.proj?.[key] ?? null
+  const projTotal = (ids) => ids.reduce((sum, id) => sum + (projOf(id) ?? 0), 0)
+  const livePoints = myMatch?.players_points ?? {}
+
+  const player = (id) => ({
+    id,
+    name: details[id]?.name ?? (id === '0' ? 'Empty' : `Player ${id}`),
+    pos: details[id]?.pos ?? '',
+    team: details[id]?.team ?? '',
+    injury: details[id]?.injury ?? '',
+    opponent: details[id]?.opponent ?? '',
+    proj: projOf(id),
+    points: livePoints[id] ?? null,
+  })
+
+  const myPoints = myMatch?.points ?? 0
+  const theirPoints = theirMatch?.points ?? 0
+  const started = myPoints > 0 || theirPoints > 0
 
   return {
     leagues: leagues.map((item) => ({ id: item.league_id, name: item.name })),
@@ -64,7 +126,18 @@ export async function loadSleeper(username, leagueId) {
     leagueName: league.name,
     season,
     week,
-    matchup: me && myMatch ? { me, opponent, myPoints: myMatch.points ?? 0, theirPoints: theirMatch?.points ?? 0 } : null,
+    matchup:
+      me && myMatch
+        ? started
+          ? { me, opponent, myPoints, theirPoints }
+          : { me, opponent, myPoints: projTotal(starterIds), theirPoints: projTotal(theirStarters), projected: true }
+        : null,
+    roster: {
+      starters: slots.map((slot, index) => ({ slot: slotLabel(slot), player: player(starterIds[index] ?? '0') })),
+      bench: benchIds.map(player),
+      reserve: reserveIds.map(player),
+    },
+    waivers: available.map((item) => ({ ...player(item.player_id), adds: item.count })),
     standings: [...teams].sort((a, b) => b.wins - a.wins || b.points - a.points),
   }
 }

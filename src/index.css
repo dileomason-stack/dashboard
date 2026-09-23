@@ -2131,3 +2131,14 @@ a.canvas-title:hover {
   font-weight: 700;
   color: #f5c518;
 }
+
+.player-row.static {
+  cursor: default;
+}
+
+.player-row.static:hover {
+  background: var(--surface-muted);
+}
+
+.slot-IR { background: #b91c1c; }
+.slot-SF { background: #d9468f; }

@@ -101,8 +101,120 @@ function Lineup({ lineup, onChange }) {
   )
 }
 
+const SLEEPER_APP = 'https://sleeper.com'
+
+function formatAdds(count) {
+  return count >= 1000000 ? `${(count / 1000000).toFixed(1)}M` : count >= 1000 ? `${Math.round(count / 1000)}K` : `${count}`
+}
+
+// One read-only player row (real accounts): slot, logo, name + injury,
+// position/team/opponent, and live points or projection.
+function PlayerRow({ label, player, extra }) {
+  const empty = player.id === '0'
+  const hasPoints = player.points !== null && player.points !== undefined && player.points > 0
+  return (
+    <li>
+      <div className="player-row static">
+        <span className={`slot slot-${label}`}>{label}</span>
+        {player.team ? (
+          <img className="player-logo" src={teamLogo(player.team)} alt="" width="26" height="26" loading="lazy" />
+        ) : (
+          <span className="player-logo" />
+        )}
+        <span className="player-name">
+          <span>
+            {player.name}
+            {player.injury && <span className="injury-tag">{player.injury.toUpperCase().slice(0, 4)}</span>}
+          </span>
+          {!empty && (
+            <span className="player-meta">
+              {[player.pos, player.team, player.opponent && `vs ${player.opponent}`, extra].filter(Boolean).join(' · ')}
+            </span>
+          )}
+        </span>
+        {!empty && (
+          <span className="player-points">
+            {hasPoints ? player.points.toFixed(2) : player.proj !== null ? player.proj.toFixed(2) : '–'}
+            <span className="player-proj">{hasPoints ? 'pts' : player.proj !== null ? 'proj' : ''}</span>
+          </span>
+        )}
+      </div>
+    </li>
+  )
+}
+
+function MyTeam({ roster }) {
+  return (
+    <div className="lineup">
+      <p className="lineup-hint">
+        Sleeper only lets other apps read your team.{' '}
+        <a href={SLEEPER_APP} target="_blank" rel="noopener noreferrer">
+          Set your lineup in Sleeper ↗
+        </a>
+      </p>
+      <ul className="player-list">
+        {roster.starters.map(({ slot, player }, index) => (
+          <PlayerRow key={`${index}-${player.id}`} label={slot} player={player} />
+        ))}
+      </ul>
+      {roster.bench.length > 0 && (
+        <>
+          <p className="bench-label">Bench</p>
+          <ul className="player-list">
+            {roster.bench.map((player) => (
+              <PlayerRow key={player.id} label="BN" player={player} />
+            ))}
+          </ul>
+        </>
+      )}
+      {roster.reserve.length > 0 && (
+        <>
+          <p className="bench-label">Injured reserve</p>
+          <ul className="player-list">
+            {roster.reserve.map((player) => (
+              <PlayerRow key={player.id} label="IR" player={player} />
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
+function Waivers({ waivers }) {
+  return (
+    <div className="lineup">
+      <p className="lineup-hint">
+        Most-added players on Sleeper today who are still available in your league.{' '}
+        <a href={SLEEPER_APP} target="_blank" rel="noopener noreferrer">
+          Claim in Sleeper ↗
+        </a>
+      </p>
+      {waivers.length === 0 ? (
+        <p className="empty-state">Every trending player is already on a team in your league.</p>
+      ) : (
+        <ul className="player-list">
+          {waivers.map((player) => (
+            <PlayerRow key={player.id} label={player.pos || 'FA'} player={player} extra={`+${formatAdds(player.adds)} adds`} />
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
-  const [view, setView] = useState(lineup ? 'lineup' : 'league')
+  const views = lineup
+    ? [
+        ['lineup', 'Lineup'],
+        ['league', 'League'],
+      ]
+    : [
+        ['team', 'My team'],
+        ['waivers', 'Waivers'],
+        ['league', 'League'],
+      ]
+  const [view, setView] = useState(views[0][0])
   const matchup = data.matchup && lineup ? { ...data.matchup, myPoints: lineupProjection(lineup) } : data.matchup
   const winning = matchup && matchup.myPoints >= matchup.theirPoints
 
@@ -145,10 +257,7 @@ function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
       )}
 
       <div className="segmented-tabs" role="tablist">
-        {[
-          ['lineup', 'Lineup'],
-          ['league', 'League'],
-        ].map(([key, label]) => (
+        {views.map(([key, label]) => (
           <button
             key={key}
             type="button"
@@ -162,18 +271,12 @@ function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
         ))}
       </div>
 
-      {view === 'lineup' ? (
-        lineup ? (
-          <Lineup lineup={lineup} onChange={onLineupChange} />
-        ) : (
-          <p className="empty-state">
-            Sleeper only lets other apps read league info, so set your lineup in the{' '}
-            <a href="https://sleeper.com" target="_blank" rel="noopener noreferrer">
-              Sleeper app
-            </a>
-            .
-          </p>
-        )
+      {view === 'lineup' && lineup ? (
+        <Lineup lineup={lineup} onChange={onLineupChange} />
+      ) : view === 'team' && data.roster ? (
+        <MyTeam roster={data.roster} />
+      ) : view === 'waivers' && data.waivers ? (
+        <Waivers waivers={data.waivers} />
       ) : (
         <ol className="standings">
           {data.standings.map((team) => (
