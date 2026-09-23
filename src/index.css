@@ -16,6 +16,14 @@
   --tab: #ffffff;
   --omnibox: #f1f3f4;
   --page: #ffffff;
+  --banner: #eef4ff;
+  --warning: #e8710a;
+  --warning-bg: #fff4e5;
+  --warning-text: #b45309;
+  --claude-bg: #faf9f5;
+  --claude-input: #ffffff;
+  --claude-border: #e5e2d9;
+  --banner-border: #cfdcfb;
 
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 15px;
@@ -42,6 +50,14 @@
     --tab: #35363a;
     --omnibox: #202124;
     --page: #202124;
+    --banner: #1d2940;
+    --warning: #f59e0b;
+    --warning-bg: #3a2a10;
+    --warning-text: #fbbf24;
+    --claude-bg: #262624;
+    --claude-input: #30302e;
+    --claude-border: #3e3e3a;
+    --banner-border: #2f4266;
   }
 }
 
@@ -108,47 +124,206 @@ button:focus-visible {
 /* ---------- App shell ---------- */
 
 .app {
-  min-height: 100vh;
-  padding: 0 4px 24px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .toolbar {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 12px 12px 0;
+  padding: 10px 16px;
 }
 
-.toolbar h1 {
-  margin: 0;
-  font-size: 1.3rem;
-}
-
+.toolbar-start,
 .toolbar-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.empty-dashboard {
-  margin: 64px auto;
+.toolbar h1 {
+  margin: 0 0 0 4px;
+  font-size: 1.2rem;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.example-banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 16px 8px;
+  padding: 6px 8px 6px 14px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  background: var(--banner);
+  border: 1px solid var(--banner-border);
+}
+
+.example-banner p {
+  margin: 0;
+}
+
+.example-banner button {
+  padding: 4px 12px;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  padding: 0 8px 8px;
+}
+
+.main-group {
+  height: 100%;
+}
+
+.sidebar {
+  height: 100%;
+  padding: 4px;
+}
+
+.sidebar-group {
+  height: 100%;
+}
+
+.sidebar-panel {
+  height: 100%;
+}
+
+.workspace-panel {
+  height: 100%;
+  overflow: auto;
+}
+
+.workspace {
+  min-height: 100%;
+}
+
+/* Drag handles between the sidebar and workspace, and between sidebar widgets. */
+.resize-handle {
+  position: relative;
+  flex: none;
+  background: transparent;
+}
+
+.resize-handle.vertical {
+  width: 8px;
+}
+
+.resize-handle.horizontal {
+  height: 8px;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.resize-handle.vertical::after {
+  top: 50%;
+  left: 3px;
+  width: 2px;
+  height: 40px;
+  transform: translateY(-50%);
+}
+
+.resize-handle.horizontal::after {
+  left: 50%;
+  top: 3px;
+  height: 2px;
+  width: 40px;
+  transform: translateX(-50%);
+}
+
+.resize-handle:hover::after,
+.resize-handle[data-separator='active']::after {
+  background: var(--accent);
+}
+
+.resize-handle.vertical:hover::after {
+  height: 100%;
+}
+
+.resize-handle.horizontal:hover::after {
+  width: 100%;
+}
+
+.empty-area {
+  margin: 48px auto;
   max-width: 420px;
   padding: 0 16px;
   text-align: center;
   color: var(--text-muted);
 }
 
-.empty-dashboard h2 {
+.empty-area h2 {
   color: var(--text);
 }
 
-/* Narrow screens: widgets stack in one column instead of the grid. */
+.sidebar-empty {
+  margin: 24px auto;
+}
+
+/* Narrow screens: everything in one scrolling column. */
+.app:has(.stacked-page) {
+  height: auto;
+  min-height: 100vh;
+}
+
+.stacked-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 12px;
+  padding: 0 4px;
+}
+
+.stack-sidebar-item {
+  height: 380px;
+}
+
+/* Full screen view of one widget. */
+.maximized-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.35);
+}
+
+.maximized-window {
+  height: 100%;
+}
+
+.maximized-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
 }
 
 /* ---------- Add widget menu ---------- */
@@ -172,7 +347,42 @@ button:focus-visible {
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
 }
 
-.add-menu-list button {
+.add-menu-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.segmented {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.segmented span {
+  margin-right: auto;
+}
+
+.add-menu-list .segmented button {
+  width: auto;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.add-menu-list .segmented button.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.add-menu-list li button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -216,7 +426,43 @@ button:focus-visible {
 
 .tab-strip {
   display: flex;
-  padding: 6px 8px 0;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 6px 6px 0 8px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  align-self: center;
+  padding-bottom: 2px;
+}
+
+.window-controls button {
+  width: 26px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.window-controls button:hover:not(:disabled) {
+  background: var(--chrome-hover);
+  color: var(--text);
+}
+
+/* Sidebar widgets: no address bar, so there's more room for content. */
+.widget.compact .tab {
+  border-bottom: 1px solid var(--tab);
+}
+
+.widget.compact .widget-chrome {
+  border-bottom: 1px solid var(--chrome-border);
 }
 
 .tab {
@@ -477,4 +723,332 @@ a.address:hover {
     background: #3c4043;
     box-shadow: none;
   }
+}
+
+/* ---------- Link setup (empty states) ---------- */
+
+.link-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.link-setup-heading {
+  margin: 0;
+  font-weight: 600;
+}
+
+.link-setup-steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-muted);
+}
+
+.link-setup .link-button {
+  align-self: flex-start;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.setup-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.widget-message {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Spotify ---------- */
+
+.widget-body:has(.spotify),
+.widget-body:has(.calendar-embed) {
+  padding: 0;
+}
+
+.spotify,
+.calendar-embed {
+  position: relative;
+  height: 100%;
+}
+
+.spotify iframe,
+.calendar-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.spotify iframe {
+  min-height: 80px;
+}
+
+.spotify-change,
+.calendar-change {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.spotify:hover .spotify-change,
+.calendar-embed:hover .calendar-change,
+.spotify-change:focus-visible,
+.calendar-change:focus-visible {
+  opacity: 1;
+}
+
+.spotify-change:hover:not(:disabled),
+.calendar-change:hover:not(:disabled) {
+  background: rgb(0 0 0 / 0.75);
+  text-decoration: none;
+}
+
+/* ---------- Canvas ---------- */
+
+.canvas-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.canvas-source {
+  display: flex;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.canvas-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.canvas-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+}
+
+.canvas-list li.soon {
+  border-left-color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.canvas-list li.done {
+  opacity: 0.55;
+}
+
+.canvas-list li.done .canvas-title {
+  text-decoration: line-through;
+}
+
+.canvas-list input[type='checkbox'] {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+
+.canvas-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.canvas-title {
+  color: var(--text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.canvas-title:hover {
+  text-decoration: underline;
+}
+
+.canvas-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.course-chip {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+
+.due.soon {
+  color: var(--warning-text);
+  font-weight: 600;
+}
+
+/* ---------- Calendar (sample agenda) ---------- */
+
+.calendar-sample {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar-sample > .link-button {
+  align-self: flex-start;
+}
+
+.agenda section + section {
+  margin-top: 8px;
+}
+
+.agenda h3 {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.agenda ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.agenda li {
+  display: flex;
+  gap: 10px;
+  padding: 3px 8px;
+  margin-bottom: 3px;
+  border-radius: 6px;
+  border-left: 3px solid #4285f4;
+  background: var(--surface-muted);
+  font-size: 0.85rem;
+}
+
+.agenda li.past {
+  opacity: 0.5;
+}
+
+.agenda li.now {
+  border-left-color: #34a853;
+}
+
+.agenda-time {
+  flex: none;
+  width: 64px;
+  color: var(--text-muted);
+}
+
+.now-badge {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #34a853;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ---------- Claude ---------- */
+
+.widget-body:has(.claude) {
+  background: var(--claude-bg);
+  container-type: size;
+}
+
+.claude {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.claude-greeting {
+  margin: 0;
+  text-align: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.1rem, 7cqw, 1.8rem);
+  color: var(--text);
+}
+
+.claude-box {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px 8px;
+  border-radius: 16px;
+  border: 1px solid var(--claude-border);
+  background: var(--claude-input);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.05);
+}
+
+.claude-box textarea {
+  width: 100%;
+  min-width: 0;
+  resize: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.claude-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.claude-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.claude-send {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #d97757;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.claude-send:hover:not(:disabled) {
+  background: #c6613f;
 }

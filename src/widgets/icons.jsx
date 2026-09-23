@@ -67,3 +67,65 @@ export function DeviceIcon() {
     </svg>
   )
 }
+
+export function SpotifyIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <circle cx="8" cy="8" r="8" fill="#1DB954" />
+      <g fill="none" stroke="#000" strokeLinecap="round">
+        <path d="M4 6.2c2.7-.8 5.6-.6 8 .7" strokeWidth="1.4" />
+        <path d="M4.5 8.6c2.2-.6 4.5-.4 6.5.6" strokeWidth="1.2" />
+        <path d="M5 10.8c1.7-.4 3.4-.3 4.9.4" strokeWidth="1" />
+      </g>
+    </svg>
+  )
+}
+
+export function CanvasIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <circle cx="8" cy="8" r="8" fill="#E4312B" />
+      <circle cx="8" cy="8" r="3.2" fill="none" stroke="#fff" strokeWidth="1.6" />
+      {[0, 60, 120, 180, 240, 300].map((angle) => (
+        <circle
+          key={angle}
+          cx={8 + 5.6 * Math.cos((angle * Math.PI) / 180)}
+          cy={8 + 5.6 * Math.sin((angle * Math.PI) / 180)}
+          r="0.9"
+          fill="#fff"
+        />
+      ))}
+    </svg>
+  )
+}
+
+export function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="1" y="1.5" width="14" height="13.5" rx="2.5" fill="#fff" stroke="#4285F4" strokeWidth="1.2" />
+      <rect x="1" y="1.5" width="14" height="4" rx="2" fill="#4285F4" />
+      <text x="8" y="13" textAnchor="middle" fontSize="7" fontWeight="700" fontFamily="Arial, sans-serif" fill="#4285F4">
+        {new Date().getDate()}
+      </text>
+    </svg>
+  )
+}
+
+export function ClaudeIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#D97757" />
+      <g stroke="#fff" strokeWidth="1.5" strokeLinecap="round">
+        {[0, 45, 90, 135].map((angle) => (
+          <line
+            key={angle}
+            x1={8 - 4.5 * Math.cos((angle * Math.PI) / 180)}
+            y1={8 - 4.5 * Math.sin((angle * Math.PI) / 180)}
+            x2={8 + 4.5 * Math.cos((angle * Math.PI) / 180)}
+            y2={8 + 4.5 * Math.sin((angle * Math.PI) / 180)}
+          />
+        ))}
+      </g>
+    </svg>
+  )
+}

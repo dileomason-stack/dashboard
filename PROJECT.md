@@ -58,6 +58,23 @@ fetches data and renders it ourselves, or a launcher that opens the real app.
 - A small built-in game for the "fun" widget
 - Light/dark theme
 
+## Current design (decided Tuesday)
+
+- **Layout:** a collapsible, resizable **left sidebar** (default: Spotify, To-do, Canvas,
+  Google Calendar, stacked with draggable dividers) and a free **workspace** grid filling the
+  rest of the page (default: Google search, Claude). Every widget looks like a small browser
+  window (tab + address bar), can be removed (tab ×), moved between sidebar and workspace (⇄),
+  or shown full screen (⤢). Double-clicking a tab bar opens the real site.
+- **Example mode:** first-time visitors see a sample dashboard for "Alex Rivera", a fictional
+  Cal Poly student (sample assignments/events dated relative to today, a Lofi Girl playlist).
+  It lives in memory only and resets on reload. **"Build your own"** switches to the visitor's
+  own dashboard (same layout, empty widgets with setup screens), saved in localStorage.
+- **Demo context:** the club opens the link on a fresh browser for the judges, so the first
+  screen must look complete with zero setup.
+- **Deferred to Thursday if time allows:** real Spotify playback control (needs Premium +
+  Spotify app), marking assignments done in Canvas itself (needs a Canvas token), Google
+  results preview via Programmable Search, mic button.
+
 ## Customization
 
 - An "Add widget" menu listing every widget type

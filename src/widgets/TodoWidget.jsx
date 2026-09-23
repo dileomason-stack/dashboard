@@ -1,18 +1,15 @@
 import { useState } from 'react'
-import { useStoredState, widgetDataKey } from '../storage.js'
+import { newId } from '../lib/id.js'
+import { useStoreValue, widgetDataKey } from '../storage.js'
 
 const isTodoList = (value) =>
   Array.isArray(value) &&
   value.every((item) => item && typeof item.id === 'string' && typeof item.text === 'string')
 
-function newId() {
-  return typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-}
+const NO_ITEMS = []
 
 export default function TodoWidget({ id }) {
-  const [items, setItems] = useStoredState(widgetDataKey(id), [], isTodoList)
+  const [items, setItems] = useStoreValue(widgetDataKey(id), NO_ITEMS, isTodoList)
   const [text, setText] = useState('')
 
   const doneCount = items.filter((item) => item.done).length

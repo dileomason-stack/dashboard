@@ -3,6 +3,7 @@ import { WIDGETS } from './widgets/registry.js'
 
 export default function AddWidgetMenu({ onAdd }) {
   const [open, setOpen] = useState(false)
+  const [area, setArea] = useState('workspace')
   const menuRef = useRef(null)
 
   // Close when clicking anywhere else or pressing Escape.
@@ -34,14 +35,33 @@ export default function AddWidgetMenu({ onAdd }) {
         + Add widget
       </button>
       {open && (
-        <ul className="add-menu-list" role="menu">
+        <div className="add-menu-list">
+          <div className="segmented" role="radiogroup" aria-label="Add to">
+            <span>Add to</span>
+            {[
+              ['sidebar', 'Sidebar'],
+              ['workspace', 'Workspace'],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={area === value}
+                className={area === value ? 'selected' : undefined}
+                onClick={() => setArea(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <ul role="menu">
           {Object.entries(WIDGETS).map(([type, widget]) => (
             <li key={type}>
               <button
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  onAdd(type)
+                  onAdd(type, area)
                   setOpen(false)
                 }}
               >
@@ -50,7 +70,8 @@ export default function AddWidgetMenu({ onAdd }) {
               </button>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       )}
     </div>
   )
