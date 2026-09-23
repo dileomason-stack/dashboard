@@ -51,10 +51,26 @@ function hslToRgb([h, s, l]) {
   return [channel(h + 1 / 3) * 255, channel(h) * 255, channel(h - 1 / 3) * 255]
 }
 
-// Spotify's player background is a dark, muted version of the cover's main
-// color. Approximate that: average the cover (favoring colorful pixels), then
-// darken and soften it.
+// The exact background Spotify's player uses, via our server function.
+// Falls back to estimating it from the cover art if that fails.
 export async function colorFromSpotify(embedUrl) {
+  try {
+    const response = await fetch('/api/spotify-color', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url: embedUrl }),
+    })
+    const data = await response.json()
+    if (response.ok && isValidHex(data.color)) return data.color
+  } catch {
+    // Fall through to the estimate below.
+  }
+  return colorFromCoverArt(embedUrl)
+}
+
+// Estimate: average the cover (favoring colorful pixels), then darken and
+// soften it, like Spotify's player background.
+async function colorFromCoverArt(embedUrl) {
   const pageUrl = embedUrl.replace('/embed/', '/').split('?')[0]
   const response = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(pageUrl)}`)
   if (!response.ok) throw new Error('Spotify didn’t return that playlist.')

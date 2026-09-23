@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { colorFromSpotify } from './lib/colors.js'
 
 const PRESETS = [
@@ -15,7 +16,10 @@ const PRESETS = [
 ]
 
 // Popover for choosing a card's background: presets, any color, a color
-// from the Spotify playlist, or back to the default.
+// from the Spotify playlist, or back to the default. Rendered at the page
+// level (a portal) so it never picks up the card's own colors.
+// Swatches and Match Spotify close it; "Any color…" keeps it open while the
+// color is being adjusted.
 export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, onClose }) {
   const ref = useRef(null)
   const [position, setPosition] = useState({ left: x, top: y })
@@ -46,20 +50,26 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
     setError('')
     try {
       onChange(await colorFromSpotify(spotifyEmbedUrl))
+      onClose()
     } catch {
       setError('Couldn’t get the colors from Spotify. Try again, or pick a color.')
+      setMatching(false)
     }
-    setMatching(false)
   }
 
-  return (
+  const choose = (next) => {
+    onChange(next)
+    onClose()
+  }
+
+  return createPortal(
     <div ref={ref} className="color-picker" style={position} role="dialog" aria-label="Card color">
       <p className="color-picker-title">Card color</p>
       <div className="swatches">
         <button
           type="button"
           className={`swatch swatch-default${!value ? ' selected' : ''}`}
-          onClick={() => onChange(null)}
+          onClick={() => choose(null)}
           title="Default"
           aria-label="Default color"
         />
@@ -69,7 +79,7 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
             type="button"
             className={`swatch${value === hex ? ' selected' : ''}`}
             style={{ background: hex }}
-            onClick={() => onChange(hex)}
+            onClick={() => choose(hex)}
             title={name}
             aria-label={name}
           />
@@ -85,6 +95,7 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
         </button>
       )}
       {error && <p className="form-error">{error}</p>}
-    </div>
+    </div>,
+    document.body,
   )
 }

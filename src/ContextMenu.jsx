@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 // A small menu shown at a screen position (right-click, double-click, or the
 // ⋯ button). Closes on outside click, Escape, scroll, or window resize.
+// Rendered at the page level (a portal) so card colors don't affect it.
 export default function ContextMenu({ x, y, items, onClose }) {
   const menuRef = useRef(null)
   const [position, setPosition] = useState({ left: x, top: y })
@@ -32,7 +34,7 @@ export default function ContextMenu({ x, y, items, onClose }) {
     }
   }, [onClose])
 
-  return (
+  return createPortal(
     <div ref={menuRef} className="context-menu" role="menu" style={position}>
       {items.map((item) => (
         <button
@@ -48,6 +50,7 @@ export default function ContextMenu({ x, y, items, onClose }) {
           {item.label}
         </button>
       ))}
-    </div>
+    </div>,
+    document.body,
   )
 }
