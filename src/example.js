@@ -90,14 +90,16 @@ export function exampleSeed() {
   return {
     // Alex's three dashboards. "main" uses the "layout" key.
     dashboards: {
+      // Opens on Morning check: the clearest first impression. Everything
+      // (the busiest view) comes last.
       list: [
-        { id: 'main', name: '⭐ Everything' },
         { id: 'morning', name: '☀️ Morning check' },
         { id: 'project', name: '💻 CSC 202 project' },
         { id: 'tools', name: '🧰 Tools' },
         { id: 'fun', name: '🎮 Fun' },
+        { id: 'main', name: '⭐ Everything' },
       ],
-      activeId: 'main',
+      activeId: 'morning',
     },
     layout: {
       sidebarOpen: true,
@@ -158,11 +160,11 @@ export function exampleSeed() {
         { id: 'exm-mail', type: 'inbox' },
       ],
       grid: [
-        { i: 'exm-canvas', x: 0, y: 0, w: 18, h: 52 },
-        { i: 'exm-news', x: 18, y: 0, w: 16, h: 52 },
-        { i: 'exm-scores', x: 34, y: 0, w: 14, h: 52 },
-        { i: 'exm-search', x: 0, y: 52, w: 30, h: 44 },
-        { i: 'exm-mail', x: 30, y: 52, w: 18, h: 44 },
+        { i: 'exm-canvas', x: 0, y: 0, w: 18, h: 42 },
+        { i: 'exm-news', x: 18, y: 0, w: 16, h: 42 },
+        { i: 'exm-scores', x: 34, y: 0, w: 14, h: 42 },
+        { i: 'exm-search', x: 0, y: 42, w: 30, h: 36 },
+        { i: 'exm-mail', x: 30, y: 42, w: 18, h: 36 },
       ],
       gridVersion: 2,
     },

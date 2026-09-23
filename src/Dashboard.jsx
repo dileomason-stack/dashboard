@@ -350,10 +350,19 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
 
       {store.example && (
         <div className="example-banner" role="note">
-          <p>
-            <strong>👋 This is a sample dashboard</strong> for {EXAMPLE_PERSON}, a fictional Cal Poly student. Try
-            anything: it all resets when you reload.
-          </p>
+          <div className="example-banner-text">
+            <p>
+              <strong>👋 This is a sample dashboard</strong> for {EXAMPLE_PERSON}, a fictional Cal Poly student. It all
+              resets when you reload.
+            </p>
+            <ul className="example-tips" aria-label="Things to try">
+              <li>Switch dashboards with the tabs above</li>
+              <li>Drag any card to move it</li>
+              <li>Right-click a card for options</li>
+              <li>🎨 Colors → Match Spotify</li>
+              <li>Search Google right in its card</li>
+            </ul>
+          </div>
           <button type="button" className="primary" onClick={onBuildOwn}>
             {hasOwn ? 'Back to my dashboard →' : 'Build your own →'}
           </button>

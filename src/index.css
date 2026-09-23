@@ -2802,3 +2802,40 @@ a.canvas-title:hover {
   font-size: 1.4rem;
   font-weight: 800;
 }
+
+/* ---------- Example banner tips ---------- */
+
+.example-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.example-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.example-tips li {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--banner-border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.example-tips li::before {
+  content: 'Try: ';
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.example-tips li + li::before {
+  content: '';
+}
