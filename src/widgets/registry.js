@@ -12,6 +12,10 @@ import { CalendarIcon, CanvasIcon, ClaudeIcon, GoogleIcon, SpotifyIcon, TodoIcon
 //
 // size: default size in the workspace grid (12 columns wide, rows are
 //   ROW_HEIGHT px tall).
+// sidebarHeight: fixed card height (px) in the sidebar, for embeds that only
+//   come in set sizes.
+// editLabel: menu item that clears the widget's settings so it shows its
+//   setup screen again (e.g. to paste a different link).
 // tab: how the widget's browser-style frame looks: tab name and icon, and
 //   the address bar text. With `href`, clicking the address or double-clicking
 //   the tab bar opens the real site.
@@ -20,6 +24,9 @@ export const WIDGETS = {
     title: 'Spotify',
     description: 'A playlist, album, or podcast player',
     component: SpotifyWidget,
+    editLabel: 'Change playlist',
+    // Spotify's embed has fixed layouts; 80px is the compact player.
+    sidebarHeight: 80,
     size: { w: 4, h: 8, minW: 3, minH: 5 },
     tab: { title: 'Spotify', address: 'open.spotify.com', href: 'https://open.spotify.com', icon: SpotifyIcon },
   },
@@ -34,6 +41,7 @@ export const WIDGETS = {
     title: 'Canvas assignments',
     description: 'What’s due next across your classes',
     component: CanvasWidget,
+    editLabel: 'Change Canvas feed',
     size: { w: 5, h: 10, minW: 3, minH: 5 },
     tab: { title: 'Canvas', address: 'canvas.calpoly.edu', href: 'https://canvas.calpoly.edu', icon: CanvasIcon },
   },
@@ -41,6 +49,7 @@ export const WIDGETS = {
     title: 'Google Calendar',
     description: 'Your calendar, or a sample week',
     component: CalendarWidget,
+    editLabel: 'Change calendar',
     size: { w: 5, h: 10, minW: 3, minH: 6 },
     tab: {
       title: 'Google Calendar',

@@ -91,9 +91,6 @@ export default function CalendarWidget({ id }) {
   return (
     <div className="calendar-embed">
       <iframe title="Google Calendar" src={embed.embedUrl} loading="lazy" />
-      <button type="button" className="link-button calendar-change" onClick={() => setSettings({})}>
-        Change
-      </button>
     </div>
   )
 }

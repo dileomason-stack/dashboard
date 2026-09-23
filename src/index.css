@@ -456,14 +456,6 @@ button:focus-visible {
   color: var(--text);
 }
 
-/* Sidebar widgets: no address bar, so there's more room for content. */
-.widget.compact .tab {
-  border-bottom: 1px solid var(--tab);
-}
-
-.widget.compact .widget-chrome {
-  border-bottom: 1px solid var(--chrome-border);
-}
 
 .tab {
   display: flex;
@@ -799,33 +791,6 @@ a.address:hover {
   min-height: 80px;
 }
 
-.spotify-change,
-.calendar-change {
-  position: absolute;
-  right: 10px;
-  bottom: 6px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.55);
-  color: #fff;
-  font-size: 0.75rem;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.spotify:hover .spotify-change,
-.calendar-embed:hover .calendar-change,
-.spotify-change:focus-visible,
-.calendar-change:focus-visible {
-  opacity: 1;
-}
-
-.spotify-change:hover:not(:disabled),
-.calendar-change:hover:not(:disabled) {
-  background: rgb(0 0 0 / 0.75);
-  text-decoration: none;
-}
-
 /* ---------- Canvas ---------- */
 
 .canvas-summary {
@@ -1051,4 +1016,162 @@ a.canvas-title:hover {
 
 .claude-send:hover:not(:disabled) {
   background: #c6613f;
+}
+
+/* ---------- Sidebar cards (no browser frame) ---------- */
+
+.drop-zone {
+  height: 100%;
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 12px;
+}
+
+/* Players fill their card edge to edge, like the real embed. */
+.card-spotify {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.card-spotify .card-body,
+.card:has(.calendar-embed) .card-body {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-spotify iframe {
+  border-radius: 12px;
+}
+
+/* ⠿ ⋯ handle: appears when hovering a card. */
+.card-handle {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.card:hover .card-handle,
+.card:focus-within .card-handle {
+  opacity: 1;
+}
+
+/* Cards with their own content (not an embedded player) get a thin strip at
+   the top for the handle, so it never covers a button or text box. */
+.card:not(.card-spotify) .card-handle {
+  position: static;
+  flex: none;
+  justify-content: flex-end;
+  height: 22px;
+  padding: 2px 4px 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.card:not(.card-spotify) .card-body {
+  padding-top: 0;
+}
+
+.card-grip,
+.card-menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.card-grip {
+  cursor: grab;
+}
+
+.card-menu-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.card-grip:hover,
+.card-menu-button:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+/* While dragging: let drop events reach us over embedded players, and show
+   where the card will land. */
+.sidebar-group.dragging iframe {
+  pointer-events: none;
+}
+
+.sidebar-panel.drop-before .card,
+.sidebar-panel.drop-after .card {
+  outline: 2px solid var(--accent);
+}
+
+.sidebar-panel.drop-before .card {
+  box-shadow: 0 -4px 0 var(--accent);
+}
+
+.sidebar-panel.drop-after .card {
+  box-shadow: 0 4px 0 var(--accent);
+}
+
+/* ---------- Context menu ---------- */
+
+.context-menu {
+  position: fixed;
+  z-index: 200;
+  min-width: 180px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.context-menu button.danger {
+  color: var(--danger);
 }

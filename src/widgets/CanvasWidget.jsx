@@ -137,9 +137,9 @@ export default function CanvasWidget({ id }) {
               {feed.status === 'loading' ? 'Refreshing…' : 'Refresh'}
             </button>
           )}
-          {!store.example && (
+          {sample && !store.example && (
             <button type="button" className="link-button" onClick={() => setSettings({})}>
-              {sample ? 'Connect my Canvas' : 'Disconnect'}
+              Connect my Canvas
             </button>
           )}
         </span>

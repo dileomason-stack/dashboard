@@ -1,5 +1,6 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
+import { WIDGETS } from './widgets/registry.js'
 
 // Give every widget its saved share of the column (in %), splitting any
 // missing share evenly, then scale so the shares add up to 100.
@@ -13,8 +14,45 @@ function sharesFor(ids, saved) {
 }
 
 // The collapsible column on the left: widgets stacked top to bottom, with a
-// draggable divider between each pair.
-export default function Sidebar({ widgets, sizes, onSizesChange, renderWidget, stacked }) {
+// draggable divider between each pair. Cards can be dragged (by their ⠿ grip)
+// to a new position.
+export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, renderWidget, stacked }) {
+  const [dragId, setDragId] = useState(null)
+  const [dropTarget, setDropTarget] = useState(null)
+
+  const dragPropsFor = (id) => ({
+    onDragStart: (event) => {
+      event.dataTransfer.effectAllowed = 'move'
+      event.dataTransfer.setData('text/plain', id)
+      event.dataTransfer.setDragImage(event.currentTarget.closest('.card'), 24, 16)
+      // Changing the page during dragstart can cancel the drag in Chrome.
+      setTimeout(() => setDragId(id))
+    },
+    onDragEnd: () => {
+      setDragId(null)
+      setDropTarget(null)
+    },
+  })
+
+  const dropPropsFor = (id) => ({
+    onDragOver: (event) => {
+      if (!dragId) return
+      event.preventDefault()
+      const rect = event.currentTarget.getBoundingClientRect()
+      const after = event.clientY > rect.top + rect.height / 2
+      if (dropTarget?.id !== id || dropTarget.after !== after) setDropTarget({ id, after })
+    },
+    onDrop: (event) => {
+      event.preventDefault()
+      if (dragId && dragId !== id) onReorder(dragId, id, dropTarget?.after ?? false)
+      setDragId(null)
+      setDropTarget(null)
+    },
+  })
+
+  const dropClass = (id) =>
+    dropTarget?.id === id && dragId !== id ? (dropTarget.after ? ' drop-after' : ' drop-before') : ''
+
   if (widgets.length === 0) {
     return (
       <div className="empty-area sidebar-empty">
@@ -28,7 +66,7 @@ export default function Sidebar({ widgets, sizes, onSizesChange, renderWidget, s
       <div className="stack">
         {widgets.map((widget) => (
           <div key={widget.id} className="stack-sidebar-item">
-            {renderWidget(widget)}
+            {renderWidget(widget, {})}
           </div>
         ))}
       </div>
@@ -41,7 +79,7 @@ export default function Sidebar({ widgets, sizes, onSizesChange, renderWidget, s
       // Remount when the list of widgets changes so the new sizes apply.
       key={ids.join('|')}
       orientation="vertical"
-      className="sidebar-group"
+      className={`sidebar-group${dragId ? ' dragging' : ''}`}
       defaultLayout={sharesFor(ids, sizes)}
       onLayoutChanged={(layout, meta) => {
         if (meta?.isUserInteraction) onSizesChange(layout)
@@ -50,8 +88,15 @@ export default function Sidebar({ widgets, sizes, onSizesChange, renderWidget, s
       {widgets.map((widget, index) => (
         <Fragment key={widget.id}>
           {index > 0 && <Separator className="resize-handle horizontal" />}
-          <Panel id={widget.id} minSize={90} className="sidebar-panel">
-            {renderWidget(widget)}
+          <Panel
+            id={widget.id}
+            minSize={WIDGETS[widget.type].sidebarHeight ?? 70}
+            maxSize={WIDGETS[widget.type].sidebarHeight}
+            className={`sidebar-panel${dropClass(widget.id)}`}
+          >
+            <div className="drop-zone" {...dropPropsFor(widget.id)}>
+              {renderWidget(widget, dragPropsFor(widget.id))}
+            </div>
           </Panel>
         </Fragment>
       ))}

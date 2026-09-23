@@ -5,6 +5,7 @@ import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
+import SidebarCard from './SidebarCard.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
 import WidgetFrame from './WidgetFrame.jsx'
 import { OWN_DEFAULT_LAYOUT, WIDGETS } from './widgets/registry.js'
@@ -97,6 +98,29 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     })
   }
 
+  function reorderSidebar(fromId, toId, after) {
+    update((current) => {
+      const moving = current.sidebar.find((widget) => widget.id === fromId)
+      const rest = current.sidebar.filter((widget) => widget.id !== fromId)
+      const index = rest.findIndex((widget) => widget.id === toId) + (after ? 1 : 0)
+      return { sidebar: [...rest.slice(0, index), moving, ...rest.slice(index)] }
+    })
+  }
+
+  function menuItemsFor(widget) {
+    const { editLabel, tab } = WIDGETS[widget.type]
+    return [
+      editLabel && { label: editLabel, onSelect: () => store.set(widgetDataKey(widget.id), {}) },
+      tab.href && {
+        label: `Open ${tab.address}`,
+        onSelect: () => window.open(tab.href, '_blank', 'noopener,noreferrer'),
+      },
+      { label: 'Full screen', onSelect: () => setMaximizedId(widget.id) },
+      { label: 'Move to workspace', onSelect: () => moveWidget(widget.id) },
+      { label: 'Remove', danger: true, onSelect: () => removeWidget(widget.id) },
+    ].filter(Boolean)
+  }
+
   function resetLayout() {
     if (store.example) {
       onResetExample()
@@ -111,13 +135,19 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     setLayout(OWN_DEFAULT_LAYOUT)
   }
 
-  function renderWidget(widget, area) {
+  function renderWidget(widget, area, dragProps = {}) {
     const { tab, component: Component } = WIDGETS[widget.type]
     const isMaximized = maximizedId === widget.id
+    if (area === 'sidebar' && !isMaximized && !stacked) {
+      return (
+        <SidebarCard type={widget.type} title={tab.title} menuItems={menuItemsFor(widget)} {...dragProps}>
+          <Component id={widget.id} />
+        </SidebarCard>
+      )
+    }
     return (
       <WidgetFrame
         tab={tab}
-        compact={area === 'sidebar' && !isMaximized && !stacked}
         maximized={isMaximized}
         moveLabel={area === 'sidebar' ? 'Move to workspace' : 'Move to sidebar'}
         onMove={() => moveWidget(widget.id)}
@@ -131,11 +161,11 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
 
   // While a widget is full screen, its normal spot shows a placeholder so the
   // widget isn't on the page twice.
-  const renderSlot = (area) => (widget) =>
+  const renderSlot = (area) => (widget, dragProps) =>
     widget.id === maximizedId ? (
       <div className="maximized-placeholder">Showing full screen</div>
     ) : (
-      renderWidget(widget, area)
+      renderWidget(widget, area, dragProps)
     )
 
   const sidebar = (
@@ -143,6 +173,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       widgets={sidebarWidgets}
       sizes={layout.sidebarSizes}
       onSizesChange={(sizes) => update(() => ({ sidebarSizes: sizes }))}
+      onReorder={reorderSidebar}
       renderWidget={renderSlot('sidebar')}
       stacked={stacked}
     />

@@ -1,4 +1,4 @@
-import { useStore, useStoreValue, widgetDataKey } from '../storage.js'
+import { useStoreValue, widgetDataKey } from '../storage.js'
 import { toSpotifyEmbed } from '../lib/embeds.js'
 import LinkSetup from './LinkSetup.jsx'
 
@@ -6,7 +6,6 @@ const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 
 export default function SpotifyWidget({ id }) {
-  const store = useStore()
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)
   const embed = settings.url ? toSpotifyEmbed(settings.url) : null
 
@@ -30,11 +29,6 @@ export default function SpotifyWidget({ id }) {
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
       />
-      {!store.example && (
-        <button type="button" className="link-button spotify-change" onClick={() => setSettings({})}>
-          Change
-        </button>
-      )}
     </div>
   )
 }
