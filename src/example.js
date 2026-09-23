@@ -1,3 +1,5 @@
+import { TEMPLATES } from './templates.js'
+
 // Everything a first-time visitor sees: a dashboard for Alex, a fictional
 // Cal Poly student. Dates are relative to today, so something is always due
 // soon no matter when the demo happens. None of this is saved.
@@ -70,6 +72,14 @@ export function sampleEvents(now = new Date()) {
 const EXAMPLE_PLAYLIST = 'https://open.spotify.com/playlist/0vvXsWCC9xrXsKd4FyS8kM'
 
 export function exampleSeed() {
+  // Alex's 🧰 Tools dashboard is the Tools template with fixed ids.
+  const toolCount = {}
+  const tools = TEMPLATES.tools.build((type) => {
+    toolCount[type] = (toolCount[type] ?? 0) + 1
+    return `ext-${type}-${toolCount[type]}`
+  })
+  const toolsData = Object.fromEntries(Object.entries(tools.data).map(([id, settings]) => [`widget:${id}`, settings]))
+
   return {
     // Alex's three dashboards. "main" uses the "layout" key.
     dashboards: {
@@ -77,6 +87,7 @@ export function exampleSeed() {
         { id: 'main', name: '⭐ Everything' },
         { id: 'morning', name: '☀️ Morning check' },
         { id: 'project', name: '💻 CSC 202 project' },
+        { id: 'tools', name: '🧰 Tools' },
       ],
       activeId: 'main',
     },
@@ -182,5 +193,9 @@ export function exampleSeed() {
       { id: 'p5', text: 'Push to GitHub before 11:59', done: false },
     ],
     'widget:exp-canvas': { sample: true, done: {} },
+    'layout:tools': tools.layout,
+    ...toolsData,
+    'widget:ext-notes-1':
+      'CHEM 124 lab notes\n- Molar mass of NaCl: 58.44 g/mol\n- Remember sig figs on the final answer\n\nEssay intro draft goes here…',
   }
 }

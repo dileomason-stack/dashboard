@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react'
 import ContextMenu from './ContextMenu.jsx'
+import { TEMPLATES } from './templates.js'
 import { MAX_NAME_LENGTH } from './useDashboards.js'
 
-// Tabs for switching dashboards. + makes a new one (and starts renaming it);
+// Tabs for switching dashboards. + offers templates for a new one (and then
+// starts renaming it);
 // double-click a tab to rename; right-click for Rename / Delete.
 // `editingId` lives in the parent: switching dashboards rebuilds the page
 // (tabs included), and a new dashboard must still open with its name ready
@@ -60,7 +62,10 @@ export default function DashboardTabs({ dashboards, editingId, setEditingId }) {
       <button
         type="button"
         className="dash-tab-add"
-        onClick={() => setEditingId(create())}
+        onClick={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect()
+          setMenu({ x: rect.left, y: rect.bottom + 4, templates: true })
+        }}
         title="New dashboard"
         aria-label="New dashboard"
       >
@@ -71,10 +76,21 @@ export default function DashboardTabs({ dashboards, editingId, setEditingId }) {
           x={menu.x}
           y={menu.y}
           onClose={closeMenu}
-          items={[
-            { label: 'Rename', onSelect: () => setEditingId(menu.item.id) },
-            list.length > 1 && { label: 'Delete dashboard', danger: true, onSelect: () => confirmRemove(menu.item) },
-          ].filter(Boolean)}
+          items={
+            menu.templates
+              ? Object.entries(TEMPLATES).map(([key, template]) => ({
+                  label: template.label,
+                  onSelect: () => setEditingId(create(key)),
+                }))
+              : [
+                  { label: 'Rename', onSelect: () => setEditingId(menu.item.id) },
+                  list.length > 1 && {
+                    label: 'Delete dashboard',
+                    danger: true,
+                    onSelect: () => confirmRemove(menu.item),
+                  },
+                ].filter(Boolean)
+          }
         />
       )}
     </nav>

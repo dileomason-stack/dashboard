@@ -2,21 +2,26 @@ import CalendarWidget from './CalendarWidget.jsx'
 import CanvasWidget from './CanvasWidget.jsx'
 import ClaudeWidget from './ClaudeWidget.jsx'
 import NewsWidget from './NewsWidget.jsx'
+import NotesWidget from './NotesWidget.jsx'
 import ScoresWidget from './ScoresWidget.jsx'
 import SearchWidget from './SearchWidget.jsx'
 import SleeperWidget from './SleeperWidget.jsx'
 import SpotifyWidget from './SpotifyWidget.jsx'
 import TodoWidget from './TodoWidget.jsx'
+import ToolWidget from './ToolWidget.jsx'
+import { TOOLS } from '../lib/tools.js'
 import {
   CalendarIcon,
   CanvasIcon,
   ClaudeIcon,
   GoogleIcon,
   NewsIcon,
+  NotesIcon,
   ScoresIcon,
   SleeperIcon,
   SpotifyIcon,
   TodoIcon,
+  ToolIcon,
 } from './icons.jsx'
 
 // Every widget type the dashboard knows about. Adding a new widget means
@@ -28,6 +33,8 @@ import {
 // sidebarHeight: fixed card height (px) in the sidebar, for embeds that only
 //   come in set sizes.
 // colorable: false hides "Card color…" (the Spotify player covers its card).
+// tabFor(settings): optional; per-card title/address/link based on the card's
+//   settings (e.g. the Tool widget is named after the tool it shows).
 // editLabel: menu item that clears the widget's settings so it shows its
 //   setup screen again (e.g. to paste a different link).
 // tab: how the widget's browser-style frame looks: tab name and icon, and
@@ -109,6 +116,31 @@ export const WIDGETS = {
     size: { w: 20, h: 52, minW: 12, minH: 24 },
     tab: { title: 'News', address: 'Headlines', icon: NewsIcon },
   },
+  tool: {
+    title: 'Academic tool',
+    description: 'Desmos, GeoGebra, periodic table, whiteboard, and more',
+    component: ToolWidget,
+    editLabel: 'Change tool',
+    size: { w: 24, h: 52, minW: 12, minH: 24 },
+    tab: { title: 'Tool', address: 'Academic tool', icon: ToolIcon },
+    tabFor: (settings) => {
+      const tool = TOOLS[settings?.tool]
+      return tool ? { title: tool.name, address: tool.address, href: tool.url } : null
+    },
+  },
+  notes: {
+    title: 'Notes',
+    description: 'A scratchpad with a live word count',
+    component: NotesWidget,
+    size: { w: 20, h: 46, minW: 12, minH: 20 },
+    tab: { title: 'Notes', address: 'Saved in this browser', icon: NotesIcon },
+  },
+}
+
+// A card's tab info: the type's, adjusted by tabFor for that card's settings.
+export function tabOf(widget, settings) {
+  const { tab, tabFor } = WIDGETS[widget.type]
+  return { ...tab, ...(tabFor?.(settings) ?? {}) }
 }
 
 // "Build your own" starts blank: no widgets and the sidebar closed. The empty

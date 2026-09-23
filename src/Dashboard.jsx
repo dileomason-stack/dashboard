@@ -10,7 +10,7 @@ import Sidebar from './Sidebar.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
 import WidgetCard from './WidgetCard.jsx'
 import WidgetFrame from './WidgetFrame.jsx'
-import { OWN_DEFAULT_LAYOUT, WIDGETS } from './widgets/registry.js'
+import { OWN_DEFAULT_LAYOUT, tabOf, WIDGETS } from './widgets/registry.js'
 import Workspace from './Workspace.jsx'
 
 // Below this width the page switches to a single scrolling column.
@@ -156,8 +156,11 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     })
   }
 
+  const tabFor = (widget) => tabOf(widget, store.get(widgetDataKey(widget.id)))
+
   function menuItemsFor(widget, area, isMaximized) {
-    const { editLabel, tab } = WIDGETS[widget.type]
+    const { editLabel } = WIDGETS[widget.type]
+    const tab = tabFor(widget)
     return [
       editLabel && { label: editLabel, onSelect: () => store.set(widgetDataKey(widget.id), {}) },
       tab.href && {
@@ -197,7 +200,8 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   }
 
   function renderWidget(widget, area, dragProps = {}) {
-    const { tab, component: Component } = WIDGETS[widget.type]
+    const { component: Component } = WIDGETS[widget.type]
+    const tab = tabFor(widget)
     const isMaximized = maximizedId === widget.id
     // Phones get the browser-window frame, whose buttons are always visible
     // (no hover or right-click there). Everywhere else widgets are cards.
@@ -207,7 +211,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           widgetId={widget.id}
           type={widget.type}
           title={tab.title}
-          menuItems={menuItemsFor(widget, area, isMaximized)}
+          // A function, so the menu reflects the card's latest settings
+          // (e.g. which tool it shows) each time it opens.
+          menuItems={() => menuItemsFor(widget, area, isMaximized)}
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
           highlight={widget.id === newestId}
@@ -343,7 +349,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         )}
       </main>
 
-      <Dock widgets={dockWidgets} onRestore={restoreWidget} />
+      <Dock widgets={dockWidgets} tabFor={tabFor} onRestore={restoreWidget} />
 
       {maximized && (
         <div className="maximized-layer" onClick={(event) => event.target === event.currentTarget && setMaximizedId(null)}>

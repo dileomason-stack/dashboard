@@ -41,9 +41,8 @@ export default function WidgetCard({
   const closePicker = useCallback(() => setPicker(null), [])
 
   const color = isValidHex(style.background) ? style.background : null
-  const items = colorable
-    ? [{ label: 'Card color…', onSelect: () => setPicker(menu) }, ...menuItems]
-    : menuItems
+  const baseItems = menu ? menuItems() : []
+  const items = colorable ? [{ label: 'Card color…', onSelect: () => setPicker(menu) }, ...baseItems] : baseItems
 
   function openMenuAt(event) {
     event.preventDefault()

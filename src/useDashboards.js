@@ -1,4 +1,5 @@
 import { newId } from './lib/id.js'
+import { TEMPLATES } from './templates.js'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
 
 // The list of dashboards and which one is showing. Each dashboard's layout is
@@ -27,9 +28,14 @@ export function useDashboards() {
     list: state.list,
     active,
     select: (id) => setState((current) => ({ ...current, activeId: id })),
-    create() {
+    // Makes a dashboard from a template (see templates.js) and switches to it.
+    create(templateKey = 'blank') {
+      const template = TEMPLATES[templateKey] ?? TEMPLATES.blank
       const id = `dash-${newId()}`
-      setState((current) => ({ list: [...current.list, { id, name: 'New dashboard' }], activeId: id }))
+      const { layout, data } = template.build((type) => `${type}-${newId()}`)
+      store.set(layoutKeyFor(id), layout)
+      for (const [widgetId, settings] of Object.entries(data)) store.set(widgetDataKey(widgetId), settings)
+      setState((current) => ({ list: [...current.list, { id, name: template.name }], activeId: id }))
       return id
     },
     rename(id, name) {

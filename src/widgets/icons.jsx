@@ -158,3 +158,21 @@ export function NewsIcon() {
     </svg>
   )
 }
+
+export function ToolIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#2d70b3" />
+      <path d="M3.5 11.5l3-3.5 2 2 4-5" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function NotesIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="2" y="1" width="12" height="14" rx="2.5" fill="#f4b400" />
+      <path d="M5 5h6M5 8h6M5 11h4" stroke="#fff" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
