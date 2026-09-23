@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { routeLinksBeside } from './lib/openExternal.js'
 import Dashboard from './Dashboard.jsx'
+import Toast from './Toast.jsx'
 import DashboardTabs from './DashboardTabs.jsx'
 import { exampleSeed } from './example.js'
 import { createStore, readJSON, removeKey, StoreContext, writeJSON } from './storage.js'
@@ -40,6 +41,7 @@ export default function App() {
 
   return (
     <StoreContext.Provider value={store}>
+      <Toast />
       <DashboardSwitcher
         key={generation}
         hasOwn={readJSON(HAS_OWN_KEY, false)}

@@ -24,6 +24,7 @@ export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, rend
     onDragStart: (event) => {
       event.dataTransfer.effectAllowed = 'move'
       event.dataTransfer.setData('text/plain', id)
+      event.dataTransfer.setData('application/x-onlyonescreen-card', id)
       const card = event.currentTarget.closest('.card')
       const rect = card.getBoundingClientRect()
       event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top)

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { readJSON, writeJSON } from '../storage.js'
+import { showToast } from './toast.js'
 
 // Sites that can't run inside a card (Gmail, Claude, Docs editing, a Canvas
 // assignment, a news article) open "beside" the dashboard: in a window on the
@@ -36,8 +37,26 @@ function openInNewTab(url) {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+// A full-screen browser window can't have another window beside it (macOS
+// gives each new window its own full-screen space), so there we use a tab.
+function isFullScreen() {
+  return !!document.fullscreenElement || (window.outerWidth >= screen.width && window.outerHeight >= screen.height)
+}
+
+let fullScreenTipShown = false
+
 export function openExternal(url) {
   if (mode === 'tab') return openInNewTab(url)
+  if (isFullScreen()) {
+    if (!fullScreenTipShown) {
+      fullScreenTipShown = true
+      showToast(
+        'You’re in full screen, so this opened in a tab. Tip: right-click that tab → “Add tab to split view” to keep your dashboard beside it.',
+        10000,
+      )
+    }
+    return openInNewTab(url)
+  }
 
   const { availWidth, availHeight } = window.screen
   const availLeft = window.screen.availLeft ?? 0

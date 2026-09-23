@@ -3024,3 +3024,107 @@ a.canvas-title:hover {
   min-height: 0;
   height: auto;
 }
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 10px 10px 10px 16px;
+  border-radius: 12px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 0.9rem;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+  transform: translateX(-50%);
+  animation: toast-in 0.2s ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+.toast .toast-close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+}
+
+/* ---------- Website ---------- */
+
+.card-body:has(.website),
+.widget-body:has(.website) {
+  padding: 0;
+  overflow: hidden;
+}
+
+.website {
+  height: 100%;
+}
+
+.website iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.button-link.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* ---------- Dropping a link onto the dashboard ---------- */
+
+/* Embedded sites would swallow the drop, so they ignore the mouse meanwhile. */
+.link-dragging iframe {
+  pointer-events: none;
+}
+
+.link-dragging .workspace {
+  position: relative;
+}
+
+.link-dragging .workspace::after {
+  content: '⬇ Drop a link here to add it as a card';
+  position: absolute;
+  inset: 6px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--accent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+  pointer-events: none;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
 import ColorPicker from './ColorPicker.jsx'
@@ -8,6 +8,9 @@ import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
 import { COLS, upgradeGrid } from './lib/grid.js'
 import { openExternal, setOpenMode, useOpenMode } from './lib/openExternal.js'
+import { classifyLink } from './lib/classifyLink.js'
+import { droppedLink, isLinkDrag } from './lib/drag.js'
+import { showToast } from './lib/toast.js'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
@@ -107,9 +110,11 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
 
   const update = (changes) => setLayout((current) => ({ ...current, ...changes(current) }))
 
-  // `at` is a grid position ({ x, y }) from right-click → "Add … here".
-  function addWidget(type, area, at) {
+  // `at` is a grid position ({ x, y }) from right-click → "Add … here" or a
+  // dropped link; `settings` pre-fills the new card (e.g. a dropped playlist).
+  function addWidget(type, area, at, settings) {
     const id = `${type}-${newId()}`
+    if (settings !== undefined) store.set(widgetDataKey(id), settings)
     update((current) =>
       area === 'sidebar'
         ? { sidebar: [...current.sidebar, { id, type }], sidebarOpen: true }
@@ -120,6 +125,76 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     )
     setNewestId(id)
   }
+
+  // A link dragged onto the dashboard becomes the best card for it (see
+  // classifyLink.js). Sites that can't be shown inside a card become a
+  // shortcut in the dashboard's Links card (made if there isn't one).
+  async function dropLink(link, at) {
+    showToast('Adding that link…', 3000)
+    const card = await classifyLink(link)
+    if (!card) return showToast('That didn’t look like a website link.')
+    if (card.type !== 'links') {
+      addWidget(card.type, 'workspace', at, card.settings)
+      return showToast(`Added: ${card.label}`)
+    }
+    const shortcut = { id: newId(), ...card.link }
+    const existing = [...layout.sidebar, ...layout.workspace].find((widget) => widget.type === 'links')
+    if (existing) {
+      const current = store.get(widgetDataKey(existing.id)) ?? {}
+      store.set(widgetDataKey(existing.id), { ...current, links: [...(current.links ?? []), shortcut] })
+      if (minimized.has(existing.id)) restoreWidget(existing.id)
+      else setNewestId(existing.id)
+    } else {
+      addWidget('links', 'workspace', at, { links: [shortcut] })
+    }
+    showToast(`${card.label} can’t be shown inside other websites, so it was added as a ↗ shortcut in your Links card.`, 8000)
+  }
+
+  const dropLinkRef = useRef(dropLink)
+  useEffect(() => {
+    dropLinkRef.current = dropLink
+  })
+
+  // Dropping a link anywhere else (the sidebar, the toolbar) would make the
+  // browser leave the dashboard, so catch those drops too and add the card
+  // at the bottom of the workspace. While a link is dragged, embedded sites
+  // stop catching the mouse (CSS: .link-dragging) so the drop reaches us.
+  useEffect(() => {
+    let depth = 0
+    const root = document.documentElement
+    const onDragEnter = (event) => {
+      if (!isLinkDrag(event.dataTransfer)) return
+      depth += 1
+      root.classList.add('link-dragging')
+    }
+    const onDragLeave = () => {
+      depth = Math.max(0, depth - 1)
+      if (depth === 0) root.classList.remove('link-dragging')
+    }
+    const onDragOver = (event) => {
+      if (isLinkDrag(event.dataTransfer)) event.preventDefault()
+    }
+    const onDrop = (event) => {
+      depth = 0
+      root.classList.remove('link-dragging')
+      if (!isLinkDrag(event.dataTransfer)) return
+      event.preventDefault()
+      if (event.onlyonescreenHandled) return
+      const link = droppedLink(event.dataTransfer)
+      if (link) dropLinkRef.current(link, null)
+    }
+    window.addEventListener('dragenter', onDragEnter)
+    window.addEventListener('dragleave', onDragLeave)
+    window.addEventListener('dragover', onDragOver)
+    window.addEventListener('drop', onDrop)
+    return () => {
+      window.removeEventListener('dragenter', onDragEnter)
+      window.removeEventListener('dragleave', onDragLeave)
+      window.removeEventListener('dragover', onDragOver)
+      window.removeEventListener('drop', onDrop)
+      root.classList.remove('link-dragging')
+    }
+  }, [])
 
   function minimizeWidget(id) {
     if (maximizedId === id) setMaximizedId(null)
@@ -312,6 +387,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}
       onAddWidget={(type, at) => addWidget(type, 'workspace', at)}
+      onDropLink={dropLink}
       showStarter={sidebarWidgets.length === 0 && dockWidgets.length === 0}
       renderWidget={renderSlot('workspace')}
       stacked={stacked}

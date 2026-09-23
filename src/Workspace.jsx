@@ -3,7 +3,7 @@ import ContextMenu from './ContextMenu.jsx'
 import ReactGridLayout, { bottom, useContainerWidth } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import { NOT_DRAGGABLE } from './lib/drag.js'
+import { droppedLink, NOT_DRAGGABLE } from './lib/drag.js'
 import { COLS, createPushDownCompactor, GAP, ROW_HEIGHT } from './lib/grid.js'
 import UseBadge from './UseBadge.jsx'
 import { WIDGETS } from './widgets/registry.js'
@@ -35,7 +35,7 @@ const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
 // down, so cards never hide each other. Resize from the corner grip or the
 // right/bottom edges.
-export default function Workspace({ widgets, grid, onGridChange, onAddWidget, showStarter, renderWidget, stacked }) {
+export default function Workspace({ widgets, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid)
   // Created once. It remembers which card is being dragged/resized, since that
@@ -44,22 +44,35 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
   const setActive = (current, item) => compactor.setActive(item?.i ?? null, current)
   const clearActive = () => compactor.setActive(null)
 
+  // The grid cell under a point on screen.
+  function cellAt(event) {
+    const rect = containerRef.current.getBoundingClientRect()
+    const colWidth = (rect.width - GAP) / COLS
+    return {
+      x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
+      y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
+    }
+  }
+
   // Right-click on empty space → "Add … here" at that spot in the grid.
   const [addMenu, setAddMenu] = useState(null)
   const closeAddMenu = useCallback(() => setAddMenu(null), [])
   function openAddMenu(event) {
     if (stacked || event.target.closest('.react-grid-item, .starter-button')) return
     event.preventDefault()
-    const rect = containerRef.current.getBoundingClientRect()
-    const colWidth = (rect.width - GAP) / COLS
-    setAddMenu({
-      x: event.clientX,
-      y: event.clientY,
-      at: {
-        x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
-        y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
-      },
-    })
+    setAddMenu({ x: event.clientX, y: event.clientY, at: cellAt(event) })
+  }
+
+  // A link dragged in from a browser tab or another page lands where dropped.
+  // (Dashboard catches drops everywhere else; the flag tells it this one is handled.)
+  const dropProps = {
+    onDrop: (event) => {
+      const link = droppedLink(event.dataTransfer)
+      if (!link) return
+      event.preventDefault()
+      event.nativeEvent.onlyonescreenHandled = true
+      onDropLink(link, stacked ? null : cellAt(event))
+    },
   }
   const addMenuElement = addMenu && (
     <ContextMenu
@@ -80,7 +93,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
 
   if (widgets.length === 0) {
     return (
-      <div className="workspace" ref={containerRef} onContextMenu={openAddMenu}>
+      <div className="workspace" ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
         {addMenuElement}
         {showStarter ? (
           <div className="empty-area starter">
@@ -126,7 +139,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
   }
 
   return (
-    <div className="workspace" ref={containerRef} onContextMenu={openAddMenu}>
+    <div className="workspace" ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
       {addMenuElement}
       {mounted && (
         <ReactGridLayout

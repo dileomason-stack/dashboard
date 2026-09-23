@@ -14,6 +14,7 @@ import LinksWidget from './LinksWidget.jsx'
 import GoogleFileWidget from './GoogleFileWidget.jsx'
 import InboxWidget from './InboxWidget.jsx'
 import ArcadeWidget from './ArcadeWidget.jsx'
+import WebsiteWidget from './WebsiteWidget.jsx'
 import { toGoogleEmbed } from '../lib/embeds.js'
 import SnakeWidget from './SnakeWidget.jsx'
 import Game2048Widget from './Game2048Widget.jsx'
@@ -26,6 +27,7 @@ import {
   ClaudeIcon,
   DriveIcon,
   GameIcon,
+  GlobeIcon,
   GoogleIcon,
   KeyboardIcon,
   LinksIcon,
@@ -232,12 +234,24 @@ export const WIDGETS = {
     size: { w: 32, h: 70, minW: 16, minH: 40 },
     tab: { title: 'Arcade', address: 'Arcade', icon: ArcadeIcon },
   },
+  website: {
+    title: 'Website',
+    description: 'Any site that allows it: a YouTube video, Wikipedia, a tool…',
+    component: WebsiteWidget,
+    editLabel: 'Change website',
+    size: { w: 24, h: 50, minW: 10, minH: 20 },
+    tab: { title: 'Website', address: 'Website', icon: GlobeIcon },
+    tabFor: (settings) =>
+      settings?.url
+        ? { title: settings.title ?? 'Website', address: new URL(settings.openUrl ?? settings.url).hostname, href: settings.openUrl ?? settings.url }
+        : null,
+  },
 }
 
 // What each card does, shown as a badge (see UseBadge.jsx): 'live' works
 // fully in the card, 'preview' shows it at a glance, 'jump' opens the real app.
 const USE = {
-  live: ['todo', 'spotify', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
+  live: ['todo', 'spotify', 'website', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
   preview: ['canvas', 'calendar', 'scores', 'news', 'sleeper', 'googlefile'],
   jump: ['claude', 'inbox', 'links'],
 }

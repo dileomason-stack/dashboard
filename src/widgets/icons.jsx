@@ -260,3 +260,12 @@ export function ArcadeIcon() {
     </svg>
   )
 }
+
+export function GlobeIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" fill="#0ea5e9" />
+      <path d="M1.5 8h13M8 1c2 2 2 12 0 14M8 1c-2 2-2 12 0 14" fill="none" stroke="#fff" strokeWidth="1.1" />
+    </svg>
+  )
+}
