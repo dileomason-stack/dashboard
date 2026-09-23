@@ -234,7 +234,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
           >
             <span aria-hidden="true">◧</span> {layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           </button>
-          <h1>Dashboard</h1>
+          <h1>OnlyOneScreen</h1>
         </div>
         <div className="toolbar-actions">
           <AddWidgetMenu onAdd={addWidget} />
