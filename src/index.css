@@ -2390,7 +2390,7 @@ a.canvas-title:hover {
   opacity: 0.8;
 }
 
-.snake:focus-visible .snake-board {
+.snake.armed .snake-board {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 8px;
@@ -2436,14 +2436,19 @@ a.canvas-title:hover {
 }
 
 .typing-text {
-  flex: 1;
-  min-height: 0;
+  flex: none;
+  height: calc(1.6em * 3);
   margin: 0;
   overflow: hidden;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 1.05rem;
   line-height: 1.6;
   color: var(--text-muted);
+}
+
+.typing-text p {
+  margin: 0;
+  transition: transform 0.15s ease-out;
 }
 
 .typing-text .right {
@@ -2462,6 +2467,18 @@ a.canvas-title:hover {
 
 .typing-input {
   flex: none;
+}
+
+/* The words above already show what you've typed, so the box itself hides
+   the text and just holds the keyboard focus. */
+.typing input.typing-input {
+  color: transparent;
+  caret-color: transparent;
+  background: var(--surface-muted);
+}
+
+.typing input.typing-input:focus {
+  outline: 2px solid var(--accent);
 }
 
 .typing-stats {
@@ -2686,4 +2703,102 @@ a.canvas-title:hover {
 .arcade-builtin > * {
   height: 100%;
   container-type: size;
+}
+
+/* ---------- 2048 ---------- */
+
+.card-body:has(.g2048) {
+  container-type: size;
+}
+
+.g2048 {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+
+.g2048-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, calc(100cqh - 80px));
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.g2048-header strong {
+  color: var(--text);
+}
+
+.g2048-title {
+  margin-right: auto;
+  font-size: 1.2rem;
+}
+
+.g2048-header button {
+  padding: 3px 10px;
+  font-size: 0.8rem;
+}
+
+.g2048-board {
+  position: relative;
+  width: min(100%, calc(100cqh - 90px));
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #bbada0;
+}
+
+.g2048.armed .g2048-board {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.g2048-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #cdc1b4;
+  color: #776e65;
+  font-weight: 800;
+  font-size: clamp(0.9rem, 7cqh, 2rem);
+}
+
+.g2048-tile.v2 { background: #eee4da; }
+.g2048-tile.v4 { background: #ede0c8; }
+.g2048-tile.v8 { background: #f2b179; color: #fff; }
+.g2048-tile.v16 { background: #f59563; color: #fff; }
+.g2048-tile.v32 { background: #f67c5f; color: #fff; }
+.g2048-tile.v64 { background: #f65e3b; color: #fff; }
+.g2048-tile.v128 { background: #edcf72; color: #fff; font-size: clamp(0.8rem, 6cqh, 1.7rem); }
+.g2048-tile.v256 { background: #edcc61; color: #fff; font-size: clamp(0.8rem, 6cqh, 1.7rem); }
+.g2048-tile.v512 { background: #edc850; color: #fff; font-size: clamp(0.8rem, 6cqh, 1.7rem); }
+.g2048-tile.v1024 { background: #edc53f; color: #fff; font-size: clamp(0.7rem, 5cqh, 1.4rem); }
+.g2048-tile.v2048 { background: #edc22e; color: #fff; font-size: clamp(0.7rem, 5cqh, 1.4rem); }
+.g2048-tile.v4096 { background: #3c3a32; color: #fff; font-size: clamp(0.7rem, 5cqh, 1.4rem); }
+
+.g2048-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  background: rgb(238 228 218 / 0.75);
+  color: #776e65;
+}
+
+.g2048-overlay p {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
 }

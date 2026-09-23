@@ -1,11 +1,13 @@
 import { GAMES } from '../lib/tools.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
+import Game2048Widget from './Game2048Widget.jsx'
 import SnakeWidget from './SnakeWidget.jsx'
 import TypingWidget from './TypingWidget.jsx'
 
 // One big game screen with a row of game buttons, instead of many game cards
 // with clashing designs. Embedded sites and our own games (Snake, Typing)
-// share the screen; the last game played is remembered.
+// share the screen; the last game played is remembered. 2048 is our own
+// version (the 2048.org site wasn't reliable).
 // Settings: { current }. Built-in games keep their own saved data (best
 // scores) under "<this widget's id>-<game>".
 const isSettings = (value) => value && typeof value === 'object'
@@ -21,15 +23,13 @@ const ARCADE = [
   ['solitaire', '🃏', 'Solitaire'],
   ['minesweeper', '💣', 'Minesweeper'],
   ['dino', '🦖', 'Dino'],
-  ['framed', '🎬', 'Framed'],
-  ['costcodle', '💲', 'Costcodle'],
   ['semantle', '🧠', 'Semantle'],
   ['sporcle', '❓', 'Sporcle'],
   ['chesstv', '📺', 'Live chess'],
   ['coolmath', '🎮', 'Coolmath'],
 ]
 
-const BUILT_IN = { snake: SnakeWidget, typing: TypingWidget }
+const BUILT_IN = { g2048: Game2048Widget, snake: SnakeWidget, typing: TypingWidget }
 
 export default function ArcadeWidget({ id }) {
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)

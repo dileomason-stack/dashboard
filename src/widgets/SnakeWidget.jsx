@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ARROW_KEYS, useGameKeys } from '../lib/useGameKeys.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 
-// Classic Snake on a 20×20 board. Arrow keys or WASD (click the card first),
-// or the on-screen arrows. Eat apples to grow; it speeds up as you go.
+// Classic Snake on a 20×20 board. Arrow keys or WASD once you've clicked the
+// game (clicking elsewhere pauses it), or the on-screen arrows. Eat apples to grow; it speeds up as you go.
 // Settings: { best } (high score).
 const SIZE = 20
 const START_SPEED = 140 // ms per step
@@ -10,15 +11,16 @@ const MIN_SPEED = 60
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 const DIRECTIONS = {
-  arrowup: [0, -1],
+  ArrowUp: [0, -1],
   w: [0, -1],
-  arrowdown: [0, 1],
+  ArrowDown: [0, 1],
   s: [0, 1],
-  arrowleft: [-1, 0],
+  ArrowLeft: [-1, 0],
   a: [-1, 0],
-  arrowright: [1, 0],
+  ArrowRight: [1, 0],
   d: [1, 0],
 }
+const SNAKE_KEYS = [...ARROW_KEYS, ' ']
 
 function randomApple(snake) {
   for (;;) {
@@ -43,6 +45,21 @@ export default function SnakeWidget({ id }) {
   const canvasRef = useRef(null)
   const gameRef = useRef(newGame())
   const best = settings.best ?? 0
+
+  const { rootRef, active, setActive } = useGameKeys(
+    (key) => {
+      if (DIRECTIONS[key]) turn(DIRECTIONS[key])
+      else if (key === ' ') {
+        if (status === 'playing') setStatus('paused')
+        else if (status === 'paused') setStatus('playing')
+        else start()
+      }
+    },
+    { keys: SNAKE_KEYS },
+  )
+
+  // Clicking somewhere else pauses a running game; clicking back in resumes.
+  const shown = status === 'playing' && !active ? 'paused' : status
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -69,7 +86,7 @@ export default function SnakeWidget({ id }) {
 
   // Game loop: one step every `speed` ms while playing.
   useEffect(() => {
-    if (status !== 'playing') return
+    if (shown !== 'playing') return
     const game = gameRef.current
     const speed = Math.max(MIN_SPEED, START_SPEED - game.score * 4)
     const timer = setInterval(() => {
@@ -95,14 +112,14 @@ export default function SnakeWidget({ id }) {
       draw()
     }, speed)
     return () => clearInterval(timer)
-  }, [status, score, best, draw, setSettings])
+  }, [shown, score, best, draw, setSettings])
 
   function start() {
     gameRef.current = newGame()
     setScore(0)
     setStatus('playing')
+    setActive(true)
     draw()
-    canvasRef.current?.parentElement?.focus()
   }
 
   function turn(next) {
@@ -116,23 +133,7 @@ export default function SnakeWidget({ id }) {
   }
 
   return (
-    <div
-      className="snake no-drag"
-      tabIndex={0}
-      onKeyDown={(event) => {
-        const key = event.key.toLowerCase()
-        if (DIRECTIONS[key]) {
-          event.preventDefault()
-          turn(DIRECTIONS[key])
-        } else if (key === ' ') {
-          event.preventDefault()
-          if (status === 'playing') setStatus('paused')
-          else if (status === 'paused') setStatus('playing')
-          else start()
-        }
-      }}
-      onBlur={() => status === 'playing' && setStatus('paused')}
-    >
+    <div ref={rootRef} className={`snake no-drag${active ? ' armed' : ''}`}>
       <div className="snake-header">
         <span>
           Score <strong>{score}</strong>
@@ -141,11 +142,22 @@ export default function SnakeWidget({ id }) {
       </div>
       <div className="snake-board">
         <canvas ref={canvasRef} width={400} height={400} />
-        {status !== 'playing' && (
+        {shown !== 'playing' && (
           <div className="snake-overlay">
-            <p>{status === 'over' ? `Game over! Score ${score}` : status === 'paused' ? 'Paused' : 'Snake'}</p>
-            <button type="button" className="primary" onClick={status === 'paused' ? () => setStatus('playing') : start}>
-              {status === 'paused' ? 'Resume' : status === 'over' ? 'Play again' : 'Start'}
+            <p>{shown === 'over' ? `Game over! Score ${score}` : shown === 'paused' ? 'Paused' : 'Snake'}</p>
+            <button
+              type="button"
+              className="primary"
+              onClick={
+                shown === 'paused'
+                  ? () => {
+                      setActive(true)
+                      setStatus('playing')
+                    }
+                  : start
+              }
+            >
+              {shown === 'paused' ? 'Resume' : shown === 'over' ? 'Play again' : 'Start'}
             </button>
             <span className="snake-hint">Arrow keys or WASD · Space to pause</span>
           </div>

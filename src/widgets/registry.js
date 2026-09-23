@@ -16,6 +16,7 @@ import InboxWidget from './InboxWidget.jsx'
 import ArcadeWidget from './ArcadeWidget.jsx'
 import { toGoogleEmbed } from '../lib/embeds.js'
 import SnakeWidget from './SnakeWidget.jsx'
+import Game2048Widget from './Game2048Widget.jsx'
 import TypingWidget from './TypingWidget.jsx'
 import { GAMES, TOOLS } from '../lib/tools.js'
 import {
@@ -159,7 +160,7 @@ export const WIDGETS = {
   },
   game: {
     title: 'Game',
-    description: 'HoopGrids, Globle, Semantle, chess, and more',
+    description: 'HoopGrids, Globle, Semantle, chess, Solitaire, and more',
     component: GameWidget,
     editLabel: 'Change game',
     size: { w: 18, h: 56, minW: 12, minH: 24 },
@@ -190,6 +191,13 @@ export const WIDGETS = {
     size: { w: 14, h: 58, minW: 10, minH: 40 },
     tab: { title: 'Snake', address: 'Snake', icon: SnakeIcon },
   },
+  g2048: {
+    title: '2048',
+    description: 'Slide and merge tiles to reach 2048',
+    component: Game2048Widget,
+    size: { w: 14, h: 60, minW: 10, minH: 42 },
+    tab: { title: '2048', address: '2048', icon: GameIcon },
+  },
   typing: {
     title: 'Typing speed test',
     description: 'How many words per minute can you type?',
@@ -219,7 +227,7 @@ export const WIDGETS = {
   },
   arcade: {
     title: 'Arcade',
-    description: 'One big screen with 15 games to switch between',
+    description: 'One big screen with 13 games to switch between',
     component: ArcadeWidget,
     size: { w: 32, h: 70, minW: 16, minH: 40 },
     tab: { title: 'Arcade', address: 'Arcade', icon: ArcadeIcon },

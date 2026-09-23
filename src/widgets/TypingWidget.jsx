@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 
 // Typing speed test: type the words shown as fast and accurately as you can
@@ -20,6 +20,22 @@ export default function TypingWidget({ id }) {
   const [now, setNow] = useState(0)
   const [finished, setFinished] = useState(false)
   const inputRef = useRef(null)
+  const cursorRef = useRef(null)
+  // How far the text is scrolled, in pixels. It moves down one line only when
+  // the cursor reaches the third visible line, so the text never slides sideways.
+  const [scrollTop, setScrollTop] = useState(0)
+
+  useLayoutEffect(() => {
+    const cursor = cursorRef.current
+    if (!cursor) return
+    // Use the paragraph's line height (a letter's own box is shorter).
+    const lineHeight = parseFloat(getComputedStyle(cursor.parentElement).lineHeight) || cursor.offsetHeight || 1
+    // Cursor's distance from the top of the paragraph (the scroll shifts both equally).
+    const fromTop = cursor.getBoundingClientRect().top - cursor.parentElement.getBoundingClientRect().top
+    const line = Math.floor((fromTop + lineHeight / 2) / lineHeight)
+    const target = Math.max(0, line - 1) * lineHeight
+    if (target !== scrollTop) setScrollTop(target)
+  }, [typed, text, scrollTop])
 
   const elapsed = startedAt ? Math.min(seconds, (now - startedAt) / 1000) : 0
   const remaining = Math.ceil(seconds - elapsed)
@@ -51,12 +67,9 @@ export default function TypingWidget({ id }) {
     setTyped('')
     setStartedAt(null)
     setFinished(false)
+    setScrollTop(0)
     inputRef.current?.focus()
   }
-
-  // Show a window of the text around the cursor so long runs keep scrolling.
-  const windowStart = Math.max(0, text.lastIndexOf(' ', Math.max(0, typed.length - 40)) + 1)
-  const visible = text.slice(windowStart, windowStart + 180)
 
   return (
     <div className="typing no-drag" onClick={() => inputRef.current?.focus()}>
@@ -79,21 +92,23 @@ export default function TypingWidget({ id }) {
         <span className="typing-timer">{finished ? 'Done!' : `${remaining}s`}</span>
       </div>
 
-      <p className="typing-text" aria-label="Text to type">
-        {[...visible].map((char, i) => {
-          const index = windowStart + i
-          const state =
-            index < typed.length ? (typed[index] === char ? 'right' : 'wrong') : index === typed.length ? 'cursor' : ''
-          return (
-            <span key={index} className={state}>
-              {char}
-            </span>
-          )
-        })}
-      </p>
+      <div className="typing-text" aria-label="Text to type">
+        <p style={{ transform: `translateY(${-scrollTop}px)` }}>
+          {[...text].map((char, index) => {
+            const state =
+              index < typed.length ? (typed[index] === char ? 'right' : 'wrong') : index === typed.length ? 'cursor' : ''
+            return (
+              <span key={index} className={state} ref={index === typed.length ? cursorRef : undefined}>
+                {char}
+              </span>
+            )
+          })}
+        </p>
+      </div>
 
       <input
         ref={inputRef}
+        type="text"
         className="typing-input"
         value={typed}
         disabled={finished}
@@ -105,7 +120,7 @@ export default function TypingWidget({ id }) {
           setTyped(event.target.value.slice(0, text.length))
         }}
         onPaste={(event) => event.preventDefault()}
-        placeholder={startedAt ? '' : 'Start typing to begin…'}
+        placeholder={startedAt ? (finished ? 'Time’s up!' : 'Keep typing…') : 'Click here and start typing to begin…'}
         aria-label="Type here"
         autoComplete="off"
         autoCorrect="off"
