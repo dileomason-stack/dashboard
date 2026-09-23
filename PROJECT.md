@@ -71,6 +71,15 @@ fetches data and renders it ourselves, or a launcher that opens the real app.
   own dashboard (same layout, empty widgets with setup screens), saved in localStorage.
 - **Demo context:** the club opens the link on a fresh browser for the judges, so the first
   screen must look complete with zero setup.
+- **Google results inside the card:** uses Google's undocumented `igu=1` URL setting
+  (`google.com/search?igu=1&q=...`), which drops the header that normally blocks embedding.
+  `api/google-embed.js` checks hourly and the card falls back to a new tab if it stops working.
+- **Feature wishlist (from Mason, Tuesday night):** multiple dashboards (e.g. "Daily check",
+  a project dashboard, "Everything"), Desmos (embeds fine), weather (Open-Meteo, free, no key),
+  news headlines (RSS via an api/ function), sports scores with a chosen team (ESPN's public
+  scoreboard JSON, CORS-open), Sleeper fantasy football (public read-only API, CORS-open, by
+  username), a links card (Gmail, Outlook, Docs...). Gmail/Drive previews need Google OAuth
+  (testing mode: only hand-added accounts, re-consent about every 7 days) - stretch goal only.
 - **Deferred to Thursday if time allows:** real Spotify playback control (needs Premium +
   Spotify app), marking assignments done in Canvas itself (needs a Canvas token), Google
   results preview via Programmable Search, mic button.

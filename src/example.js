@@ -84,10 +84,16 @@ export function exampleSeed() {
       workspace: [
         { id: 'ex-search', type: 'search' },
         { id: 'ex-claude', type: 'claude' },
+        { id: 'ex-scores', type: 'scores' },
+        { id: 'ex-news', type: 'news' },
+        { id: 'ex-sleeper', type: 'sleeper' },
       ],
       grid: [
-        { i: 'ex-search', x: 0, y: 0, w: 7, h: 8 },
-        { i: 'ex-claude', x: 7, y: 0, w: 5, h: 8 },
+        { i: 'ex-search', x: 0, y: 0, w: 5, h: 7 },
+        { i: 'ex-claude', x: 5, y: 0, w: 3, h: 7 },
+        { i: 'ex-scores', x: 8, y: 0, w: 4, h: 7 },
+        { i: 'ex-news', x: 0, y: 7, w: 7, h: 8 },
+        { i: 'ex-sleeper', x: 7, y: 7, w: 5, h: 8 },
       ],
     },
     'widget:ex-spotify': { url: EXAMPLE_PLAYLIST },
@@ -100,5 +106,9 @@ export function exampleSeed() {
     ],
     'widget:ex-canvas': { sample: true, done: {} },
     'widget:ex-calendar': { sample: true },
+    // Alex roots for the 49ers and reads the Cal Poly student paper.
+    'widget:ex-scores': { league: 'nfl', teams: ['SF'] },
+    'widget:ex-news': { source: 'mustang' },
+    'widget:ex-sleeper': { sample: true },
   }
 }

@@ -129,3 +129,32 @@ export function ClaudeIcon() {
     </svg>
   )
 }
+
+export function ScoresIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#d00" />
+      <ellipse cx="8" cy="8" rx="5.2" ry="3.2" fill="#fff" transform="rotate(-35 8 8)" />
+      <path d="M6.3 9.7l3.4-3.4M6.9 7.9l1.2 1.2M7.9 6.9l1.2 1.2" stroke="#d00" strokeWidth="0.9" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function SleeperIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#18202f" />
+      <path d="M10.8 3.2a5 5 0 1 0 2 8.6 4.2 4.2 0 0 1-2-8.6z" fill="#1bd1c4" />
+    </svg>
+  )
+}
+
+export function NewsIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="1" y="2" width="14" height="12" rx="2.5" fill="#5f6368" />
+      <rect x="3" y="4.5" width="4" height="3.5" rx="0.6" fill="#fff" />
+      <path d="M8.5 5h4.5M8.5 7.5h4.5M3 10.5h10" stroke="#fff" strokeWidth="1.1" strokeLinecap="round" />
+    </svg>
+  )
+}

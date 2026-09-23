@@ -1,10 +1,23 @@
 import CalendarWidget from './CalendarWidget.jsx'
 import CanvasWidget from './CanvasWidget.jsx'
 import ClaudeWidget from './ClaudeWidget.jsx'
+import NewsWidget from './NewsWidget.jsx'
+import ScoresWidget from './ScoresWidget.jsx'
 import SearchWidget from './SearchWidget.jsx'
+import SleeperWidget from './SleeperWidget.jsx'
 import SpotifyWidget from './SpotifyWidget.jsx'
 import TodoWidget from './TodoWidget.jsx'
-import { CalendarIcon, CanvasIcon, ClaudeIcon, GoogleIcon, SpotifyIcon, TodoIcon } from './icons.jsx'
+import {
+  CalendarIcon,
+  CanvasIcon,
+  ClaudeIcon,
+  GoogleIcon,
+  NewsIcon,
+  ScoresIcon,
+  SleeperIcon,
+  SpotifyIcon,
+  TodoIcon,
+} from './icons.jsx'
 
 // Every widget type the dashboard knows about. Adding a new widget means
 // writing its component and adding one entry here; the "Add widget" menu,
@@ -73,6 +86,28 @@ export const WIDGETS = {
     component: ClaudeWidget,
     size: { w: 5, h: 7, minW: 3, minH: 5 },
     tab: { title: 'Claude', address: 'claude.ai', href: 'https://claude.ai/new', icon: ClaudeIcon },
+  },
+  scores: {
+    title: 'Sports scores',
+    description: 'Live scores; your teams first',
+    component: ScoresWidget,
+    size: { w: 4, h: 8, minW: 3, minH: 5 },
+    tab: { title: 'Scores', address: 'espn.com', href: 'https://www.espn.com', icon: ScoresIcon },
+  },
+  sleeper: {
+    title: 'Sleeper fantasy',
+    description: 'Your fantasy football matchup and standings',
+    component: SleeperWidget,
+    editLabel: 'Change Sleeper account',
+    size: { w: 5, h: 8, minW: 3, minH: 6 },
+    tab: { title: 'Sleeper', address: 'sleeper.com', href: 'https://sleeper.com', icon: SleeperIcon },
+  },
+  news: {
+    title: 'News headlines',
+    description: 'Latest headlines from NPR, Mustang News, and more',
+    component: NewsWidget,
+    size: { w: 5, h: 8, minW: 3, minH: 5 },
+    tab: { title: 'News', address: 'Headlines', icon: NewsIcon },
   },
 }
 
