@@ -1,5 +1,11 @@
 import { useCallback, useState } from 'react'
+import ColorPicker from './ColorPicker.jsx'
 import ContextMenu from './ContextMenu.jsx'
+import { isDark, isValidHex } from './lib/colors.js'
+import { useStoreValue } from './storage.js'
+
+const NO_STYLE = {}
+const isStyle = (value) => value && typeof value === 'object'
 
 // Sidebar widgets are plain cards: no tab bar or address bar. Options live in
 // a menu opened by right-click, double-click, or the ⋯ button that appears on
@@ -7,9 +13,30 @@ import ContextMenu from './ContextMenu.jsx'
 //
 // Clicks inside embedded players (Spotify, Google Calendar) go to that site,
 // not to us, which is why the hover handle exists.
-export default function SidebarCard({ type, title, menuItems, onDragStart, onDragEnd, children }) {
+//
+// With `colorable`, the menu has "Card color…" and the chosen background is
+// saved under style:<widgetId>.
+export default function SidebarCard({
+  widgetId,
+  type,
+  title,
+  menuItems,
+  colorable,
+  getSpotifyEmbedUrl,
+  onDragStart,
+  onDragEnd,
+  children,
+}) {
   const [menu, setMenu] = useState(null)
+  const [picker, setPicker] = useState(null)
+  const [style, setStyle] = useStoreValue(`style:${widgetId}`, NO_STYLE, isStyle)
   const closeMenu = useCallback(() => setMenu(null), [])
+  const closePicker = useCallback(() => setPicker(null), [])
+
+  const color = isValidHex(style.background) ? style.background : null
+  const items = colorable
+    ? [{ label: 'Card color…', onSelect: () => setPicker(menu) }, ...menuItems]
+    : menuItems
 
   function openMenuAt(event) {
     event.preventDefault()
@@ -24,7 +51,8 @@ export default function SidebarCard({ type, title, menuItems, onDragStart, onDra
 
   return (
     <section
-      className={`card card-${type}`}
+      className={`card card-${type}${color ? (isDark(color) ? ' card-colored card-dark' : ' card-colored card-light') : ''}`}
+      style={color ? { '--card-bg': color } : undefined}
       aria-label={title}
       onContextMenu={openMenuAt}
       onDoubleClick={handleDoubleClick}
@@ -54,7 +82,17 @@ export default function SidebarCard({ type, title, menuItems, onDragStart, onDra
         </button>
       </div>
       <div className="card-body">{children}</div>
-      {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems} onClose={closeMenu} />}
+      {menu && <ContextMenu x={menu.x} y={menu.y} items={items} onClose={closeMenu} />}
+      {picker && (
+        <ColorPicker
+          x={picker.x}
+          y={picker.y}
+          value={color}
+          spotifyEmbedUrl={getSpotifyEmbedUrl()}
+          onChange={(next) => setStyle(next ? { background: next } : {})}
+          onClose={closePicker}
+        />
+      )}
     </section>
   )
 }

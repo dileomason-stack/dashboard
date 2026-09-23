@@ -70,6 +70,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
 
   function removeWidget(id) {
     store.remove(widgetDataKey(id))
+    store.remove(`style:${id}`)
     if (maximizedId === id) setMaximizedId(null)
     update((current) => ({
       sidebar: current.sidebar.filter((widget) => widget.id !== id),
@@ -129,10 +130,19 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     if (!window.confirm('Reset your dashboard to the starting layout? Widgets you added will be removed.')) return
     const keep = new Set([...OWN_DEFAULT_LAYOUT.sidebar, ...OWN_DEFAULT_LAYOUT.workspace].map((widget) => widget.id))
     for (const widget of [...layout.sidebar, ...layout.workspace]) {
-      if (!keep.has(widget.id)) store.remove(widgetDataKey(widget.id))
+      if (!keep.has(widget.id)) {
+        store.remove(widgetDataKey(widget.id))
+        store.remove(`style:${widget.id}`)
+      }
     }
     setMaximizedId(null)
     setLayout(OWN_DEFAULT_LAYOUT)
+  }
+
+  // For "Match Spotify playlist": the first Spotify widget with a playlist.
+  function getSpotifyEmbedUrl() {
+    const spotify = [...layout.sidebar, ...layout.workspace].find((widget) => widget.type === 'spotify')
+    return spotify ? (store.get(widgetDataKey(spotify.id))?.url ?? null) : null
   }
 
   function renderWidget(widget, area, dragProps = {}) {
@@ -140,7 +150,15 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     const isMaximized = maximizedId === widget.id
     if (area === 'sidebar' && !isMaximized && !stacked) {
       return (
-        <SidebarCard type={widget.type} title={tab.title} menuItems={menuItemsFor(widget)} {...dragProps}>
+        <SidebarCard
+          widgetId={widget.id}
+          type={widget.type}
+          title={tab.title}
+          menuItems={menuItemsFor(widget)}
+          colorable={WIDGETS[widget.type].colorable !== false}
+          getSpotifyEmbedUrl={getSpotifyEmbedUrl}
+          {...dragProps}
+        >
           <Component id={widget.id} />
         </SidebarCard>
       )
