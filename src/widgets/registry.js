@@ -14,8 +14,6 @@ import { CalendarIcon, CanvasIcon, ClaudeIcon, GoogleIcon, SpotifyIcon, TodoIcon
 //   ROW_HEIGHT px tall).
 // sidebarHeight: fixed card height (px) in the sidebar, for embeds that only
 //   come in set sizes.
-// sidebarMinWidth: the sidebar can't be dragged narrower than this (px) while
-//   this widget is in it.
 // colorable: false hides "Card color…" (the Spotify player covers its card).
 // editLabel: menu item that clears the widget's settings so it shows its
 //   setup screen again (e.g. to paste a different link).
@@ -30,8 +28,6 @@ export const WIDGETS = {
     editLabel: 'Change playlist',
     // Spotify's embed has fixed layouts; 80px is the compact player.
     sidebarHeight: 80,
-    // Below ~310px the player crops play/pause (logged-in view has an extra ＋ button).
-    sidebarMinWidth: 320,
     colorable: false,
     size: { w: 4, h: 8, minW: 3, minH: 5 },
     tab: { title: 'Spotify', address: 'open.spotify.com', href: 'https://open.spotify.com', icon: SpotifyIcon },
