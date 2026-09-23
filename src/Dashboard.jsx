@@ -49,8 +49,10 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const store = useStore()
   const [layout, setLayout] = useStoreValue(layoutKey, OWN_DEFAULT_LAYOUT, isLayout)
   const [maximizedId, setMaximizedId] = useState(null)
-  // Where the "Sidebar color" picker is open, if it is.
-  const [sidebarPicker, setSidebarPicker] = useState(null)
+  // The "Colors" picker: where it's open, and whether it colors the sidebar
+  // or every card on this dashboard.
+  const [colorsPicker, setColorsPicker] = useState(null)
+  const [colorScope, setColorScope] = useState('sidebar')
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
@@ -196,22 +198,34 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     setLayout(OWN_DEFAULT_LAYOUT)
   }
 
-  // "Sidebar color": give every sidebar card the same background (Spotify's
-  // player covers its card, so it's skipped). Each card can still be
-  // recolored on its own afterwards.
-  function colorSidebar(color) {
-    for (const widget of sidebarWidgets) {
-      if (WIDGETS[widget.type].colorable === false) continue
+  // "Colors": give many cards the same background at once (the sidebar's, or
+  // every card on this dashboard). Cards the Spotify player covers are
+  // skipped. Each card can still be recolored on its own afterwards.
+  const colorableIn = (scope) =>
+    (scope === 'sidebar' ? sidebarWidgets : [...sidebarWidgets, ...workspaceWidgets]).filter(
+      (widget) => WIDGETS[widget.type].colorable !== false,
+    )
+
+  function colorCards(scope, color) {
+    for (const widget of colorableIn(scope)) {
       if (color) store.set(`style:${widget.id}`, { background: color })
       else store.remove(`style:${widget.id}`)
     }
   }
 
-  // The color the sidebar cards share, if they all have the same one.
-  function sharedSidebarColor() {
-    const colors = sidebarWidgets
-      .filter((widget) => WIDGETS[widget.type].colorable !== false)
-      .map((widget) => store.get(`style:${widget.id}`)?.background ?? null)
+  // Each card gets its app's own color (Sleeper navy, ESPN red, ...); cards
+  // without one go back to the default.
+  function appColorCards(scope) {
+    for (const widget of colorableIn(scope)) {
+      const brand = WIDGETS[widget.type].brandColor
+      if (brand) store.set(`style:${widget.id}`, { background: brand })
+      else store.remove(`style:${widget.id}`)
+    }
+  }
+
+  // The color those cards share, if they all have the same one.
+  function sharedColor(scope) {
+    const colors = colorableIn(scope).map((widget) => store.get(`style:${widget.id}`)?.background ?? null)
     return colors.length && colors.every((color) => color === colors[0]) ? colors[0] : null
   }
 
@@ -238,6 +252,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           menuItems={() => menuItemsFor(widget, area, isMaximized)}
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
+          appColor={WIDGETS[widget.type].brandColor}
           highlight={widget.id === newestId}
           {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
@@ -304,16 +319,17 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           >
             <span aria-hidden="true">◧</span> {layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           </button>
-          {layout.sidebarOpen && sidebarWidgets.length > 0 && !stacked && (
+          {sidebarWidgets.length + workspaceWidgets.length > 0 && !stacked && (
             <button
               type="button"
               onClick={(event) => {
                 const rect = event.currentTarget.getBoundingClientRect()
-                setSidebarPicker({ x: rect.left, y: rect.bottom + 6 })
+                setColorScope(layout.sidebarOpen && sidebarWidgets.length > 0 ? 'sidebar' : 'all')
+                setColorsPicker({ x: rect.left, y: rect.bottom + 6 })
               }}
-              title="Color every sidebar card at once"
+              title="Color many cards at once"
             >
-              🎨 Sidebar color
+              🎨 Colors
             </button>
           )}
           <h1>OnlyOneScreen</h1>
@@ -385,16 +401,35 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
 
       <Dock widgets={dockWidgets} tabFor={tabFor} onRestore={restoreWidget} />
 
-      {sidebarPicker && (
+      {colorsPicker && (
         <ColorPicker
-          title="Sidebar color"
-          x={sidebarPicker.x}
-          y={sidebarPicker.y}
-          value={sharedSidebarColor()}
+          title="Colors"
+          x={colorsPicker.x}
+          y={colorsPicker.y}
+          value={sharedColor(colorScope)}
           spotifyEmbedUrl={getSpotifyEmbedUrl()}
-          onChange={colorSidebar}
-          onClose={() => setSidebarPicker(null)}
-        />
+          onChange={(color) => colorCards(colorScope, color)}
+          onAppColors={() => appColorCards(colorScope)}
+          onClose={() => setColorsPicker(null)}
+        >
+          <div className="segmented-tabs" role="radiogroup" aria-label="Which cards">
+            {[
+              ['sidebar', 'Sidebar'],
+              ['all', 'Whole dashboard'],
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                aria-checked={colorScope === key}
+                className={colorScope === key ? 'active' : undefined}
+                onClick={() => setColorScope(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </ColorPicker>
       )}
 
       {maximized && (

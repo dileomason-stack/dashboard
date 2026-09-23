@@ -26,6 +26,7 @@ export default function WidgetCard({
   menuItems,
   colorable,
   getSpotifyEmbedUrl,
+  appColor,
   highlight,
   onDragStart,
   onDragEnd,
@@ -98,6 +99,7 @@ export default function WidgetCard({
           y={picker.y}
           value={color}
           spotifyEmbedUrl={getSpotifyEmbedUrl()}
+          appColor={appColor}
           onChange={(next) => setStyle(next ? { background: next } : {})}
           onClose={closePicker}
         />

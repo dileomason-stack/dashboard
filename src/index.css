@@ -1994,3 +1994,126 @@ a.canvas-title:hover {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+
+/* ---------- Sleeper lineup ---------- */
+
+.segmented-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  margin-bottom: 8px;
+  border-radius: 9px;
+  background: var(--surface-muted);
+}
+
+.segmented-tabs button {
+  flex: 1;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.segmented-tabs button.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.lineup-hint,
+.bench-label {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.bench-label {
+  margin-top: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  margin-bottom: 3px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.player-row:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.player-row.selected {
+  border-color: #1bd1c4;
+  background: color-mix(in srgb, #1bd1c4 18%, transparent);
+}
+
+.player-row.target {
+  border-color: #1bd1c4;
+  border-style: dashed;
+}
+
+.slot {
+  flex: none;
+  width: 38px;
+  padding: 2px 0;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  background: #6b7280;
+}
+
+.slot-QB { background: #e0457b; }
+.slot-RB { background: #20b486; }
+.slot-WR { background: #3e8ef7; }
+.slot-TE { background: #f5a524; }
+.slot-FLEX { background: #8b5cf6; }
+.slot-K { background: #7c8591; }
+.slot-DEF { background: #a16207; }
+.slot-BN { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+
+.player-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.player-meta,
+.player-proj {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.player-points {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

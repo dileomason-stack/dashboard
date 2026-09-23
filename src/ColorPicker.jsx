@@ -20,7 +20,21 @@ const PRESETS = [
 // level (a portal) so it never picks up the card's own colors.
 // Swatches and Match Spotify close it; "Any color…" keeps it open while the
 // color is being adjusted.
-export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, onClose, title = 'Card color' }) {
+// Optional: `appColor` adds an "App color" swatch (one card); `onAppColors`
+// adds a button that gives every card its own app color (bulk); `children`
+// render above the swatches (e.g. the Sidebar / Whole dashboard choice).
+export default function ColorPicker({
+  x,
+  y,
+  value,
+  spotifyEmbedUrl,
+  onChange,
+  onClose,
+  title = 'Card color',
+  appColor,
+  onAppColors,
+  children,
+}) {
   const ref = useRef(null)
   const [position, setPosition] = useState({ left: x, top: y })
   const [matching, setMatching] = useState(false)
@@ -65,6 +79,7 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
   return createPortal(
     <div ref={ref} className="color-picker" style={position} role="dialog" aria-label={title}>
       <p className="color-picker-title">{title}</p>
+      {children}
       <div className="swatches">
         <button
           type="button"
@@ -73,6 +88,16 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
           title="Default"
           aria-label="Default color"
         />
+        {appColor && (
+          <button
+            type="button"
+            className={`swatch swatch-app${value === appColor ? ' selected' : ''}`}
+            style={{ background: appColor }}
+            onClick={() => choose(appColor)}
+            title="App color"
+            aria-label="App color"
+          />
+        )}
         {PRESETS.map(([hex, name]) => (
           <button
             key={hex}
@@ -89,6 +114,18 @@ export default function ColorPicker({ x, y, value, spotifyEmbedUrl, onChange, on
         <input type="color" value={value ?? '#ffffff'} onChange={(event) => onChange(event.target.value)} />
         Any color…
       </label>
+      {onAppColors && (
+        <button
+          type="button"
+          className="match-spotify"
+          onClick={() => {
+            onAppColors()
+            onClose()
+          }}
+        >
+          🏷 Each app’s own color
+        </button>
+      )}
       {spotifyEmbedUrl && (
         <button type="button" className="match-spotify" onClick={matchSpotify} disabled={matching}>
           {matching ? 'Matching…' : '🎵 Match Spotify playlist'}

@@ -32,6 +32,7 @@ import {
 //   wide with 8px rows (see Workspace.jsx), so h: 50 is about 400px tall.
 // sidebarHeight: fixed card height (px) in the sidebar, for embeds that only
 //   come in set sizes.
+// brandColor: the app's own color, offered as "App color" in color pickers.
 // colorable: false hides "Card color…" (the Spotify player covers its card).
 // tabFor(settings): optional; per-card title/address/link based on the card's
 //   settings (e.g. the Tool widget is named after the tool it shows).
@@ -63,6 +64,7 @@ export const WIDGETS = {
     title: 'Canvas assignments',
     description: 'What’s due next across your classes',
     component: CanvasWidget,
+    brandColor: '#b3261e',
     editLabel: 'Change Canvas feed',
     size: { w: 20, h: 65, minW: 12, minH: 24 },
     tab: { title: 'Canvas', address: 'canvas.calpoly.edu', href: 'https://canvas.calpoly.edu', icon: CanvasIcon },
@@ -71,6 +73,7 @@ export const WIDGETS = {
     title: 'Google Calendar',
     description: 'Your calendar, or a sample week',
     component: CalendarWidget,
+    brandColor: '#1a73e8',
     editLabel: 'Change calendar',
     size: { w: 20, h: 65, minW: 12, minH: 30 },
     tab: {
@@ -98,6 +101,7 @@ export const WIDGETS = {
     title: 'Sports scores',
     description: 'Live scores; your teams first',
     component: ScoresWidget,
+    brandColor: '#c8102e',
     size: { w: 16, h: 52, minW: 12, minH: 24 },
     tab: { title: 'Scores', address: 'espn.com', href: 'https://www.espn.com', icon: ScoresIcon },
   },
@@ -105,6 +109,7 @@ export const WIDGETS = {
     title: 'Sleeper fantasy',
     description: 'Your fantasy football matchup and standings',
     component: SleeperWidget,
+    brandColor: '#18202f',
     editLabel: 'Change Sleeper account',
     size: { w: 20, h: 52, minW: 12, minH: 30 },
     tab: { title: 'Sleeper', address: 'sleeper.com', href: 'https://sleeper.com', icon: SleeperIcon },
@@ -132,6 +137,7 @@ export const WIDGETS = {
     title: 'Notes',
     description: 'A scratchpad with a live word count',
     component: NotesWidget,
+    brandColor: '#fff3b0',
     size: { w: 20, h: 46, minW: 12, minH: 20 },
     tab: { title: 'Notes', address: 'Saved in this browser', icon: NotesIcon },
   },

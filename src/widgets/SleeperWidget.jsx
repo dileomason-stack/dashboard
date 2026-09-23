@@ -1,17 +1,104 @@
-import { useMemo } from 'react'
-import { checkUsername, loadSleeper, sampleSleeper } from '../lib/sleeper.js'
+import { useMemo, useState } from 'react'
+import {
+  canPlay,
+  checkUsername,
+  lineupPoints,
+  loadSleeper,
+  SAMPLE_LINEUP,
+  SAMPLE_PLAYERS,
+  sampleSleeper,
+  swapIntoSlot,
+} from '../lib/sleeper.js'
 import { useLoader } from '../lib/useFetch.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 import LinkSetup from './LinkSetup.jsx'
 
-// Settings: { username, leagueId } for a real account, or { sample: true }.
+// Settings: { username, leagueId } for a real account, or { sample: true,
+// lineup } for Alex's example (lineup = his starters/bench after any swaps).
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 
 const record = (team) => `${team.wins}-${team.losses}${team.ties ? `-${team.ties}` : ''}`
 
-function SleeperView({ data, onLeagueChange }) {
-  const { matchup } = data
+// Alex's lineup: click a starter, then a highlighted bench player, to swap
+// them (or the other way around). Only players who can play that slot light up.
+function Lineup({ lineup, onChange }) {
+  // { kind: 'slot', index } or { kind: 'bench', id }
+  const [selected, setSelected] = useState(null)
+
+  const eligible = (slotIndex, benchId) => canPlay(lineup.slots[slotIndex], benchId)
+  const highlightSlot = (index) => selected?.kind === 'bench' && eligible(index, selected.id)
+  const highlightBench = (id) => selected?.kind === 'slot' && eligible(selected.index, id)
+
+  function clickSlot(index) {
+    if (selected?.kind === 'bench' && eligible(index, selected.id)) {
+      onChange(swapIntoSlot(lineup, index, selected.id))
+      setSelected(null)
+    } else {
+      setSelected(selected?.kind === 'slot' && selected.index === index ? null : { kind: 'slot', index })
+    }
+  }
+
+  function clickBench(id) {
+    if (selected?.kind === 'slot' && eligible(selected.index, id)) {
+      onChange(swapIntoSlot(lineup, selected.index, id))
+      setSelected(null)
+    } else {
+      setSelected(selected?.kind === 'bench' && selected.id === id ? null : { kind: 'bench', id })
+    }
+  }
+
+  const row = (id, label, isSelected, isTarget, onClick) => {
+    const p = SAMPLE_PLAYERS[id]
+    return (
+      <li key={`${label}-${id}`}>
+        <button
+          type="button"
+          className={`player-row${isSelected ? ' selected' : ''}${isTarget ? ' target' : ''}`}
+          onClick={onClick}
+          aria-pressed={isSelected}
+        >
+          <span className={`slot slot-${label}`}>{label}</span>
+          <span className="player-name">
+            {p.name}
+            <span className="player-meta">
+              {p.pos} · {p.team} · {p.status}
+            </span>
+          </span>
+          <span className="player-points">
+            {p.pts.toFixed(1)}
+            <span className="player-proj">proj {p.proj.toFixed(1)}</span>
+          </span>
+        </button>
+      </li>
+    )
+  }
+
+  return (
+    <div className="lineup">
+      <p className="lineup-hint">
+        {selected ? 'Now tap a highlighted player to swap them.' : 'Tap a player to swap them with someone on the bench.'}
+      </p>
+      <ul className="player-list">
+        {lineup.starters.map((id, index) =>
+          row(id, lineup.slots[index], selected?.kind === 'slot' && selected.index === index, highlightSlot(index), () =>
+            clickSlot(index),
+          ),
+        )}
+      </ul>
+      <p className="bench-label">Bench</p>
+      <ul className="player-list">
+        {lineup.bench.map((id) =>
+          row(id, 'BN', selected?.kind === 'bench' && selected.id === id, highlightBench(id), () => clickBench(id)),
+        )}
+      </ul>
+    </div>
+  )
+}
+
+function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
+  const [view, setView] = useState(lineup ? 'lineup' : 'league')
+  const matchup = data.matchup && lineup ? { ...data.matchup, myPoints: lineupPoints(lineup) } : data.matchup
   const winning = matchup && matchup.myPoints >= matchup.theirPoints
 
   return (
@@ -49,15 +136,47 @@ function SleeperView({ data, onLeagueChange }) {
         <p className="empty-state">No matchup this week.</p>
       )}
 
-      <ol className="standings">
-        {data.standings.map((team) => (
-          <li key={team.name} className={team.isMe ? 'me' : undefined}>
-            <span className="standings-name">{team.name}</span>
-            <span className="standings-record">{record(team)}</span>
-            <span className="standings-points">{team.points.toFixed(1)}</span>
-          </li>
+      <div className="segmented-tabs" role="tablist">
+        {[
+          ['lineup', 'Lineup'],
+          ['league', 'League'],
+        ].map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={view === key}
+            className={view === key ? 'active' : undefined}
+            onClick={() => setView(key)}
+          >
+            {label}
+          </button>
         ))}
-      </ol>
+      </div>
+
+      {view === 'lineup' ? (
+        lineup ? (
+          <Lineup lineup={lineup} onChange={onLineupChange} />
+        ) : (
+          <p className="empty-state">
+            Sleeper only lets other apps read league info, so set your lineup in the{' '}
+            <a href="https://sleeper.com" target="_blank" rel="noopener noreferrer">
+              Sleeper app
+            </a>
+            .
+          </p>
+        )
+      ) : (
+        <ol className="standings">
+          {data.standings.map((team) => (
+            <li key={team.name} className={team.isMe ? 'me' : undefined}>
+              <span className="standings-name">{team.name}</span>
+              <span className="standings-record">{record(team)}</span>
+              <span className="standings-points">{team.points.toFixed(1)}</span>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   )
 }
@@ -72,7 +191,17 @@ export default function SleeperWidget({ id }) {
     2 * 60 * 1000,
   )
 
-  if (sample) return <SleeperView data={sample} onLeagueChange={() => {}} />
+  if (sample) {
+    const lineup = settings.lineup?.starters ? settings.lineup : SAMPLE_LINEUP
+    return (
+      <SleeperView
+        data={sample}
+        onLeagueChange={() => {}}
+        lineup={lineup}
+        onLineupChange={(next) => setSettings((current) => ({ ...current, lineup: next }))}
+      />
+    )
+  }
 
   if (!settings.username) {
     return (

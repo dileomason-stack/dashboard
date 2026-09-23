@@ -92,3 +92,57 @@ export function sampleSleeper() {
     ],
   }
 }
+
+// ----- Alex's sample lineup (made-up players on real NFL teams) -----
+
+// Which positions each starting slot accepts.
+export const SLOT_POSITIONS = {
+  QB: ['QB'],
+  RB: ['RB'],
+  WR: ['WR'],
+  TE: ['TE'],
+  FLEX: ['RB', 'WR', 'TE'],
+  K: ['K'],
+  DEF: ['DEF'],
+}
+
+const player = (id, name, pos, team, proj, pts, status) => ({ id, name, pos, team, proj, pts, status })
+
+export const SAMPLE_PLAYERS = {
+  qb1: player('qb1', 'Jalen Ward', 'QB', 'BUF', 21.4, 18.6, 'Final'),
+  rb1: player('rb1', 'Marcus Hale', 'RB', 'SF', 15.2, 22.1, 'Q3 4:12'),
+  rb2: player('rb2', 'Dante Brooks', 'RB', 'DET', 13.8, 9.4, 'Final'),
+  wr1: player('wr1', 'Tyler Okafor', 'WR', 'MIA', 14.9, 16.2, 'Final'),
+  wr2: player('wr2', 'Chris Delgado', 'WR', 'LAR', 12.7, 7.8, 'Q3 4:12'),
+  te1: player('te1', 'Owen Price', 'TE', 'KC', 10.1, 11.5, 'Final'),
+  wr3: player('wr3', 'Andre Simmons', 'WR', 'CIN', 11.6, 13.0, 'Final'),
+  k1: player('k1', 'Luis Moreno', 'K', 'BAL', 8.2, 6.0, 'Final'),
+  def1: player('def1', '49ers D/ST', 'DEF', 'SF', 7.5, 0, 'Q3 4:12'),
+  rb3: player('rb3', 'Kevin Tran', 'RB', 'GB', 9.8, 12.4, 'Final'),
+  wr4: player('wr4', 'Isaiah Ford', 'WR', 'SEA', 10.2, 14.8, 'Final'),
+  qb2: player('qb2', 'Blake Carter', 'QB', 'NYJ', 16.3, 19.2, 'Final'),
+  te2: player('te2', 'Sam Whitfield', 'TE', 'PHI', 6.4, 3.1, 'Final'),
+  def2: player('def2', 'Cowboys D/ST', 'DEF', 'DAL', 6.8, 9.0, 'Final'),
+}
+
+// Starting slots in order, and who fills them; everyone else is on the bench.
+export const SAMPLE_LINEUP = {
+  slots: ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'FLEX', 'K', 'DEF'],
+  starters: ['qb1', 'rb1', 'rb2', 'wr1', 'wr2', 'te1', 'wr3', 'k1', 'def1'],
+  bench: ['rb3', 'wr4', 'qb2', 'te2', 'def2'],
+}
+
+export const lineupPoints = (lineup) =>
+  lineup.starters.reduce((sum, id) => sum + (SAMPLE_PLAYERS[id]?.pts ?? 0), 0)
+
+export const canPlay = (slot, playerId) => SLOT_POSITIONS[slot]?.includes(SAMPLE_PLAYERS[playerId]?.pos)
+
+// Swap a starter (by slot index) with a bench player, if the bench player can
+// play that slot. Returns the new lineup, or the same one if not allowed.
+export function swapIntoSlot(lineup, slotIndex, benchId) {
+  if (!canPlay(lineup.slots[slotIndex], benchId)) return lineup
+  const starters = [...lineup.starters]
+  const outgoing = starters[slotIndex]
+  starters[slotIndex] = benchId
+  return { ...lineup, starters, bench: lineup.bench.map((id) => (id === benchId ? outgoing : id)) }
+}

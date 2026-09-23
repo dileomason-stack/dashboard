@@ -131,6 +131,8 @@ export function exampleSeed() {
     'widget:ex-scores': { league: 'nfl', teams: ['SF'] },
     'widget:ex-news': { source: 'mustang' },
     'widget:ex-sleeper': { sample: true },
+    // Sleeper's card wears Sleeper's own navy.
+    'style:ex-sleeper': { background: '#18202f' },
     // ☀️ Morning check: what's today, what's due, and the news.
     'layout:morning': {
       sidebarOpen: true,
