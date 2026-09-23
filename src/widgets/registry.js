@@ -13,11 +13,13 @@ import DailyWordWidget from './DailyWordWidget.jsx'
 import LinksWidget from './LinksWidget.jsx'
 import GoogleFileWidget from './GoogleFileWidget.jsx'
 import InboxWidget from './InboxWidget.jsx'
+import ArcadeWidget from './ArcadeWidget.jsx'
 import { toGoogleEmbed } from '../lib/embeds.js'
 import SnakeWidget from './SnakeWidget.jsx'
 import TypingWidget from './TypingWidget.jsx'
 import { GAMES, TOOLS } from '../lib/tools.js'
 import {
+  ArcadeIcon,
   CalendarIcon,
   CanvasIcon,
   ClaudeIcon,
@@ -214,6 +216,13 @@ export const WIDGETS = {
     brandColor: '#fce8e6',
     size: { w: 16, h: 50, minW: 12, minH: 20 },
     tab: { title: 'Mail', address: 'mail.google.com', href: 'https://mail.google.com', icon: MailIcon },
+  },
+  arcade: {
+    title: 'Arcade',
+    description: 'One big screen with 15 games to switch between',
+    component: ArcadeWidget,
+    size: { w: 32, h: 70, minW: 16, minH: 40 },
+    tab: { title: 'Arcade', address: 'Arcade', icon: ArcadeIcon },
   },
 }
 

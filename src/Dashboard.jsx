@@ -307,7 +307,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   )
 
   return (
-    <div className="app">
+    <div className={`app${layout.theme === 'dark' ? ' theme-dark' : ''}`}>
       <header className="toolbar">
         <div className="toolbar-start">
           <button
@@ -412,6 +412,23 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           onAppColors={() => appColorCards(colorScope)}
           onClose={() => setColorsPicker(null)}
         >
+          <div className="segmented-tabs" role="radiogroup" aria-label="Dashboard background">
+            {[
+              [undefined, '☀️ Normal'],
+              ['dark', '🌙 Dark'],
+            ].map(([theme, label]) => (
+              <button
+                key={label}
+                type="button"
+                role="radio"
+                aria-checked={layout.theme === theme}
+                className={layout.theme === theme ? 'active' : undefined}
+                onClick={() => update(() => ({ theme }))}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <div className="segmented-tabs" role="radiogroup" aria-label="Which cards">
             {[
               ['sidebar', 'Sidebar'],

@@ -2584,3 +2584,106 @@ a.canvas-title:hover {
   font-weight: 400;
   color: var(--text-muted);
 }
+
+/* ---------- Dark dashboard ("game room") ---------- */
+
+.app.theme-dark {
+  --bg: #0e1014;
+  --surface: #1a1d23;
+  --surface-muted: #242831;
+  --border: #2d323c;
+  --text: #ececf1;
+  --text-muted: #9aa1ad;
+  --page: #16191e;
+  --accent: #7c8cff;
+  --banner: #1b2233;
+  --banner-border: #2c3754;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+  --claude-bg: #1f1e1c;
+  --claude-input: #2a2927;
+  --claude-border: #3a3935;
+  --warning-bg: rgb(255 170 60 / 0.14);
+  --warning-text: #fbbf24;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app.theme-dark button:not(.primary):not(.dash-tab):not(.dash-tab-add) {
+  color: var(--text);
+}
+
+.app.theme-dark .dash-tab.active {
+  background: var(--surface-muted);
+}
+
+/* ---------- Arcade ---------- */
+
+.card-body:has(.arcade) {
+  padding: 8px;
+  overflow: hidden;
+}
+
+.arcade {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.arcade-games {
+  flex: none;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.arcade-games button {
+  flex: none;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.arcade-games button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.arcade-screen {
+  flex: 1;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+  box-shadow: inset 0 0 0 4px rgb(0 0 0 / 0.35), 0 6px 20px rgb(0 0 0 / 0.35);
+  container-type: size;
+}
+
+.arcade-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.arcade-builtin {
+  height: 100%;
+  padding: 16px;
+  background: var(--page);
+}
+
+/* Built-in games size themselves from their own box (inside the padding). */
+.arcade-builtin > * {
+  height: 100%;
+  container-type: size;
+}

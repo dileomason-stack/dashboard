@@ -249,3 +249,14 @@ export function MailIcon() {
     </svg>
   )
 }
+
+export function ArcadeIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#111827" />
+      <rect x="2.5" y="3" width="11" height="7" rx="1.5" fill="#6366f1" />
+      <circle cx="5.5" cy="12.6" r="1.1" fill="#f43f5e" />
+      <circle cx="10.5" cy="12.6" r="1.1" fill="#22c55e" />
+    </svg>
+  )
+}
