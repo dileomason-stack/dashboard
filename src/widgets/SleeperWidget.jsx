@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react'
 import {
   canPlay,
   checkUsername,
-  lineupPoints,
+  lineupProjection,
   loadSleeper,
   SAMPLE_LINEUP,
   SAMPLE_PLAYERS,
   sampleSleeper,
   swapIntoSlot,
+  teamLogo,
 } from '../lib/sleeper.js'
 import { useLoader } from '../lib/useFetch.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
@@ -59,15 +60,19 @@ function Lineup({ lineup, onChange }) {
           aria-pressed={isSelected}
         >
           <span className={`slot slot-${label}`}>{label}</span>
+          <img className="player-logo" src={teamLogo(p.team)} alt="" width="26" height="26" loading="lazy" />
           <span className="player-name">
-            {p.name}
+            <span>
+              {p.name}
+              {p.status && <span className="injury-tag">{p.status}</span>}
+            </span>
             <span className="player-meta">
-              {p.pos} · {p.team} · {p.status}
+              {p.pos} · {p.team} · {p.game}
             </span>
           </span>
           <span className="player-points">
-            {p.pts.toFixed(1)}
-            <span className="player-proj">proj {p.proj.toFixed(1)}</span>
+            {p.proj.toFixed(2)}
+            <span className="player-proj">proj</span>
           </span>
         </button>
       </li>
@@ -98,7 +103,7 @@ function Lineup({ lineup, onChange }) {
 
 function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
   const [view, setView] = useState(lineup ? 'lineup' : 'league')
-  const matchup = data.matchup && lineup ? { ...data.matchup, myPoints: lineupPoints(lineup) } : data.matchup
+  const matchup = data.matchup && lineup ? { ...data.matchup, myPoints: lineupProjection(lineup) } : data.matchup
   const winning = matchup && matchup.myPoints >= matchup.theirPoints
 
   return (
@@ -115,7 +120,10 @@ function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
         ) : (
           <strong className="sleeper-league">{data.leagueName}</strong>
         )}
-        <span className="toolbar-note">Week {data.week}</span>
+        <span className="toolbar-note">
+          Week {data.week}
+          {matchup?.projected && ' · projected'}
+        </span>
       </div>
 
       {matchup ? (

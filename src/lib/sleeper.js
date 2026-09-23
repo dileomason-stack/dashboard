@@ -79,7 +79,8 @@ export function sampleSleeper() {
     leagueId: 'sample',
     leagueName: 'Mustang Fantasy League',
     week: 3,
-    matchup: { me, opponent, myPoints: 104.62, theirPoints: 98.18 },
+    // Week 3 hasn't been played: these are projected points.
+    matchup: { me, opponent, myPoints: 0, theirPoints: 131.45, projected: true },
     standings: [
       me,
       team('Brady’s Bunch', 2, 0, 244.1),
@@ -93,7 +94,7 @@ export function sampleSleeper() {
   }
 }
 
-// ----- Alex's sample lineup (made-up players on real NFL teams) -----
+// ----- Alex's sample lineup (a real roster, week 3 projections) -----
 
 // Which positions each starting slot accepts.
 export const SLOT_POSITIONS = {
@@ -106,34 +107,40 @@ export const SLOT_POSITIONS = {
   DEF: ['DEF'],
 }
 
-const player = (id, name, pos, team, proj, pts, status) => ({ id, name, pos, team, proj, pts, status })
+// status: injury tag shown next to the name (e.g. 'QUES' = questionable).
+const player = (id, name, pos, team, proj, game, status = '') => ({ id, name, pos, team, proj, game, status })
 
 export const SAMPLE_PLAYERS = {
-  qb1: player('qb1', 'Jalen Ward', 'QB', 'BUF', 21.4, 18.6, 'Final'),
-  rb1: player('rb1', 'Marcus Hale', 'RB', 'SF', 15.2, 22.1, 'Q3 4:12'),
-  rb2: player('rb2', 'Dante Brooks', 'RB', 'DET', 13.8, 9.4, 'Final'),
-  wr1: player('wr1', 'Tyler Okafor', 'WR', 'MIA', 14.9, 16.2, 'Final'),
-  wr2: player('wr2', 'Chris Delgado', 'WR', 'LAR', 12.7, 7.8, 'Q3 4:12'),
-  te1: player('te1', 'Owen Price', 'TE', 'KC', 10.1, 11.5, 'Final'),
-  wr3: player('wr3', 'Andre Simmons', 'WR', 'CIN', 11.6, 13.0, 'Final'),
-  k1: player('k1', 'Luis Moreno', 'K', 'BAL', 8.2, 6.0, 'Final'),
-  def1: player('def1', '49ers D/ST', 'DEF', 'SF', 7.5, 0, 'Q3 4:12'),
-  rb3: player('rb3', 'Kevin Tran', 'RB', 'GB', 9.8, 12.4, 'Final'),
-  wr4: player('wr4', 'Isaiah Ford', 'WR', 'SEA', 10.2, 14.8, 'Final'),
-  qb2: player('qb2', 'Blake Carter', 'QB', 'NYJ', 16.3, 19.2, 'Final'),
-  te2: player('te2', 'Sam Whitfield', 'TE', 'PHI', 6.4, 3.1, 'Final'),
-  def2: player('def2', 'Cowboys D/ST', 'DEF', 'DAL', 6.8, 9.0, 'Final'),
+  lawrence: player('lawrence', 'Trevor Lawrence', 'QB', 'JAX', 18.98, 'Sun 10:00 AM vs NE'),
+  hampton: player('hampton', 'Omarion Hampton', 'RB', 'LAC', 14.32, 'Sun 10:00 AM @ BUF'),
+  barkley: player('barkley', 'Saquon Barkley', 'RB', 'PHI', 15.92, 'Mon 5:15 PM @ CHI', 'QUES'),
+  stbrown: player('stbrown', 'Amon-Ra St. Brown', 'WR', 'DET', 19.55, 'Sun 10:00 AM vs NYJ'),
+  jwilliams: player('jwilliams', 'Jameson Williams', 'WR', 'DET', 12.6, 'Sun 10:00 AM vs NYJ'),
+  kraft: player('kraft', 'Tucker Kraft', 'TE', 'GB', 11.49, 'Thu 5:15 PM vs ATL'),
+  mcconkey: player('mcconkey', 'Ladd McConkey', 'WR', 'LAC', 13.77, 'Sun 10:00 AM @ BUF'),
+  hubbard: player('hubbard', 'Chuba Hubbard', 'RB', 'CAR', 14.17, 'Sun 10:00 AM @ CLE'),
+  mcpherson: player('mcpherson', 'Evan McPherson', 'K', 'CIN', 7.6, 'Sun 10:00 AM @ PIT'),
+  texans: player('texans', 'Houston Texans', 'DEF', 'HOU', 7.86, 'Sun 10:00 AM @ IND'),
+  prescott: player('prescott', 'Dak Prescott', 'QB', 'DAL', 18.58, 'Sun 1:25 PM vs BAL'),
+  monangai: player('monangai', 'Kyle Monangai', 'RB', 'CHI', 7.05, 'Mon 5:15 PM vs PHI'),
+  warren: player('warren', 'Jaylen Warren', 'RB', 'PIT', 13.39, 'Sun 10:00 AM vs CIN'),
+  tucker: player('tucker', 'Tre Tucker', 'WR', 'LV', 8.99, 'Sun 1:25 PM @ NO'),
+  mitchell: player('mitchell', 'Adonai Mitchell', 'WR', 'NYJ', 9.2, 'Sun 10:00 AM @ DET'),
+  ferguson: player('ferguson', 'Jake Ferguson', 'TE', 'DAL', 9.29, 'Sun 1:25 PM vs BAL'),
 }
 
 // Starting slots in order, and who fills them; everyone else is on the bench.
 export const SAMPLE_LINEUP = {
-  slots: ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'FLEX', 'K', 'DEF'],
-  starters: ['qb1', 'rb1', 'rb2', 'wr1', 'wr2', 'te1', 'wr3', 'k1', 'def1'],
-  bench: ['rb3', 'wr4', 'qb2', 'te2', 'def2'],
+  slots: ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'FLEX', 'FLEX', 'K', 'DEF'],
+  starters: ['lawrence', 'hampton', 'barkley', 'stbrown', 'jwilliams', 'kraft', 'mcconkey', 'hubbard', 'mcpherson', 'texans'],
+  bench: ['prescott', 'monangai', 'warren', 'tucker', 'mitchell', 'ferguson'],
 }
 
-export const lineupPoints = (lineup) =>
-  lineup.starters.reduce((sum, id) => sum + (SAMPLE_PLAYERS[id]?.pts ?? 0), 0)
+// Games haven't started, so the matchup compares projected points.
+export const lineupProjection = (lineup) =>
+  lineup.starters.reduce((sum, id) => sum + (SAMPLE_PLAYERS[id]?.proj ?? 0), 0)
+
+export const teamLogo = (team) => `https://a.espncdn.com/i/teamlogos/nfl/500/${team.toLowerCase()}.png`
 
 export const canPlay = (slot, playerId) => SLOT_POSITIONS[slot]?.includes(SAMPLE_PLAYERS[playerId]?.pos)
 
