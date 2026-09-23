@@ -26,6 +26,7 @@ export default function WidgetCard({
   menuItems,
   colorable,
   getSpotifyEmbedUrl,
+  highlight,
   onDragStart,
   onDragEnd,
   children,
@@ -57,7 +58,8 @@ export default function WidgetCard({
 
   return (
     <section
-      className={`card card-${type}${color ? (isDark(color) ? ' card-colored card-dark' : ' card-colored card-light') : ''}`}
+      className={`card card-${type}${color ? (isDark(color) ? ' card-colored card-dark' : ' card-colored card-light') : ''}${highlight ? ' card-new' : ''}`}
+      data-widget-id={widgetId}
       style={color ? { '--card-bg': color } : undefined}
       aria-label={title}
       title="Drag to move · Right-click for options"

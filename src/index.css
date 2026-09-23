@@ -1830,3 +1830,46 @@ a.canvas-title:hover {
   color: var(--text-muted);
   margin-right: auto;
 }
+
+/* ---------- Dock (minimized cards) ---------- */
+
+.dock {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 16px 10px;
+}
+
+.dock-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 0.85rem;
+}
+
+.dock-pill:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+/* ---------- Newly added / restored card ---------- */
+
+@keyframes card-glow {
+  0% {
+    box-shadow: 0 0 0 3px var(--accent), var(--shadow);
+  }
+  100% {
+    box-shadow: 0 0 0 3px transparent, var(--shadow);
+  }
+}
+
+.card.card-new {
+  animation: card-glow 1.8s ease-out;
+}

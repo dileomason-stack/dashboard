@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
+import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
-import { upgradeGrid } from './lib/grid.js'
+import { COLS, upgradeGrid } from './lib/grid.js'
 import { newId } from './lib/id.js'
 import Sidebar from './Sidebar.jsx'
 import { useStore, useStoreValue, widgetDataKey } from './storage.js'
@@ -35,9 +36,11 @@ function useWindowWidth() {
 
 const known = (widget) => WIDGETS[widget.type]
 
-// A new workspace widget goes at the bottom of the grid at its default size.
-function newGridItem(type, id, grid) {
+// A new workspace widget goes where it was asked for (right-click → Add here),
+// or at the bottom of the grid, at its default size.
+function newGridItem(type, id, grid, at) {
   const { w, h } = WIDGETS[type].size
+  if (at) return { i: id, x: Math.max(0, Math.min(at.x, COLS - w)), y: Math.max(0, at.y), w, h }
   return { i: id, x: 0, y: bottom(grid), w, h }
 }
 
@@ -45,10 +48,18 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
   const store = useStore()
   const [layout, setLayout] = useStoreValue('layout', OWN_DEFAULT_LAYOUT, isLayout)
   const [maximizedId, setMaximizedId] = useState(null)
+  // The card just added: scrolled into view and briefly highlighted.
+  const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
 
-  const sidebarWidgets = layout.sidebar.filter(known)
-  const workspaceWidgets = layout.workspace.filter(known)
+  // Minimized cards keep their place in the sidebar/workspace lists (and their
+  // grid position) but are shown only in the dock until restored.
+  const minimized = new Set(Array.isArray(layout.minimized) ? layout.minimized : [])
+  const visible = (widget) => known(widget) && !minimized.has(widget.id)
+  const sidebarWidgets = layout.sidebar.filter(visible)
+  const workspaceWidgets = layout.workspace.filter(visible)
+  const dockWidgets = [...layout.sidebar, ...layout.workspace].filter((widget) => known(widget) && minimized.has(widget.id))
+  const visibleGrid = layout.grid.filter((item) => !minimized.has(item.i))
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
 
   // Layouts saved before the fine grid get converted once.
@@ -65,15 +76,43 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
     return () => document.removeEventListener('keydown', onKey)
   }, [maximizedId])
 
+  // Scroll a newly added card into view, then let its glow fade.
+  useEffect(() => {
+    if (!newestId) return
+    const frame = requestAnimationFrame(() =>
+      document.querySelector(`[data-widget-id="${newestId}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+    )
+    const timer = setTimeout(() => setNewestId(null), 1800)
+    return () => {
+      cancelAnimationFrame(frame)
+      clearTimeout(timer)
+    }
+  }, [newestId])
+
   const update = (changes) => setLayout((current) => ({ ...current, ...changes(current) }))
 
-  function addWidget(type, area) {
+  // `at` is a grid position ({ x, y }) from right-click → "Add … here".
+  function addWidget(type, area, at) {
     const id = `${type}-${newId()}`
     update((current) =>
       area === 'sidebar'
         ? { sidebar: [...current.sidebar, { id, type }], sidebarOpen: true }
-        : { workspace: [...current.workspace, { id, type }], grid: [...current.grid, newGridItem(type, id, current.grid)] },
+        : {
+            workspace: [...current.workspace, { id, type }],
+            grid: [...current.grid, newGridItem(type, id, current.grid, at)],
+          },
     )
+    setNewestId(id)
+  }
+
+  function minimizeWidget(id) {
+    if (maximizedId === id) setMaximizedId(null)
+    update((current) => ({ minimized: [...new Set([...(current.minimized ?? []), id])] }))
+  }
+
+  function restoreWidget(id) {
+    update((current) => ({ minimized: (current.minimized ?? []).filter((item) => item !== id) }))
+    setNewestId(id)
   }
 
   function removeWidget(id) {
@@ -84,6 +123,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       sidebar: current.sidebar.filter((widget) => widget.id !== id),
       workspace: current.workspace.filter((widget) => widget.id !== id),
       grid: current.grid.filter((item) => item.i !== id),
+      minimized: (current.minimized ?? []).filter((item) => item !== id),
     }))
   }
 
@@ -127,6 +167,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
       isMaximized
         ? { label: 'Exit full screen', onSelect: () => setMaximizedId(null) }
         : { label: 'Full screen', onSelect: () => setMaximizedId(widget.id) },
+      { label: 'Minimize to dock', onSelect: () => minimizeWidget(widget.id) },
       !isMaximized && {
         label: area === 'sidebar' ? 'Move to workspace' : 'Move to sidebar',
         onSelect: () => moveWidget(widget.id),
@@ -169,6 +210,7 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
           menuItems={menuItemsFor(widget, area, isMaximized)}
           colorable={WIDGETS[widget.type].colorable !== false}
           getSpotifyEmbedUrl={getSpotifyEmbedUrl}
+          highlight={widget.id === newestId}
           {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
           <Component id={widget.id} />
@@ -211,10 +253,11 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
   const workspace = (
     <Workspace
       widgets={workspaceWidgets}
-      grid={layout.grid}
-      onGridChange={(grid) => update(() => ({ grid }))}
-      onAddWidget={(type) => addWidget(type, 'workspace')}
-      showStarter={sidebarWidgets.length === 0}
+      grid={visibleGrid}
+      // Keep minimized cards' saved positions when the visible ones move.
+      onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}
+      onAddWidget={(type, at) => addWidget(type, 'workspace', at)}
+      showStarter={sidebarWidgets.length === 0 && dockWidgets.length === 0}
       renderWidget={renderSlot('workspace')}
       stacked={stacked}
     />
@@ -298,6 +341,8 @@ export default function Dashboard({ hasOwn, onBuildOwn, onViewExample, onResetEx
           <div className="workspace-panel full">{workspace}</div>
         )}
       </main>
+
+      <Dock widgets={dockWidgets} onRestore={restoreWidget} />
 
       {maximized && (
         <div className="maximized-layer" onClick={(event) => event.target === event.currentTarget && setMaximizedId(null)}>

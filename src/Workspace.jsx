@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import ContextMenu from './ContextMenu.jsx'
 import ReactGridLayout, { bottom, useContainerWidth } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
@@ -42,6 +43,35 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
   const setActive = (current, item) => compactor.setActive(item?.i ?? null, current)
   const clearActive = () => compactor.setActive(null)
 
+  // Right-click on empty space → "Add … here" at that spot in the grid.
+  const [addMenu, setAddMenu] = useState(null)
+  const closeAddMenu = useCallback(() => setAddMenu(null), [])
+  function openAddMenu(event) {
+    if (stacked || event.target.closest('.react-grid-item, .starter-button')) return
+    event.preventDefault()
+    const rect = containerRef.current.getBoundingClientRect()
+    const colWidth = (rect.width - GAP) / COLS
+    setAddMenu({
+      x: event.clientX,
+      y: event.clientY,
+      at: {
+        x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
+        y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
+      },
+    })
+  }
+  const addMenuElement = addMenu && (
+    <ContextMenu
+      x={addMenu.x}
+      y={addMenu.y}
+      onClose={closeAddMenu}
+      items={Object.entries(WIDGETS).map(([type, widget]) => ({
+        label: `Add ${widget.title} here`,
+        onSelect: () => onAddWidget(type, addMenu.at),
+      }))}
+    />
+  )
+
   function handleLayoutChange(newLayout) {
     const positions = newLayout.map(pickPosition)
     if (JSON.stringify(positions) !== JSON.stringify(grid)) onGridChange(positions)
@@ -49,7 +79,8 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
 
   if (widgets.length === 0) {
     return (
-      <div className="workspace" ref={containerRef}>
+      <div className="workspace" ref={containerRef} onContextMenu={openAddMenu}>
+        {addMenuElement}
         {showStarter ? (
           <div className="empty-area starter">
             <h2>Start building your dashboard</h2>
@@ -71,7 +102,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
         ) : (
           <div className="empty-area">
             <h2>This space is yours</h2>
-            <p>Use “+ Add widget” to put something here, or move a card over from the sidebar (right-click → Move to workspace).</p>
+            <p>Right-click anywhere here to add a widget, or use “+ Add widget”.</p>
           </div>
         )}
       </div>
@@ -93,7 +124,8 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, sh
   }
 
   return (
-    <div className="workspace" ref={containerRef}>
+    <div className="workspace" ref={containerRef} onContextMenu={openAddMenu}>
+      {addMenuElement}
       {mounted && (
         <ReactGridLayout
           width={width}
