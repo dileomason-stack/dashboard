@@ -5,7 +5,9 @@ import { useStoreValue, widgetDataKey } from '../storage.js'
 // Bus Rush: tap a bus to drive it out of the lot (only if nothing's in front
 // of it). It waits in a boarding spot, and passengers at the front of the line
 // board buses of their color. Don't fill every spot with buses nobody wants!
-// Settings: { level, best } (the level you're on is remembered).
+// Levels get harder (see difficulty() in busRush.js): from level 4 a simple
+// strategy loses, and from level 7 even a smarter one does, but every level
+// is checked to be winnable. Settings: { level, best } (level is remembered).
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 const EXIT_MS = 320
@@ -72,7 +74,10 @@ export default function BusRushWidget({ id }) {
     <div className="bus-rush no-drag">
       <div className="bus-header">
         <strong>🚌 Bus Rush</strong>
-        <span>Level {level}</span>
+        <span>
+          Level {level}
+          {level >= 7 ? ' · 🔥 Expert' : level >= 4 ? ' · ⭐ Tricky' : ''}
+        </span>
         <span>{game.queue.length} waiting</span>
         <button type="button" onClick={() => start(level)}>
           Restart
@@ -138,7 +143,10 @@ export default function BusRushWidget({ id }) {
         )}
       </div>
       <p className="bus-note" role="status">
-        {game.note || 'Tap a bus that has a clear road ahead.'}
+        {game.note ||
+          (level >= 4
+            ? 'Plan ahead: park buses you’ll need soon, and don’t fill every spot.'
+            : 'Tap a bus that has a clear road ahead.')}
       </p>
     </div>
   )
