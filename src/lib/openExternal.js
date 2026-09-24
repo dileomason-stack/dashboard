@@ -10,7 +10,7 @@ import { showToast } from './toast.js'
 // People can switch to plain new tabs instead.
 
 const MODE_KEY = 'dashboard:openMode'
-const SIDE_WINDOW = 'onlyonescreen-side'
+const SIDE_WINDOW = 'homeroom-side'
 
 let mode = readJSON(MODE_KEY, 'side') === 'tab' ? 'tab' : 'side'
 const listeners = new Set()

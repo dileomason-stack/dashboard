@@ -70,7 +70,7 @@ export default function Workspace({ widgets, grid, onGridChange, onAddWidget, on
       const link = droppedLink(event.dataTransfer)
       if (!link) return
       event.preventDefault()
-      event.nativeEvent.onlyonescreenHandled = true
+      event.nativeEvent.homeroomHandled = true
       onDropLink(link, stacked ? null : cellAt(event))
     },
   }

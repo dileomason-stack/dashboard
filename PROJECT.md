@@ -1,4 +1,4 @@
-# Dashboard: everything you need on one screen
+# Homeroom: where your school day starts
 
 A full-screen, customizable dashboard for students, like phone home-screen widgets but as a
 website. Users add widgets, drag them around, resize them, and the layout is still there the
@@ -20,7 +20,7 @@ terms. When something breaks, tell me what to paste back to you.
 - Layout, widget list and widget settings saved in `localStorage`, so each visitor gets
   their own dashboard
 - Vercel Functions in a top-level `api/` folder for anything that needs a server (Canvas)
-- Deployed on Vercel from a GitHub repo, so every push redeploys. Live at https://onlyonescreen.vercel.app (the app is named OnlyOneScreen)
+- Deployed on Vercel from a GitHub repo, so every push redeploys. Live at https://myhomeroom.vercel.app (the app is named Homeroom; https://onlyonescreen.vercel.app also still works)
 
 ## Important constraint
 

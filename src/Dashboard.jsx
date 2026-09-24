@@ -193,7 +193,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       root.classList.remove('link-dragging')
       if (!isLinkDrag(event.dataTransfer)) return
       event.preventDefault()
-      if (event.onlyonescreenHandled) return
+      if (event.homeroomHandled) return
       const link = droppedLink(event.dataTransfer)
       if (link) dropLinkRef.current(link, null)
     }
@@ -434,7 +434,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
               🎨 Colors
             </button>
           )}
-          <h1>OnlyOneScreen</h1>
+          <h1>Homeroom</h1>
           {tabs}
         </div>
         <div className="toolbar-actions">

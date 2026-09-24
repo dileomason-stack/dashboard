@@ -31,7 +31,7 @@ export default function ShareDialog({ onClose }) {
 
   return createPortal(
     <div className="share-layer" onClick={(event) => event.target === event.currentTarget && onClose()}>
-      <div className="share-card" role="dialog" aria-label="Share OnlyOneScreen">
+      <div className="share-card" role="dialog" aria-label="Share Homeroom">
         <p className="share-kicker">Try it yourself</p>
         {qr && <img className="share-qr" src={qr} alt={`QR code for ${url}`} />}
         <p className="share-url">{url.replace(/^https?:\/\//, '')}</p>
