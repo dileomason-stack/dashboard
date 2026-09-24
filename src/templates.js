@@ -52,7 +52,7 @@ export const TEMPLATES = {
       }),
   },
   fun: {
-    label: '🎮 Fun: an arcade of 13 games, daily word, game links',
+    label: '🎮 Fun: an arcade of 14 games (incl. Bus Rush), daily word, game links',
     name: '🎮 Fun',
     build: (idFor) =>
       assemble(idFor, {
@@ -72,8 +72,6 @@ export const TEMPLATES = {
                 ['Travle', 'https://travle.earth'],
                 ['Flagle', 'https://www.flagle.io'],
                 ['Metazooa', 'https://www.metazooa.com'],
-                // The official game is a phone app (browser copies are unofficial).
-                ['Bus Traffic Fever', 'https://play.google.com/store/apps/details?id=jp.co.goodroid.hyper.busflow'],
               ].map(([title, url], index) => ({ id: `game-link-${index}`, title, url })),
             },
           ],
