@@ -18,7 +18,6 @@ import WebsiteWidget from './WebsiteWidget.jsx'
 import { toGoogleEmbed } from '../lib/embeds.js'
 import SnakeWidget from './SnakeWidget.jsx'
 import Game2048Widget from './Game2048Widget.jsx'
-import BusRushWidget from './BusRushWidget.jsx'
 import TypingWidget from './TypingWidget.jsx'
 import { GAMES, TOOLS } from '../lib/tools.js'
 import {
@@ -201,13 +200,6 @@ export const WIDGETS = {
     size: { w: 14, h: 60, minW: 10, minH: 42 },
     tab: { title: '2048', address: '2048', icon: GameIcon },
   },
-  busrush: {
-    title: 'Bus Rush',
-    description: 'Get the buses out of the lot and the passengers on board',
-    component: BusRushWidget,
-    size: { w: 16, h: 70, minW: 12, minH: 56 },
-    tab: { title: 'Bus Rush', address: 'Bus Rush', icon: GameIcon },
-  },
   typing: {
     title: 'Typing speed test',
     description: 'How many words per minute can you type?',
@@ -237,7 +229,7 @@ export const WIDGETS = {
   },
   arcade: {
     title: 'Arcade',
-    description: 'One big screen with 14 games to switch between',
+    description: 'One big screen with 13 games to switch between',
     component: ArcadeWidget,
     size: { w: 32, h: 70, minW: 16, minH: 40 },
     tab: { title: 'Arcade', address: 'Arcade', icon: ArcadeIcon },
@@ -259,7 +251,7 @@ export const WIDGETS = {
 // What each card does, shown as a badge (see UseBadge.jsx): 'live' works
 // fully in the card, 'preview' shows it at a glance, 'jump' opens the real app.
 const USE = {
-  live: ['todo', 'spotify', 'website', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'busrush', 'typing', 'arcade'],
+  live: ['todo', 'spotify', 'website', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
   preview: ['canvas', 'calendar', 'scores', 'news', 'sleeper', 'googlefile'],
   jump: ['claude', 'inbox', 'links'],
 }

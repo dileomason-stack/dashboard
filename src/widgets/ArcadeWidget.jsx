@@ -1,6 +1,5 @@
 import { GAMES } from '../lib/tools.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
-import BusRushWidget from './BusRushWidget.jsx'
 import Game2048Widget from './Game2048Widget.jsx'
 import SnakeWidget from './SnakeWidget.jsx'
 import TypingWidget from './TypingWidget.jsx'
@@ -18,7 +17,6 @@ const ARCADE = [
   ['hoopgrids', '🏀', 'HoopGrids'],
   ['globle', '🌍', 'Globle'],
   ['chesspuzzle', '♟️', 'Chess puzzle'],
-  ['busrush', '🚌', 'Bus Rush'],
   ['g2048', '🔢', '2048'],
   ['snake', '🐍', 'Snake'],
   ['typing', '⌨️', 'Typing test'],
@@ -31,7 +29,7 @@ const ARCADE = [
   ['coolmath', '🎮', 'Coolmath'],
 ]
 
-const BUILT_IN = { busrush: BusRushWidget, g2048: Game2048Widget, snake: SnakeWidget, typing: TypingWidget }
+const BUILT_IN = { g2048: Game2048Widget, snake: SnakeWidget, typing: TypingWidget }
 
 export default function ArcadeWidget({ id }) {
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)

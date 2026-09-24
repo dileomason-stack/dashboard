@@ -52,7 +52,7 @@ export const TEMPLATES = {
       }),
   },
   fun: {
-    label: '🎮 Fun: an arcade of 14 games (incl. Bus Rush), daily word, game links',
+    label: '🎮 Fun: an arcade of 13 games, daily word, game links',
     name: '🎮 Fun',
     build: (idFor) =>
       assemble(idFor, {
