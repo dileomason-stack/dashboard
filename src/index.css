@@ -3131,7 +3131,8 @@ a.canvas-title:hover {
 
 /* ---------- Bus Rush ---------- */
 
-.card-body:has(.bus-rush) {
+.card-body:has(.bus-rush),
+.arcade-builtin > *:has(.bus-rush) {
   container-type: size;
 }
 
@@ -3140,7 +3141,7 @@ a.canvas-title:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   cursor: default;
 }
 
@@ -3163,135 +3164,151 @@ a.canvas-title:hover {
   font-size: 0.8rem;
 }
 
-.bus-queue {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  min-height: 20px;
-  overflow: hidden;
-}
-
-.passenger {
+/* The crowd: people fill from the bottom, front of the line bottom-left,
+   right next to the parking spots. */
+.bus-crowd {
   flex: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid rgb(255 255 255 / 0.7);
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  gap: 2px;
+  width: 100%;
+  height: clamp(44px, 16cqh, 110px);
+  padding: 6px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(#e5e7eb, #d1d5db);
 }
 
-.passenger.front {
-  width: 18px;
-  height: 18px;
-  box-shadow: 0 0 0 2px var(--accent);
+.person {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18);
+}
+
+.person:first-child {
+  outline: 2px solid #111827;
+  outline-offset: 1px;
 }
 
 .bus-more {
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: #374151;
 }
 
 .bus-spots {
+  flex: none;
   display: flex;
-  gap: 6px;
+  gap: 5px;
   width: 100%;
+  padding: 6px;
+  border-radius: 10px;
+  background: #6b7280;
 }
 
 .bus-spot {
   flex: 1;
-  height: 34px;
+  position: relative;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed var(--border);
+  padding: 0;
+  border: 2px dashed rgb(255 255 255 / 0.4);
   border-radius: 8px;
+  background: transparent;
+  color: #fff;
+}
+
+.bus-spot.locked {
+  border-style: solid;
+  border-color: rgb(255 255 255 / 0.25);
+  background: rgb(0 0 0 / 0.25);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #86efac;
+  cursor: pointer;
+}
+
+.bus-spot.locked:hover:not(:disabled) {
+  background: rgb(0 0 0 / 0.4);
 }
 
 .spot-empty {
   font-weight: 800;
-  color: var(--text-muted);
   opacity: 0.5;
 }
 
 .spot-bus {
-  width: 90%;
+  width: 60%;
   height: 80%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
   border-radius: 6px;
+  background: var(--bus-color);
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.2), inset 0 5px 0 rgb(255 255 255 / 0.35);
 }
 
-.seat {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.35);
+.spot-count {
+  position: absolute;
+  bottom: -9px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #111827;
+  font-size: 0.7rem;
+  font-weight: 800;
 }
 
-.seat.filled {
-  background: #fff;
-}
-
+/* The lot: buses sit at their spots, rotated to face their direction. The
+   lot is a size container so bus movement can use lot-relative units. */
 .bus-lot {
   position: relative;
-  width: min(100%, calc(100cqh - 150px));
+  flex: 1;
+  min-height: 0;
   aspect-ratio: 1;
-  padding: 6px;
-  border-radius: 12px;
-  background: #374151;
+  max-width: 100%;
+  margin-top: 6px;
+  border-radius: 14px;
+  background: #cbd5e1;
+  container-type: size;
   overflow: hidden;
 }
 
-.bus-lot-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
-  background-size: calc(100% / 6) calc(100% / 6);
-}
-
-.bus {
+.lot-bus {
   position: absolute;
-  padding: 3px;
+  height: 9%;
+  padding: 0;
   border: none;
-  background: transparent;
-  transition: transform 0.32s ease-in;
-}
-
-.bus::before {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border-radius: 7px;
+  border-radius: 3cqw;
   background: var(--bus-color);
-  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.25);
+  box-shadow: inset 0 -0.9cqw 0 rgb(0 0 0 / 0.22), inset 0 0.9cqw 0 rgb(255 255 255 / 0.35), 0 0.6cqw 1cqw rgb(0 0 0 / 0.25);
+  transition: transform 0.18s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bus:hover:not(:disabled) {
-  background: transparent;
+.lot-bus.leaving {
+  transition: transform 0.42s ease-in;
 }
 
-.bus:hover::before {
-  filter: brightness(1.12);
+.lot-bus:hover:not(:disabled) {
+  background: var(--bus-color);
+  filter: brightness(1.08);
 }
 
-.bus-arrow {
-  position: relative;
+.lot-bus-arrow {
   color: #fff;
-  font-size: 0.85rem;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
-}
-
-.bus.shaking {
-  animation: word-shake 0.35s;
+  font-size: 3.4cqw;
+  line-height: 1;
+  font-weight: 800;
+  text-shadow: 0 0.2cqw 0.4cqw rgb(0 0 0 / 0.35);
 }
 
 .bus-overlay {
   position: absolute;
   inset: 0;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3308,7 +3325,10 @@ a.canvas-title:hover {
 }
 
 .bus-note {
+  flex: none;
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
+  text-align: center;
 }
+
