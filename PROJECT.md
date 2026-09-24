@@ -20,7 +20,7 @@ terms. When something breaks, tell me what to paste back to you.
 - Layout, widget list and widget settings saved in `localStorage`, so each visitor gets
   their own dashboard
 - Vercel Functions in a top-level `api/` folder for anything that needs a server (Canvas)
-- Deployed on Vercel from a GitHub repo, so every push redeploys. Live at https://thehomeroom.vercel.app (the app is named Homeroom; https://onlyonescreen.vercel.app also still works)
+- Deployed on Vercel from a GitHub repo, so every push redeploys. Live at https://thehomeroom.vercel.app (the app is named Homeroom; the old https://onlyonescreen.vercel.app redirects here)
 
 ## Important constraint
 
