@@ -155,6 +155,20 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     dropLinkRef.current = dropLink
   })
 
+  // Pasting a link (Cmd/Ctrl+V) anywhere on the dashboard, when you're not
+  // typing in a box, adds it as a card too. Easier than dragging between tabs.
+  useEffect(() => {
+    const onPaste = (event) => {
+      if (event.target.closest?.('input, textarea, [contenteditable]')) return
+      const text = event.clipboardData?.getData('text')?.trim() ?? ''
+      if (!/^https?:\/\/\S+$/i.test(text)) return
+      event.preventDefault()
+      dropLinkRef.current(text, null)
+    }
+    document.addEventListener('paste', onPaste)
+    return () => document.removeEventListener('paste', onPaste)
+  }, [])
+
   // Dropping a link anywhere else (the sidebar, the toolbar) would make the
   // browser leave the dashboard, so catch those drops too and add the card
   // at the bottom of the workspace. While a link is dragged, embedded sites
@@ -462,7 +476,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
               <li>Drag any card to move it</li>
               <li>Right-click a card for options</li>
               <li>🎨 Colors → Match Spotify</li>
-              <li>Search Google right in its card</li>
+              <li>Paste any link (⌘V) to add it as a card</li>
             </ul>
           </div>
           <button type="button" className="primary" onClick={onBuildOwn}>

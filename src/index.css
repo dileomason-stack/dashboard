@@ -3113,7 +3113,7 @@ a.canvas-title:hover {
 }
 
 .link-dragging .workspace::after {
-  content: '⬇ Drop a link here to add it as a card';
+  content: '⬇ Drop the link here to add it as a card';
   position: absolute;
   inset: 6px;
   z-index: 50;
