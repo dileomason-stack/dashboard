@@ -38,8 +38,7 @@ const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 // The open area next to the sidebar. Grab a card anywhere (except its buttons,
 // links and text boxes) to move it; it stays exactly where it's dropped and
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
-// down, so cards never hide each other. Resize from the corner grip or the
-// right/bottom edges.
+// down, so cards never hide each other. Resize from any edge or corner.
 export default function Workspace({ widgets, collapsed, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid, collapsed)
@@ -152,7 +151,7 @@ export default function Workspace({ widgets, collapsed, grid, onGridChange, onAd
           layout={layout}
           gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
           dragConfig={{ cancel: `${NOT_DRAGGABLE}, .widget-control` }}
-          resizeConfig={{ handles: ['e', 's', 'se'] }}
+          resizeConfig={{ handles: ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'] }}
           compactor={compactor}
           onDragStart={setActive}
           onResizeStart={setActive}
