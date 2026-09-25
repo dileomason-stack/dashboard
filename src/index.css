@@ -301,17 +301,12 @@ button:focus-visible {
 }
 
 .resize-handle.horizontal {
-  height: 4px;
+  height: 10px;
+  cursor: row-resize;
 }
 
-/* The gap between sidebar cards is thin; this invisible strip keeps the
-   divider easy to grab. */
-.resize-handle.horizontal::before {
-  content: '';
-  position: absolute;
-  inset: -4px 0;
-  z-index: 3;
-}
+/* Between sidebar cards: a pill that's always visible so it's clear the
+   cards can be resized. (The grab area is set on the Group in Sidebar.jsx.) */
 
 .resize-handle::after {
   content: '';
@@ -331,10 +326,13 @@ button:focus-visible {
 
 .resize-handle.horizontal::after {
   left: 50%;
-  top: 1px;
-  height: 2px;
-  width: 40px;
-  transform: translateX(-50%);
+  top: 50%;
+  height: 5px;
+  width: 44px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text-muted) 45%, transparent);
+  transform: translate(-50%, -50%);
+  transition: background 0.15s, width 0.15s, height 0.15s;
 }
 
 .resize-handle:hover::after,
@@ -346,8 +344,11 @@ button:focus-visible {
   height: 100%;
 }
 
-.resize-handle.horizontal:hover::after {
+.resize-handle.horizontal:hover::after,
+.resize-handle.horizontal[data-separator='active']::after {
   width: 100%;
+  height: 4px;
+  background: var(--accent);
 }
 
 .empty-area {

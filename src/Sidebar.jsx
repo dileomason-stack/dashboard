@@ -94,6 +94,9 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
       // the new sizes apply.
       key={ids.map((id) => (collapsed.has(id) ? `${id}:c` : id)).join('|')}
       orientation="vertical"
+      // A generous grab area for the dividers (18px with a mouse), stopping
+      // short of the − button at the top of each card.
+      resizeTargetMinimumSize={{ fine: 18, coarse: 32 }}
       className={`sidebar-group${dragId ? ' dragging' : ''}`}
       defaultLayout={sharesFor(ids, sizes)}
       onLayoutChanged={(layout, meta) => {
@@ -102,7 +105,7 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
     >
       {widgets.map((widget, index) => (
         <Fragment key={widget.id}>
-          {index > 0 && <Separator className="resize-handle horizontal" />}
+          {index > 0 && <Separator className="resize-handle horizontal" title="Drag to resize these cards" />}
           <Panel
             id={widget.id}
             minSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : (WIDGETS[widget.type].sidebarHeight ?? 70)}
