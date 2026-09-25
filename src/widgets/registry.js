@@ -225,7 +225,7 @@ export const WIDGETS = {
     description: 'Open Gmail, compose, or search your mail',
     component: InboxWidget,
     brandColor: '#fce8e6',
-    size: { w: 16, h: 50, minW: 12, minH: 20 },
+    size: { w: 16, h: 50, minW: 10, minH: 10 },
     tab: { title: 'Mail', address: 'mail.google.com', href: 'https://mail.google.com', icon: MailIcon },
   },
   arcade: {

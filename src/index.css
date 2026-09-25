@@ -4013,20 +4013,23 @@ a.canvas-title:hover {
 }
 
 .mail-app {
-  flex: 1 1 120px;
+  flex: 1 1 110px;
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
   padding: 6px 10px 6px 6px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--page);
+  /* See-through, so it works on light, dark and colored cards. */
+  background: var(--surface-muted);
+  color: var(--text);
   text-align: left;
 }
 
 .mail-app:hover {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 6%, var(--page));
+  background: var(--surface);
 }
 
 .mail-app svg {
@@ -4115,4 +4118,50 @@ a.canvas-title:hover {
 .mail-explain p:last-child {
   margin-bottom: 0;
   color: var(--text-muted);
+}
+
+/* A short Mail card shows just the app tiles (and Compose); the note, search
+   and sample inbox come back as the card gets taller. */
+.card-body:has(.inbox) {
+  container-type: size;
+}
+
+@container (max-height: 230px) {
+  .inbox .mail-why,
+  .inbox .mail-explain,
+  .inbox .inline-form,
+  .inbox .inbox-count,
+  .inbox .inbox-list {
+    display: none;
+  }
+}
+
+@container (max-height: 120px) {
+  .inbox {
+    gap: 0;
+  }
+
+  .mail-apps {
+    flex-wrap: nowrap;
+    margin: 0;
+  }
+
+  .mail-app {
+    gap: 8px;
+    padding: 4px 8px 4px 4px;
+  }
+
+  .mail-app svg {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+  }
+
+  .mail-app small {
+    display: none;
+  }
+
+  .mail-compose {
+    padding: 0 10px;
+  }
 }
