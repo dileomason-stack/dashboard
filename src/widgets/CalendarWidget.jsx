@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { sampleEvents } from '../example.js'
 import { toCalendarEmbed } from '../lib/embeds.js'
 import { checkGoogleIcsUrl, looksLikeGoogleIcs } from '../lib/gcalFeed.js'
@@ -38,6 +38,106 @@ async function loadCalendar(url) {
   const data = await response.json().catch(() => null)
   if (!response.ok || !data) throw new Error(data?.error ?? 'Couldn’t load your calendar. Try again in a minute.')
   return data
+}
+
+// Google's embeddable calendar (connected by email) has Week, Month and
+// Agenda views but no Day view. For Day, the week is set to start on the
+// chosen day and the frame is made wide enough that exactly that first
+// column (plus the hour labels) fills the card; the other six days are
+// clipped off. Google lays the week out as 72px of hour labels, then seven
+// equal columns, with a 12px margin on the right.
+const VIEWS = [
+  ['day', 'Day', 'WEEK'],
+  ['week', 'Week', 'WEEK'],
+  ['month', 'Month', 'MONTH'],
+  ['list', 'List', 'AGENDA'],
+]
+const HOUR_LABELS = 72
+const RIGHT_MARGIN = 12
+
+const ymd = (date) =>
+  `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`
+
+function embedFor(embedUrl, view, day) {
+  const url = new URL(embedUrl)
+  url.searchParams.set('mode', VIEWS.find(([key]) => key === view)[2])
+  for (const name of ['showTitle', 'showPrint', 'showTabs', 'showCalendars']) url.searchParams.set(name, '0')
+  url.searchParams.delete('wkst')
+  url.searchParams.delete('dates')
+  if (view === 'day') {
+    // Our own ‹ Today › replace Google's arrows, which would jump a week.
+    url.searchParams.set('showNav', '0')
+    url.searchParams.set('showDate', '0')
+    url.searchParams.set('wkst', String(day.getDay() + 1)) // 1 = Sunday
+    const next = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1)
+    url.searchParams.set('dates', `${ymd(day)}/${ymd(next)}`)
+  }
+  return url.toString()
+}
+
+function useWidth(ref) {
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [ref])
+  return width
+}
+
+function EmbedCalendar({ embedUrl, view, onView }) {
+  const [day, setDay] = useState(() => new Date())
+  const frameRef = useRef(null)
+  const width = useWidth(frameRef)
+  const isToday = ymd(day) === ymd(new Date())
+  const step = (days) => setDay(new Date(day.getFullYear(), day.getMonth(), day.getDate() + days))
+  // Frame width that makes one day column fill the card.
+  const column = Math.max(120, width - HOUR_LABELS)
+  const frameWidth = view === 'day' && width ? HOUR_LABELS + 7 * column + RIGHT_MARGIN : undefined
+
+  return (
+    <div className="calendar-embed with-views">
+      <div className="calendar-views">
+        <div className="segmented-tabs" role="tablist" aria-label="Calendar view">
+          {VIEWS.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              className={view === key ? 'active' : undefined}
+              onClick={() => onView(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {view === 'day' && (
+          <div className="calendar-day-nav">
+            <button type="button" className="dayview-step" onClick={() => step(-1)} aria-label="Previous day">
+              ‹
+            </button>
+            <button type="button" className="dayview-today" onClick={() => setDay(new Date())} disabled={isToday}>
+              Today
+            </button>
+            <button type="button" className="dayview-step" onClick={() => step(1)} aria-label="Next day">
+              ›
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="calendar-frame" ref={frameRef}>
+        {width > 0 && (
+          <iframe
+            title="Google Calendar"
+            src={embedFor(embedUrl, view, day)}
+            loading="lazy"
+            style={frameWidth ? { width: frameWidth } : undefined}
+          />
+        )}
+      </div>
+    </div>
+  )
 }
 
 function SampleCalendar() {
@@ -94,20 +194,16 @@ export default function CalendarWidget({ id }) {
   if (!embed?.ok) {
     return (
       <LinkSetup
-        heading="Show your Google Calendar here, in Day view."
-        steps={[
-          'On a computer, open Google Calendar → ⚙ → Settings',
-          'On the left under “Settings for my calendars”, click your calendar',
-          'Scroll down to “Secret address in iCal format”, click the copy button, and paste it below',
-        ]}
-        placeholder="https://calendar.google.com/calendar/ical/…/basic.ics"
+        heading="Show your Google Calendar here."
+        steps={['Type the email address you use for Google Calendar (like you@gmail.com or your school email)', 'Click Save']}
+        placeholder="you@gmail.com"
         check={checkCalendarInput}
         onSave={(result) => setSettings(result.icsUrl ? { icsUrl: result.icsUrl } : { embedUrl: result.embedUrl })}
         extra={
           <>
             <p className="setup-note">
-              The secret address lets Homeroom read your events; it’s saved only in this browser. Quicker option: type your Google
-              email instead to show Google’s own compact calendar (no Day view).
+              Your events show in browsers where you’re signed in to that Google account. You can switch between Day, Week, Month
+              and List. For a shared or club calendar, paste its Calendar ID or embed code instead.
             </p>
             <button type="button" className="link-button" onClick={() => setSettings({ sample: true })}>
               Or show a sample week
@@ -118,13 +214,11 @@ export default function CalendarWidget({ id }) {
     )
   }
 
-  // Google's embed can't be restyled; offer the Day view (needs the secret address).
   return (
-    <div className="calendar-embed with-switch">
-      <iframe title="Google Calendar" src={embed.embedUrl} loading="lazy" />
-      <button type="button" className="calendar-switch" onClick={() => setSettings({})}>
-        Switch to Day view (colored bubbles) →
-      </button>
-    </div>
+    <EmbedCalendar
+      embedUrl={embed.embedUrl}
+      view={settings.view ?? 'day'}
+      onView={(view) => setSettings((current) => ({ ...current, view }))}
+    />
   )
 }
