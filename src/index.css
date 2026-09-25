@@ -3793,3 +3793,114 @@ a.canvas-title:hover {
 .react-grid-item.react-draggable-dragging .collapsed-card {
   cursor: grabbing;
 }
+
+/* ---------- Guide (❓ Guide in the toolbar) ---------- */
+
+.guide-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: flex-end;
+  background: rgb(0 0 0 / 0.3);
+  animation: guide-fade 0.2s ease-out;
+}
+
+.guide-panel {
+  width: min(420px, 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--text);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 32px rgb(0 0 0 / 0.18);
+  animation: guide-slide 0.25s ease-out;
+}
+
+@keyframes guide-fade {
+  from { opacity: 0; }
+}
+
+@keyframes guide-slide {
+  from { transform: translateX(40px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-layer,
+  .guide-panel { animation: none; }
+}
+
+.guide-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.guide-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.guide-close:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.guide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 24px;
+}
+
+.guide-body section + section {
+  margin-top: 6px;
+}
+
+.guide-body h3 {
+  margin: 14px 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.guide-body dl {
+  margin: 0;
+}
+
+.guide-body dl > div {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-body dl > div:last-child {
+  border-bottom: none;
+}
+
+.guide-body dt {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.guide-body dd {
+  margin: 2px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}

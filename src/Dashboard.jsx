@@ -3,6 +3,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
 import CollapsedCard from './CollapsedCard.jsx'
 import ColorPicker from './ColorPicker.jsx'
+import GuidePanel from './GuidePanel.jsx'
 import ShareDialog from './ShareDialog.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
@@ -141,6 +142,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const [colorsPicker, setColorsPicker] = useState(null)
   const [colorScope, setColorScope] = useState('sidebar')
   const [sharing, setSharing] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const openMode = useOpenMode()
   // While a workspace card is dragged over the sidebar: where it would go
   // (an index in the sidebar list), else null.
@@ -663,6 +665,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           >
             {openMode === 'side' ? '↗ Open beside' : '↗ New tabs'}
           </button>
+          <button type="button" onClick={() => setGuideOpen(true)} title="How to use Homeroom, and features you might miss">
+            ❓ Guide
+          </button>
           <button type="button" onClick={() => setSharing(true)} title="Show a QR code and link to this site">
             📱 Share
           </button>
@@ -743,6 +748,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       <Dock widgets={dockWidgets} tabFor={tabFor} onRestore={restoreWidget} />
 
       {sharing && <ShareDialog onClose={() => setSharing(false)} />}
+      {guideOpen && <GuidePanel onClose={() => setGuideOpen(false)} />}
 
       {colorsPicker && (
         <ColorPicker
