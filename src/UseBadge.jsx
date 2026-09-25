@@ -1,8 +1,7 @@
-import { openModeLabel, useOpenMode } from './lib/openExternal.js'
 
 // What a card does, so no click surprises anyone:
 // ▶ Use here (works fully in the card), 👁 Preview (see it here, act in the
-// real app), ↗ Opens beside (a one-click shortcut to an app that can't run
+// real app), ↗ New tab (a one-click shortcut to an app that can't run
 // inside other websites).
 const TEXT = {
   live: ['▶ Use here', 'Works fully right here in the card'],
@@ -11,11 +10,10 @@ const TEXT = {
 
 // compact: just the symbol (the full label is in its tooltip).
 export default function UseBadge({ use, compact }) {
-  const openMode = useOpenMode()
   if (!use) return null
   const [label, help] =
     use === 'jump'
-      ? [`↗ ${openModeLabel(openMode)}`, 'This app can’t run inside other websites, so it opens in one click']
+      ? ['↗ New tab', 'This app can’t run inside other websites, so it opens in a new tab in one click']
       : TEXT[use]
   return (
     <span className={`use-badge use-${use}${compact ? ' compact' : ''}`} title={compact ? `${label}: ${help}` : help}>

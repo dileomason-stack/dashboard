@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react'
-import { openExternal, openModeLabel, useOpenMode } from '../lib/openExternal.js'
+import { openExternal } from '../lib/openExternal.js'
 
 export default function ClaudeWidget() {
   const [question, setQuestion] = useState('')
   const inputRef = useRef(null)
-  const openMode = useOpenMode()
 
   function ask(event) {
     event.preventDefault()
@@ -35,7 +34,7 @@ export default function ClaudeWidget() {
           rows={3}
         />
         <div className="claude-actions">
-          <span className="claude-hint">{openModeLabel(openMode)}</span>
+          <span className="claude-hint">Opens in a new tab</span>
           <button type="submit" className="claude-send" disabled={!question.trim()} aria-label="Ask Claude">
             ↑
           </button>

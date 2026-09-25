@@ -5,7 +5,7 @@ import LinkSetup from './LinkSetup.jsx'
 
 // Shows a Google Doc/Sheet/Slides, Drive file, or shared Drive folder inside
 // the card (view-only; Google doesn't allow editing inside other sites).
-// The bar on top says so and has the Edit / Open button (opens beside).
+// The bar on top says so and has the Edit / Open button (opens in a new tab).
 // Settings: { url } (the original share link).
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}

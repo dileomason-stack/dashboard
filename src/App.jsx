@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { routeLinksBeside } from './lib/openExternal.js'
+import { useState } from 'react'
 import Dashboard from './Dashboard.jsx'
 import Toast from './Toast.jsx'
 import DashboardTabs from './DashboardTabs.jsx'
@@ -28,8 +27,6 @@ export default function App() {
   // Bumped on every switch so the dashboard starts fresh (no leftover full-screen widget, etc.).
   const [generation, setGeneration] = useState(0)
 
-  // Links that leave the dashboard open beside it (see openExternal.js).
-  useEffect(routeLinksBeside, [])
 
   function switchTo(mode) {
     writeJSON(MODE_KEY, mode)

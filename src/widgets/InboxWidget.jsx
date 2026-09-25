@@ -3,7 +3,7 @@ import { openExternal } from '../lib/openExternal.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 
 // Gmail and Outlook can't be shown inside other sites, so this card offers
-// quick ways in: app-icon tiles that open them beside the dashboard, compose,
+// quick ways in: app-icon tiles that open them in a new tab, compose,
 // and search Gmail.
 // Alex's example shows a made-up inbox instead. Settings: { sample, read: {id: true} }.
 const isSettings = (value) => value && typeof value === 'object'
@@ -95,23 +95,23 @@ export default function InboxWidget({ id }) {
   return (
     <div className="inbox">
       <div className="mail-apps">
-        <button type="button" className="mail-app" onClick={() => open(`${GMAIL}#inbox`)} title="Open Gmail beside Homeroom">
+        <button type="button" className="mail-app" onClick={() => open(`${GMAIL}#inbox`)} title="Open Gmail in a new tab">
           <GmailLogo />
           <span>
             <strong>Gmail</strong>
-            <small>Opens beside ↗</small>
+            <small>Opens in new tab ↗</small>
           </span>
         </button>
         <button
           type="button"
           className="mail-app"
           onClick={() => open(OUTLOOK)}
-          title="Open Outlook (Cal Poly email) beside Homeroom"
+          title="Open Outlook (Cal Poly email) in a new tab"
         >
           <OutlookLogo />
           <span>
             <strong>Outlook</strong>
-            <small>Opens beside ↗</small>
+            <small>Opens in new tab ↗</small>
           </span>
         </button>
         <button
@@ -124,7 +124,7 @@ export default function InboxWidget({ id }) {
         </button>
       </div>
       <p className="mail-why">
-        🔒 Gmail and Outlook don’t let other websites show your inbox, so they open beside your dashboard instead.{' '}
+        🔒 Gmail and Outlook don’t let other websites show your inbox, so they open in a new tab instead.{' '}
         <button
           type="button"
           className="mail-why-toggle"

@@ -17,7 +17,7 @@ const SECTIONS = [
     items: [
       ['▶ Use here', 'Works fully right inside the card.'],
       ['👁 Preview', 'Shows it at a glance; click something to open the real app.'],
-      ['↗ Opens beside', 'Sites like Gmail block being shown inside others, so they open in a window beside the dashboard.'],
+      ['↗ New tab', 'Sites like Gmail block being shown inside others, so they open in a new tab in one click.'],
     ],
   },
   {
@@ -55,7 +55,6 @@ const SECTIONS = [
     items: [
       ['🎨 Colors', 'Light or dark, color the sidebar or every card, use each app’s own colors, or match your Spotify playlist.'],
       ['Dashboard tabs', 'Click + for a new dashboard from a template. Right-click a tab to rename or delete it.'],
-      ['↗ Open beside / New tabs', 'Choose whether links open in a window beside Homeroom or in a new tab.'],
       ['📱 Share', 'Shows a QR code so friends can open Homeroom on their phones.'],
     ],
   },

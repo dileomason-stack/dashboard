@@ -99,8 +99,8 @@ export default function AddWidgetMenu({ onAdd }) {
             autoFocus
           />
           <p className="add-menu-key">
-            <UseBadge use="live" /> works in the card · <UseBadge use="preview" /> at a glance · <UseBadge use="jump" /> opens
-            beside
+            <UseBadge use="live" /> works in the card · <UseBadge use="preview" /> at a glance · <UseBadge use="jump" /> opens in
+            a new tab
           </p>
           <div className="add-menu-sections" role="menu">
             {sections.length === 0 && <p className="add-menu-empty">No widgets match “{query}”.</p>}

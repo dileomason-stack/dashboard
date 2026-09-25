@@ -8,7 +8,7 @@ import ShareDialog from './ShareDialog.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { COLS, createPushDownCompactor, ROW_HEIGHT, upgradeGrid } from './lib/grid.js'
-import { openExternal, setOpenMode, useOpenMode } from './lib/openExternal.js'
+import { openExternal } from './lib/openExternal.js'
 import { classifyLink } from './lib/classifyLink.js'
 import { droppedLink, isLinkDrag } from './lib/drag.js'
 import { showToast } from './lib/toast.js'
@@ -143,7 +143,6 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const [colorScope, setColorScope] = useState('sidebar')
   const [sharing, setSharing] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
-  const openMode = useOpenMode()
   // While a workspace card is dragged over the sidebar: where it would go
   // (an index in the sidebar list), else null.
   const [sidebarDrop, setSidebarDrop] = useState(null)
@@ -657,17 +656,6 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           {tabs}
         </div>
         <div className="toolbar-actions">
-          <button
-            type="button"
-            onClick={() => setOpenMode(openMode === 'side' ? 'tab' : 'side')}
-            title={
-              openMode === 'side'
-                ? 'Apps that can’t run in a card (Gmail, Claude, Docs editing…) open in a window beside your dashboard. Click to use new tabs instead.'
-                : 'Apps that can’t run in a card open in new tabs. Click to open them beside your dashboard instead.'
-            }
-          >
-            {openMode === 'side' ? '↗ Open beside' : '↗ New tabs'}
-          </button>
           <button type="button" onClick={() => setGuideOpen(true)} title="How to use Homeroom, and features you might miss">
             ❓ Guide
           </button>
