@@ -28,7 +28,9 @@ function EmbedPicker({ id, catalog, heading }) {
 
   return (
     <div className="tool-embed">
-      <iframe title={tool.name} src={tool.url} loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" />
+      <div className="tool-frame" style={{ '--zoom': tool.zoom ?? 1 }}>
+        <iframe title={tool.name} src={tool.url} loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" />
+      </div>
     </div>
   )
 }

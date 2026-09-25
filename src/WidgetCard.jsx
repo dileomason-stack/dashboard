@@ -90,6 +90,11 @@ export default function WidgetCard({
             −
           </button>
         )}
+        {type !== 'spotify' && (
+          <span className="card-title" title={title}>
+            {title}
+          </span>
+        )}
         <UseBadge use={use} />
         <div className="card-handle">
           <span className="card-grip" aria-hidden="true">

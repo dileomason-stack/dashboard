@@ -107,7 +107,8 @@ export default function DailyWordWidget({ id }) {
       }}
     >
       <div className="word-header">
-        <strong>{game.practice ? 'Practice word' : 'Daily word'}</strong>
+        {/* The card's own title already says "Daily word". */}
+        {game.practice && <strong>Practice word</strong>}
         {game.practice ? (
           <button type="button" className="link-button" onClick={backToDaily}>
             Back to today’s

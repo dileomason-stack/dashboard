@@ -13,13 +13,14 @@ import TypingWidget from './TypingWidget.jsx'
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
 
+// Our own ad-free games first; the first one is where the Arcade opens.
 const ARCADE = [
-  ['hoopgrids', '🏀', 'HoopGrids'],
-  ['globle', '🌍', 'Globle'],
-  ['chesspuzzle', '♟️', 'Chess puzzle'],
   ['g2048', '🔢', '2048'],
   ['snake', '🐍', 'Snake'],
   ['typing', '⌨️', 'Typing test'],
+  ['hoopgrids', '🏀', 'HoopGrids'],
+  ['globle', '🌍', 'Globle'],
+  ['chesspuzzle', '♟️', 'Chess puzzle'],
   ['solitaire', '🃏', 'Solitaire'],
   ['minesweeper', '💣', 'Minesweeper'],
   ['dino', '🦖', 'Dino'],

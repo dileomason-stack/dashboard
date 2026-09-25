@@ -1,15 +1,16 @@
 // Academic tools the Tool widget can show. Each one was checked to load
 // inside a card (many sites, like Wolfram Alpha or Symbolab, refuse to).
+// zoom: how far the site is scaled down so a busy page fits a card.
 export const TOOLS = {
-  graphing: { name: 'Desmos graphing calculator', url: 'https://www.desmos.com/calculator', address: 'desmos.com' },
-  scientific: { name: 'Desmos scientific calculator', url: 'https://www.desmos.com/scientific', address: 'desmos.com' },
-  matrix: { name: 'Desmos matrix calculator', url: 'https://www.desmos.com/matrix', address: 'desmos.com' },
-  geometry: { name: 'Desmos geometry', url: 'https://www.desmos.com/geometry', address: 'desmos.com' },
-  geogebra: { name: 'GeoGebra calculator', url: 'https://www.geogebra.org/calculator', address: 'geogebra.org' },
-  periodic: { name: 'Periodic table', url: 'https://ptable.com', address: 'ptable.com' },
-  whiteboard: { name: 'Whiteboard (Excalidraw)', url: 'https://excalidraw.com', address: 'excalidraw.com' },
-  pythontutor: { name: 'Python Tutor (step through code)', url: 'https://pythontutor.com/visualize.html', address: 'pythontutor.com' },
-  timer: { name: 'Focus timer (Pomofocus)', url: 'https://pomofocus.io', address: 'pomofocus.io' },
+  graphing: { name: 'Desmos graphing calculator', url: 'https://www.desmos.com/calculator', address: 'desmos.com', zoom: 0.85 },
+  scientific: { name: 'Desmos scientific calculator', url: 'https://www.desmos.com/scientific', address: 'desmos.com', zoom: 0.85 },
+  matrix: { name: 'Desmos matrix calculator', url: 'https://www.desmos.com/matrix', address: 'desmos.com', zoom: 0.85 },
+  geometry: { name: 'Desmos geometry', url: 'https://www.desmos.com/geometry', address: 'desmos.com', zoom: 0.85 },
+  geogebra: { name: 'GeoGebra calculator', url: 'https://www.geogebra.org/calculator', address: 'geogebra.org', zoom: 0.85 },
+  periodic: { name: 'Periodic table', url: 'https://ptable.com', address: 'ptable.com', zoom: 0.62 },
+  whiteboard: { name: 'Whiteboard (Excalidraw)', url: 'https://excalidraw.com', address: 'excalidraw.com', zoom: 0.85 },
+  pythontutor: { name: 'Python Tutor (step through code)', url: 'https://pythontutor.com/visualize.html', address: 'pythontutor.com', zoom: 0.8 },
+  timer: { name: 'Focus timer (Pomofocus)', url: 'https://pomofocus.io', address: 'pomofocus.io', zoom: 0.7 },
 }
 
 // Games the Game widget can show; each was checked to play inside a card.

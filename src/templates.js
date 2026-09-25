@@ -76,7 +76,7 @@ export const TEMPLATES = {
             },
           ],
         ],
-        workspace: [['arcade', 0, 0, 48, 74, { current: 'hoopgrids' }]],
+        workspace: [['arcade', 0, 0, 48, 94, { current: 'g2048' }]],
         theme: 'dark',
       }),
   },

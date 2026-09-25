@@ -192,12 +192,39 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     else delete document.documentElement.dataset.theme
   }, [layout.theme])
 
+  // Embedded sites (Desmos, Excalidraw, ...) can focus themselves as they
+  // load, which scrolls the workspace down to them. Undo any workspace scroll
+  // that didn't come from the person (wheel, keys, touch, clicks) or from us
+  // (bringing a new card into view).
+  useEffect(() => {
+    let lastInput = 0
+    const positions = new WeakMap()
+    const noteInput = () => (lastInput = Date.now())
+    const onScroll = (event) => {
+      const panel = event.target
+      if (!(panel instanceof Element) || !panel.classList.contains('workspace-panel')) return
+      const now = Date.now()
+      if (now - lastInput < 1000 || now < (panel.homeroomScrollAllowedUntil ?? 0)) positions.set(panel, panel.scrollTop)
+      else panel.scrollTop = positions.get(panel) ?? 0
+    }
+    const inputs = ['wheel', 'keydown', 'touchstart', 'pointerdown']
+    for (const type of inputs) window.addEventListener(type, noteInput, { capture: true, passive: true })
+    document.addEventListener('scroll', onScroll, true)
+    return () => {
+      for (const type of inputs) window.removeEventListener(type, noteInput, { capture: true })
+      document.removeEventListener('scroll', onScroll, true)
+    }
+  }, [])
+
   // Scroll a newly added card into view, then let its glow fade.
   useEffect(() => {
     if (!newestId) return
-    const frame = requestAnimationFrame(() =>
-      document.querySelector(`[data-widget-id="${newestId}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
-    )
+    const frame = requestAnimationFrame(() => {
+      const card = document.querySelector(`[data-widget-id="${newestId}"]`)
+      const panel = card?.closest('.workspace-panel')
+      if (panel) panel.homeroomScrollAllowedUntil = Date.now() + 1500 // our own scroll (see above)
+      card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
     const timer = setTimeout(() => setNewestId(null), 1800)
     return () => {
       cancelAnimationFrame(frame)
