@@ -927,39 +927,10 @@ a.canvas-title:hover {
 
 /* ---------- Calendar (Day view, like Google Calendar's) ---------- */
 
-.calendar-embed.with-views {
-  display: flex;
-  flex-direction: column;
-}
-
-.calendar-views {
-  flex: none;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 8px 6px;
-}
-
-.calendar-views .segmented-tabs {
-  margin: 0;
-}
-
-.calendar-day-nav {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: auto;
-}
-
-.calendar-day-nav .dayview-today {
-  margin: 0;
-}
-
 /* Clips Google's week down to the first day column in Day view. */
 .calendar-frame {
-  flex: 1;
-  min-height: 0;
+  position: relative;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -969,18 +940,57 @@ a.canvas-title:hover {
   transform-origin: 0 0;
 }
 
-.calendar-zoom {
+/* View, day and zoom controls, floating over the top-right corner of
+   Google's calendar header (always white, whatever the card's theme). */
+.calendar-controls {
+  position: absolute;
+  top: 6px;
+  right: 22px;
+  z-index: 1;
   display: flex;
   align-items: center;
-  margin-left: auto;
+  gap: 1px;
+  padding: 2px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  color: #3c4043;
 }
 
-.calendar-zoom + .calendar-day-nav {
-  margin-left: 0;
+.calendar-controls button,
+.calendar-controls select {
+  height: 22px;
+  min-width: 22px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
-.calendar-zoom .dayview-step:disabled {
+.calendar-controls select {
+  padding: 0 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.calendar-controls button:hover:not(:disabled),
+.calendar-controls select:hover {
+  background: #f1f3f4;
+}
+
+.calendar-controls button:disabled {
   opacity: 0.35;
+}
+
+.calendar-controls .calendar-today {
+  padding: 0 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1a73e8;
 }
 
 .calendar-sample {

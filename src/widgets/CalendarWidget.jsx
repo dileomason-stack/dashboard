@@ -107,58 +107,7 @@ function EmbedCalendar({ embedUrl, view, onView, zoom, onZoom }) {
   const frameWidth = view === 'day' ? HOUR_LABELS + 7 * column + RIGHT_MARGIN : width
 
   return (
-    <div className="calendar-embed with-views">
-      <div className="calendar-views">
-        <div className="segmented-tabs" role="tablist" aria-label="Calendar view">
-          {VIEWS.map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={view === key}
-              className={view === key ? 'active' : undefined}
-              onClick={() => onView(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <div className="calendar-zoom">
-          <button
-            type="button"
-            className="dayview-step"
-            onClick={() => onZoom(ZOOMS[zoomIndex - 1])}
-            disabled={zoomIndex <= 0}
-            aria-label="Zoom out (fit more hours)"
-            title="Zoom out (fit more hours)"
-          >
-            −
-          </button>
-          <button
-            type="button"
-            className="dayview-step"
-            onClick={() => onZoom(ZOOMS[zoomIndex + 1])}
-            disabled={zoomIndex >= ZOOMS.length - 1}
-            aria-label="Zoom in (bigger text)"
-            title="Zoom in (bigger text)"
-          >
-            +
-          </button>
-        </div>
-        {view === 'day' && (
-          <div className="calendar-day-nav">
-            <button type="button" className="dayview-step" onClick={() => step(-1)} aria-label="Previous day">
-              ‹
-            </button>
-            <button type="button" className="dayview-today" onClick={() => setDay(new Date())} disabled={isToday}>
-              Today
-            </button>
-            <button type="button" className="dayview-step" onClick={() => step(1)} aria-label="Next day">
-              ›
-            </button>
-          </div>
-        )}
-      </div>
+    <div className="calendar-embed">
       <div className="calendar-frame" ref={frameRef}>
         {size.width > 0 && (
           <iframe
@@ -168,6 +117,50 @@ function EmbedCalendar({ embedUrl, view, onView, zoom, onZoom }) {
             style={{ width: frameWidth, height: size.height / zoom, transform: `scale(${zoom})` }}
           />
         )}
+        {/* Floats in the empty top-right corner of Google's header, so the
+            calendar keeps the card's full height. */}
+        <div className="calendar-controls">
+          {view === 'day' && (
+            <>
+              {!isToday && (
+                <button type="button" className="calendar-today" onClick={() => setDay(new Date())}>
+                  Today
+                </button>
+              )}
+              <button type="button" onClick={() => step(-1)} aria-label="Previous day" title="Previous day">
+                ‹
+              </button>
+              <button type="button" onClick={() => step(1)} aria-label="Next day" title="Next day">
+                ›
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => onZoom(ZOOMS[zoomIndex - 1])}
+            disabled={zoomIndex <= 0}
+            aria-label="Zoom out (fit more hours)"
+            title="Zoom out (fit more hours)"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={() => onZoom(ZOOMS[zoomIndex + 1])}
+            disabled={zoomIndex >= ZOOMS.length - 1}
+            aria-label="Zoom in (bigger text)"
+            title="Zoom in (bigger text)"
+          >
+            +
+          </button>
+          <select value={view} onChange={(event) => onView(event.target.value)} aria-label="Calendar view">
+            {VIEWS.map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   )
