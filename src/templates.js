@@ -33,24 +33,6 @@ export const TEMPLATES = {
     name: 'New dashboard',
     build: () => ({ layout: blankLayout(), data: {} }),
   },
-  tools: {
-    label: '🧰 Tools: calculators, periodic table, whiteboard',
-    name: '🧰 Tools',
-    build: (idFor) =>
-      assemble(idFor, {
-        sidebarSize: 24,
-        sidebar: [
-          ['tool', 45, { tool: 'timer' }],
-          ['notes', 55],
-        ],
-        workspace: [
-          ['tool', 0, 0, 25, 56, { tool: 'graphing' }],
-          ['tool', 25, 0, 23, 46, { tool: 'scientific' }],
-          ['tool', 0, 56, 25, 44, { tool: 'whiteboard' }],
-          ['tool', 25, 46, 23, 54, { tool: 'periodic' }],
-        ],
-      }),
-  },
   fun: {
     label: '🎮 Fun: an arcade of 13 games, daily word, game links',
     name: '🎮 Fun',

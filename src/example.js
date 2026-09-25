@@ -91,17 +91,7 @@ export function sampleEvents(now = new Date()) {
 const EXAMPLE_PLAYLIST = 'https://open.spotify.com/playlist/0vvXsWCC9xrXsKd4FyS8kM'
 
 export function exampleSeed() {
-  // Alex's 🧰 Tools dashboard is the Tools template with fixed ids.
-  const toolCount = {}
-  const tools = TEMPLATES.tools.build((type) => {
-    toolCount[type] = (toolCount[type] ?? 0) + 1
-    return `ext-${type}-${toolCount[type]}`
-  })
-  // Alex's dashboards stay light even on a dark-mode computer (projectors
-  // show light screens better); only 🎮 Fun is dark.
-  tools.layout.theme = 'light'
-  const toolsData = Object.fromEntries(Object.entries(tools.data).map(([id, settings]) => [`widget:${id}`, settings]))
-  // …and 🎮 Fun is the Fun template.
+  // Alex's 🎮 Fun dashboard is the Fun template with fixed ids.
   const funCount = {}
   const fun = TEMPLATES.fun.build((type) => {
     funCount[type] = (funCount[type] ?? 0) + 1
@@ -110,14 +100,13 @@ export function exampleSeed() {
   const funData = Object.fromEntries(Object.entries(fun.data).map(([id, settings]) => [`widget:${id}`, settings]))
 
   return {
-    // Alex's three dashboards. "main" uses the "layout" key.
+    // Alex's dashboards. "main" uses the "layout" key.
     dashboards: {
       // Opens on Morning check: the clearest first impression. Everything
       // (the busiest view) comes last.
       list: [
         { id: 'morning', name: '☀️ Morning check' },
         { id: 'project', name: '💻 CSC 202 project' },
-        { id: 'tools', name: '🧰 Tools' },
         { id: 'fun', name: '🎮 Fun' },
         { id: 'main', name: '⭐ Everything' },
       ],
@@ -237,11 +226,7 @@ export function exampleSeed() {
     'widget:exp-canvas': { sample: true, done: {} },
     // A real shared Google Drive folder ("Anyone with the link" can view).
     'widget:exp-drive': { url: 'https://drive.google.com/drive/folders/13uCwzCKaJvj9dXLJOqZotZX4Zpdk3reb' },
-    'layout:tools': tools.layout,
-    ...toolsData,
     'layout:fun': fun.layout,
     ...funData,
-    'widget:ext-notes-1':
-      'CHEM 124 lab notes\n- Molar mass of NaCl: 58.44 g/mol\n- Remember sig figs on the final answer\n\nEssay intro draft goes here…',
   }
 }
