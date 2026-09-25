@@ -68,17 +68,17 @@ export default function CalendarWidget({ id }) {
     return (
       <LinkSetup
         heading="Show your Google Calendar here."
-        steps={[
-          'On a computer, open Google Calendar → ⚙ Settings',
-          'Click your calendar on the left, then “Integrate calendar”',
-          'Copy the “Embed code” and paste it below',
-        ]}
-        placeholder='<iframe src="https://calendar.google.com/calendar/embed?…'
+        steps={['Type the email address you use for Google Calendar (like you@gmail.com or your school email)', 'Click Save']}
+        placeholder="you@gmail.com"
         check={toCalendarEmbed}
         onSave={(result) => setSettings({ embedUrl: result.embedUrl })}
         extra={
           <>
-            <p className="setup-note">Private events only show in browsers where you’re signed in to Google.</p>
+            <p className="setup-note">
+              Your events show in browsers where you’re signed in to that Google account. For a shared or club
+              calendar, paste its Calendar ID or embed code instead (Calendar ⚙ Settings → click the calendar →
+              Integrate calendar).
+            </p>
             <button type="button" className="link-button" onClick={() => setSettings({ sample: true })}>
               Or show a sample week
             </button>

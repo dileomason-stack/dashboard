@@ -32,17 +32,27 @@ export function toSpotifyEmbed(input) {
   return { ok: true, embedUrl: `https://open.spotify.com/embed/${type}/${id}` }
 }
 
-// Accepts Google Calendar's embed code (<iframe src="...">) or its embed URL.
+// Accepts a Google account email or calendar ID (a calendar's ID is the
+// owner's email for their main calendar), Google Calendar's embed code
+// (<iframe src="...">), or its embed URL.
+const CALENDAR_ID = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i
+
 export function toCalendarEmbed(input) {
   const text = String(input ?? '').trim()
-  if (!text) return { ok: false, error: 'Paste your Google Calendar embed code first.' }
+  if (!text) return { ok: false, error: 'Type your Google email address first.' }
+  if (CALENDAR_ID.test(text)) {
+    const url = new URL('https://calendar.google.com/calendar/embed')
+    url.searchParams.set('src', text)
+    url.searchParams.set('mode', 'AGENDA')
+    return { ok: true, embedUrl: withLocalTimeZone(url) }
+  }
   const src = text.match(/src="([^"]+)"/)?.[1]?.replace(/&amp;/g, '&') ?? text
 
   let url
   try {
     url = new URL(src)
   } catch {
-    return { ok: false, error: 'That isn’t a link or embed code. Copy the “Embed code” from Calendar settings.' }
+    return { ok: false, error: 'Type the email address you use for Google Calendar, like you@gmail.com.' }
   }
   if (url.protocol !== 'https:' || url.hostname !== 'calendar.google.com' || !/^\/calendar(\/u\/\d+)?\/embed/.test(url.pathname)) {
     return {
@@ -52,7 +62,14 @@ export function toCalendarEmbed(input) {
   }
   // Agenda view fits a narrow column best.
   if (!url.searchParams.has('mode')) url.searchParams.set('mode', 'AGENDA')
-  return { ok: true, embedUrl: url.toString() }
+  return { ok: true, embedUrl: withLocalTimeZone(url) }
+}
+
+// Otherwise the calendar shows times (and "today") in its own time zone.
+function withLocalTimeZone(url) {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  if (zone && !url.searchParams.has('ctz')) url.searchParams.set('ctz', zone)
+  return url.toString()
 }
 
 
