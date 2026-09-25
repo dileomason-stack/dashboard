@@ -3706,34 +3706,44 @@ a.canvas-title:hover {
   font-weight: 600;
 }
 
-/* ---------- Google file: view-only bar ---------- */
+/* ---------- Google file: Edit / Open button ---------- */
 
+/* It sits in the card's top strip, just left of the ⠿ ⋯ handle (or, where
+   there's no strip, over the top-right corner of the document). */
 .google-file {
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
-.google-file-bar {
+.google-file > .google-file-open {
+  position: absolute;
+  top: 8px;
+  right: 22px;
+}
+
+.card-top .google-file-open {
   flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  margin-left: auto;
 }
 
-.google-file-bar button {
-  padding: 3px 10px;
-  font-size: 0.8rem;
+.card-top:has(.google-file-open) .card-handle {
+  margin-left: 0;
+  order: 1;
 }
 
-.google-file iframe {
-  flex: 1;
-  min-height: 0;
-  height: auto;
+.google-file-open {
+  z-index: 1;
+  padding: 1px 10px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+}
+
+.google-file-open:hover {
+  filter: brightness(1.08);
 }
 
 /* ---------- Toast ---------- */
