@@ -225,6 +225,17 @@ button:focus-visible {
   min-height: 0;
 }
 
+/* A workspace card is being dragged over the sidebar. */
+.sidebar-frame.drop-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+}
+
+.sidebar-frame.drop-target .sidebar-head {
+  color: var(--accent);
+}
+
 .sidebar-head {
   flex: none;
   display: flex;

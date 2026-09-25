@@ -25,17 +25,24 @@ const overlaps = (a, b) =>
 export function createPushDownCompactor() {
   let activeId = null
   let startPositions = null
+  // While the dragged card is outside the grid (over the sidebar), it doesn't
+  // push anything: every other card goes back to where it started.
+  let activeOutside = false
   return {
     type: null,
     // We resolve overlaps ourselves in compact().
     allowOverlap: true,
+    setOutside(outside) {
+      activeOutside = outside
+    },
     setActive(id, layout) {
       activeId = id
+      activeOutside = false
       startPositions = id && layout ? new Map(layout.map((item) => [item.i, { x: item.x, y: item.y }])) : null
     },
     compact(layout) {
       const active = layout.find((item) => item.i === activeId)
-      const placed = active ? [{ ...active }] : []
+      const placed = active && !activeOutside ? [{ ...active }] : []
       const rest = layout
         .filter((item) => item !== active)
         .map((item) => ({ ...item, ...(startPositions?.get(item.i) ?? {}) }))
@@ -46,7 +53,7 @@ export function createPushDownCompactor() {
         while ((hit = placed.find((other) => overlaps(other, next)))) next.y = hit.y + hit.h
         placed.push(next)
       }
-      return layout.map((item) => placed.find((other) => other.i === item.i))
+      return layout.map((item) => placed.find((other) => other.i === item.i) ?? item)
     },
   }
 }

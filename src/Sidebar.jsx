@@ -19,7 +19,9 @@ function sharesFor(ids, saved) {
 // The collapsible column on the left: widgets stacked top to bottom, with a
 // draggable divider between each pair. Cards can be dragged to a new position
 // by grabbing any empty spot on them.
-export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onReorder, renderWidget, stacked }) {
+// incoming: where a card being dragged in from the workspace would land
+// (an index), to show the same line as when reordering.
+export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onReorder, incoming = null, renderWidget, stacked }) {
   const [dragId, setDragId] = useState(null)
   const [dropTarget, setDropTarget] = useState(null)
 
@@ -56,8 +58,14 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
     },
   })
 
-  const dropClass = (id) =>
-    dropTarget?.id === id && dragId !== id ? (dropTarget.after ? ' drop-after' : ' drop-before') : ''
+  const incomingTarget =
+    incoming === null
+      ? null
+      : incoming < widgets.length
+        ? { id: widgets[incoming].id, after: false }
+        : { id: widgets.at(-1)?.id, after: true }
+  const target = incomingTarget ?? dropTarget
+  const dropClass = (id) => (target?.id === id && dragId !== id ? (target.after ? ' drop-after' : ' drop-before') : '')
 
   if (widgets.length === 0) {
     return (

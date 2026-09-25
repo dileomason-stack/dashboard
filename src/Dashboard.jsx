@@ -42,6 +42,12 @@ function useWindowWidth() {
 
 const known = (widget) => WIDGETS[widget.type]
 
+// `list` with `item` inserted at `index` (or at the end if there's no index).
+function insertAt(list, index, item) {
+  if (index == null || index >= list.length) return [...list, item]
+  return [...list.slice(0, index), item, ...list.slice(index)]
+}
+
 function withoutKey(object, key) {
   const { [key]: _removed, ...rest } = object ?? {}
   return rest
@@ -112,11 +118,11 @@ function collapsedCols(title, cols) {
 }
 
 // The sidebar's outline and header, so it reads as its own column.
-function SidebarFrame({ onHide, children }) {
+function SidebarFrame({ onHide, dropping, children }) {
   return (
-    <section className="sidebar-frame" aria-label="Sidebar">
+    <section className={`sidebar-frame${dropping ? ' drop-target' : ''}`} aria-label="Sidebar">
       <div className="sidebar-head">
-        <span>Sidebar</span>
+        <span>{dropping ? 'Drop to move it here' : 'Sidebar'}</span>
         <button type="button" onClick={onHide} title="Hide the sidebar (bring it back from the top left)">
           ‹ Hide
         </button>
@@ -136,6 +142,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const [colorScope, setColorScope] = useState('sidebar')
   const [sharing, setSharing] = useState(false)
   const openMode = useOpenMode()
+  // While a workspace card is dragged over the sidebar: where it would go
+  // (an index in the sidebar list), else null.
+  const [sidebarDrop, setSidebarDrop] = useState(null)
   // The card just added: scrolled into view and briefly highlighted.
   const [newestId, setNewestId] = useState(null)
   const stacked = useWindowWidth() < STACK_BELOW
@@ -353,7 +362,37 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   }
 
   // Moving a card opens it back up (it gets its default size in the workspace).
-  function moveWidget(id) {
+  // Where in the sidebar a point on screen falls: the index to insert at
+  // (before the first card whose middle is below it), or null if outside.
+  function sidebarIndexAt(event) {
+    const point = event?.changedTouches?.[0] ?? event
+    const frame = document.querySelector('.sidebar-frame')
+    if (!frame || point?.clientX == null) return null
+    const rect = frame.getBoundingClientRect()
+    if (point.clientX < rect.left || point.clientX > rect.right || point.clientY < rect.top || point.clientY > rect.bottom) return null
+    const panels = [...frame.querySelectorAll('.sidebar-panel')]
+    const index = panels.findIndex((panel) => {
+      const box = panel.getBoundingClientRect()
+      return point.clientY < box.top + box.height / 2
+    })
+    return index === -1 ? panels.length : index
+  }
+
+  // Drag a workspace card over the sidebar and let go to move it there.
+  // Returns whether it's over the sidebar (so it stops pushing other cards).
+  function dragCard(_id, event) {
+    const index = sidebarIndexAt(event)
+    if (index !== sidebarDrop) setSidebarDrop(index)
+    return index !== null
+  }
+
+  function dropCard(id, event) {
+    const index = sidebarIndexAt(event)
+    setSidebarDrop(null)
+    if (id && index !== null) moveWidget(id, index)
+  }
+
+  function moveWidget(id, sidebarIndex) {
     update((current) => ({ collapsed: withoutKey(current.collapsed, id) }))
     update((current) => {
       const inSidebar = current.sidebar.find((widget) => widget.id === id)
@@ -368,7 +407,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       return {
         workspace: current.workspace.filter((widget) => widget.id !== id),
         grid: current.grid.filter((item) => item.i !== id),
-        sidebar: [...current.sidebar, inWorkspace],
+        sidebar: insertAt(current.sidebar, sidebarIndex, inWorkspace),
         sidebarOpen: true,
       }
     })
@@ -530,6 +569,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       sizes={layout.sidebarSizes}
       onSizesChange={(sizes) => update(() => ({ sidebarSizes: sizes }))}
       onReorder={reorderSidebar}
+      incoming={sidebarDrop}
       renderWidget={renderSlot('sidebar')}
       stacked={stacked}
     />
@@ -540,6 +580,8 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       collapsed={collapsed}
       cols={workspaceCols}
       offset={leftCols}
+      onCardDrag={dragCard}
+      onCardDrop={dropCard}
       grid={visibleGrid}
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}
@@ -657,7 +699,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
               }}
               className="sidebar"
             >
-              <SidebarFrame onHide={() => update(() => ({ sidebarOpen: false }))}>{sidebar}</SidebarFrame>
+              <SidebarFrame onHide={() => update(() => ({ sidebarOpen: false }))} dropping={sidebarDrop !== null}>
+                {sidebar}
+              </SidebarFrame>
             </Panel>
             <Separator className="resize-handle vertical" />
             <Panel id="workspace" className="workspace-panel">

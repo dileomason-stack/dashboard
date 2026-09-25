@@ -35,7 +35,9 @@ function buildLayout(widgets, grid, collapsed, cols, offset) {
 }
 
 // Keep only the fields worth saving (x back in saved terms, see `offset`).
-const pickPosition = (offset) => ({ i, x, y, w, h }) => ({ i, x: x - offset, y, w, h })
+const pickPosition =
+  (offset) =>
+  ({ i, x, y, w, h }) => ({ i, x: x - offset, y, w, h })
 
 // The open area next to the sidebar. Grab a card anywhere (except its buttons,
 // links and text boxes) to move it; it stays exactly where it's dropped and
@@ -43,7 +45,23 @@ const pickPosition = (offset) => ({ i, x, y, w, h }) => ({ i, x: x - offset, y, 
 // down, so cards never hide each other. Resize from any edge or corner.
 // offset: extra columns on the left (where a hidden sidebar was); saved
 // positions are shifted right by this much so cards don't move on screen.
-export default function Workspace({ widgets, collapsed, cols = COLS, offset = 0, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
+// onCardDrag / onCardDrop: (id, event) while a card is dragged and when it's
+// let go, so a card can be dropped outside the grid (into the sidebar).
+export default function Workspace({
+  widgets,
+  collapsed,
+  cols = COLS,
+  offset = 0,
+  onCardDrag,
+  onCardDrop,
+  grid,
+  onGridChange,
+  onAddWidget,
+  onDropLink,
+  showStarter,
+  renderWidget,
+  stacked,
+}) {
   const { width, containerRef, mounted } = useContainerWidth()
   const layout = buildLayout(widgets, grid, collapsed, cols, offset)
   // Created once. It remembers which card is being dragged/resized, since that
@@ -159,7 +177,13 @@ export default function Workspace({ widgets, collapsed, cols = COLS, offset = 0,
           compactor={compactor}
           onDragStart={setActive}
           onResizeStart={setActive}
-          onDragStop={clearActive}
+          onDrag={(_layout, oldItem, _newItem, _placeholder, event) =>
+            compactor.setOutside(Boolean(onCardDrag?.(oldItem?.i, event)))
+          }
+          onDragStop={(_layout, oldItem, _newItem, _placeholder, event) => {
+            clearActive()
+            onCardDrop?.(oldItem?.i, event)
+          }}
           onResizeStop={clearActive}
           onLayoutChange={handleLayoutChange}
         >
