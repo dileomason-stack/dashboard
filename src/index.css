@@ -925,70 +925,241 @@ a.canvas-title:hover {
   font-weight: 600;
 }
 
-/* ---------- Calendar (sample agenda) ---------- */
+/* ---------- Calendar (Day view, like Google Calendar's) ---------- */
 
 .calendar-sample {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .calendar-sample > .link-button {
   align-self: flex-start;
 }
 
-.agenda section + section {
-  margin-top: 8px;
+.card-body:has(.dayview) {
+  padding-bottom: 0;
 }
 
-.agenda h3 {
-  margin: 0 0 4px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-.agenda ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.agenda li {
+.dayview {
+  --gutter: 44px;
+  --today: #1a73e8;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
   display: flex;
-  gap: 10px;
-  padding: 3px 8px;
-  margin-bottom: 3px;
-  border-radius: 6px;
-  border-left: 3px solid #4285f4;
-  background: var(--surface-muted);
-  font-size: 0.85rem;
+  flex-direction: column;
 }
 
-.agenda li.past {
-  opacity: 0.5;
-}
-
-.agenda li.now {
-  border-left-color: #34a853;
-}
-
-.agenda-time {
+.dayview-head {
   flex: none;
-  width: 64px;
-  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 6px;
 }
 
-.now-badge {
-  margin-left: 6px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: #34a853;
-  color: #fff;
+.dayview-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 52px;
+}
+
+.dayview-weekday {
   font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.dayview-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.dayview-date.today .dayview-weekday {
+  color: var(--today);
+}
+
+.dayview-date.today .dayview-number {
+  background: var(--today);
+  color: #fff;
+}
+
+.card-dark {
+  --today: #8ab4f8;
+}
+
+.card-dark .dayview-date.today .dayview-number {
+  color: #202124;
+}
+
+.dayview-step {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.dayview-step:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.dayview-today {
+  margin-left: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.dayview-month {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.dayview-allday {
+  flex: none;
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dayview-allday li {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--event);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dayview-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+
+.dayview-grid {
+  position: relative;
+}
+
+.dayview-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border);
+}
+
+.dayview-hour:first-child {
+  border-top: none;
+}
+
+.dayview-hour span {
+  position: absolute;
+  top: -0.55em;
+  left: 0;
+  width: calc(var(--gutter) - 8px);
+  padding-right: 4px;
+  text-align: right;
+  font-size: 0.65rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: var(--card-bg, var(--page));
+}
+
+.dayview-event {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 3px 7px;
+  overflow: hidden;
+  border: 1px solid var(--card-bg, var(--page));
+  border-radius: 6px;
+  background: var(--event);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.dayview-event strong {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dayview-event span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dayview-event.short {
+  flex-direction: row;
+  align-items: center;
+  padding-block: 0;
+}
+
+.dayview-event.short strong {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.dayview-event.short span {
+  flex: none;
+}
+
+/* The current time: a red line with a dot, like Google Calendar. */
+.dayview-now {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--gutter) - 6px);
+  right: 0;
+  height: 2px;
+  background: #ea4335;
+  pointer-events: none;
+}
+
+.dayview-now::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ea4335;
+}
+
+.dayview-footer {
+  flex: none;
+  margin: 0;
+  padding: 4px 0 6px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* ---------- Claude ---------- */

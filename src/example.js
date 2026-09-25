@@ -40,32 +40,51 @@ export function sampleAssignments(now = new Date()) {
   }))
 }
 
+// Alex's calendar from a week ago to three weeks ahead, in the Day view's
+// format: MWF and Tue/Thu classes (with rooms), clubs, a few one-offs that
+// overlap a class, and Canvas due dates as all-day events.
 export function sampleEvents(now = new Date()) {
-  // A Mon/Wed/Fri + Tue/Thu class pattern, generated for the next 5 days.
   const events = []
-  for (let days = 0; days < 5; days++) {
-    const weekday = atTime(days, 0, 0, now).getDay()
-    if (weekday === 0 || weekday === 6) {
-      if (weekday === 6) events.push(['Farmers market with roommates', days, 10, 0, 12, 0])
-      continue
-    }
-    if (weekday % 2 === 1) {
-      events.push(['CSC 202 Lecture', days, 9, 10, 10, 0])
-      events.push(['MATH 143', days, 11, 10, 12, 0])
-    } else {
-      events.push(['PSY 201', days, 10, 10, 11, 30])
-      events.push(['ENGL 134', days, 13, 40, 15, 0])
-    }
-    if (weekday === 2) events.push(['CSC 202 Lab', days, 15, 10, 18, 0])
-    if (weekday === 3) events.push(['Study group, Kennedy Library', days, 16, 0, 17, 30])
-    if (weekday === 4) events.push(['Vibe coding club', days, 18, 0, 19, 0])
+  const add = (title, days, [h1, m1], [h2, m2], location = '') =>
+    events.push({
+      id: `event-${events.length}`,
+      title,
+      location,
+      allDay: false,
+      start: atTime(days, h1, m1, now).toISOString(),
+      end: atTime(days, h2, m2, now).toISOString(),
+    })
+  const allDay = (title, days) => {
+    const date = atTime(days, 0, 0, now)
+    const next = atTime(days + 1, 0, 0, now)
+    const key = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    events.push({ id: `event-${events.length}`, title, location: '', allDay: true, start: key(date), end: key(next) })
   }
-  return events.map(([title, days, h1, m1, h2, m2], index) => ({
-    id: `event-${index}`,
-    title,
-    start: atTime(days, h1, m1, now).toISOString(),
-    end: atTime(days, h2, m2, now).toISOString(),
-  }))
+
+  for (let days = -7; days <= 21; days++) {
+    const weekday = atTime(days, 0, 0, now).getDay()
+    if (weekday === 6) add('Farmers market with roommates', days, [10, 0], [12, 0], 'Downtown SLO')
+    if (weekday === 0) add('Hike Bishop Peak', days, [9, 0], [11, 0])
+    if (weekday === 0 || weekday === 6) continue
+    if (weekday % 2 === 1) {
+      add('CSC 202 Lecture', days, [9, 10], [10, 0], 'Bldg 14, Rm 256')
+      add('MATH 143', days, [11, 10], [12, 0], 'Bldg 38, Rm 121')
+      add('Lunch with Sam', days, [12, 10], [13, 0], 'Vista Grande')
+    } else {
+      add('PSY 201', days, [10, 10], [11, 30], 'Bldg 180, Rm 101')
+      add('ENGL 134', days, [13, 40], [15, 0], 'Bldg 22, Rm 208')
+      add('Office hours: Prof. Kim', days, [11, 0], [12, 0], 'Bldg 14, Rm 210')
+    }
+    if (weekday === 2) add('CSC 202 Lab', days, [15, 10], [18, 0], 'Bldg 20, Rm 127')
+    if (weekday === 3) add('Study group', days, [16, 0], [17, 30], 'Kennedy Library')
+    if (weekday === 4) add('Vibe coding club', days, [18, 0], [19, 0], 'Bldg 186')
+    if (weekday === 5) add('Intramural soccer', days, [17, 0], [18, 30], 'Sports Complex')
+  }
+  // Canvas due dates (matching the Canvas card).
+  allDay('Lab 4: Linked Lists due', 0)
+  allDay('Reading Quiz: Ch. 6 due', 1)
+  allDay('Problem Set 5 due', 2)
+  return events
 }
 
 // Lofi Girl's "beats to relax/study to" playlist.
