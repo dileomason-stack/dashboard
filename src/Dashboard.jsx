@@ -6,8 +6,7 @@ import ColorPicker from './ColorPicker.jsx'
 import ShareDialog from './ShareDialog.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
-import { bottom } from 'react-grid-layout'
-import { COLS, createPushDownCompactor, upgradeGrid } from './lib/grid.js'
+import { COLS, createPushDownCompactor, ROW_HEIGHT, upgradeGrid } from './lib/grid.js'
 import { openExternal, setOpenMode, useOpenMode } from './lib/openExternal.js'
 import { classifyLink } from './lib/classifyLink.js'
 import { droppedLink, isLinkDrag } from './lib/drag.js'
@@ -49,11 +48,56 @@ function withoutKey(object, key) {
 }
 
 // A new workspace widget goes where it was asked for (right-click → Add here),
-// or at the bottom of the grid, at its default size.
-function newGridItem(type, id, grid, at) {
+// or else where it can be seen: the first empty spot in the part of the
+// workspace on screen (top to bottom, left to right). If nothing on screen is
+// free, it goes at the top of what's showing and the cards there are pushed
+// down to make room.
+function newGridItem(type, id, grid, at, hidden = []) {
   const { w, h } = WIDGETS[type].size
-  if (at) return { i: id, x: Math.max(0, Math.min(at.x, COLS - w)), y: Math.max(0, at.y), w, h }
-  return { i: id, x: 0, y: bottom(grid), w, h }
+  if (at) return pushedIn(grid, { i: id, x: Math.max(0, Math.min(at.x, COLS - w)), y: Math.max(0, at.y), w, h })
+  const others = grid.filter((item) => !hidden.includes(item.i))
+  const { top, bottom: last } = visibleRows()
+  const free = (x, y) => !others.some((o) => x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h)
+  for (let y = top; y + h <= Math.max(last, top + h); y++) {
+    for (let x = 0; x + w <= COLS; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
+  }
+  return pushedIn(grid, { i: id, x: 0, y: top, w, h })
+}
+
+// Place `item` exactly there, pushing any cards it covers down.
+function withNewItem(layout, type, id, at) {
+  // Cards show at least their type's minimum size (see Workspace), so plan
+  // with the sizes they actually take up on screen.
+  const collapsed = layout.collapsed ?? {}
+  const shown = layout.grid.map((cell) => {
+    const widget = layout.workspace.find((item) => item.id === cell.i)
+    const size = widget && !collapsed[cell.i] && WIDGETS[widget.type]?.size
+    return size ? { ...cell, w: Math.max(cell.w, size.minW), h: Math.max(cell.h, size.minH) } : cell
+  })
+  const { item, grid } = newGridItem(type, id, shown, at, layout.minimized ?? [])
+  return [...grid, item]
+}
+
+function pushedIn(grid, item) {
+  const compactor = createPushDownCompactor()
+  const layout = [...grid, item]
+  compactor.setActive(item.i, layout)
+  const settled = compactor.compact(layout)
+  return { item, grid: settled.filter((cell) => cell.i !== item.i) }
+}
+
+// Which grid rows of the workspace are on screen right now.
+function visibleRows() {
+  const workspace = document.querySelector('.workspace')
+  if (!workspace) return { top: 0, bottom: Infinity }
+  const rect = workspace.getBoundingClientRect()
+  const panel = workspace.closest('.workspace-panel')?.getBoundingClientRect()
+  const viewTop = Math.max(0, panel?.top ?? 0)
+  const viewBottom = Math.min(window.innerHeight, panel?.bottom ?? window.innerHeight)
+  return {
+    top: Math.max(0, Math.floor((viewTop - rect.top) / ROW_HEIGHT)),
+    bottom: Math.max(0, Math.floor((viewBottom - rect.top) / ROW_HEIGHT)),
+  }
 }
 
 // A collapsed workspace card is one label tall (5 rows = 40px with its gap)
@@ -139,7 +183,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         ? { sidebar: [...current.sidebar, { id, type }], sidebarOpen: true }
         : {
             workspace: [...current.workspace, { id, type }],
-            grid: [...current.grid, newGridItem(type, id, current.grid, at)],
+            grid: withNewItem(current, type, id, at),
           },
     )
     setNewestId(id)
@@ -292,7 +336,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         return {
           sidebar: current.sidebar.filter((widget) => widget.id !== id),
           workspace: [...current.workspace, inSidebar],
-          grid: [...current.grid.filter((item) => item.i !== id), newGridItem(inSidebar.type, id, current.grid)],
+          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id),
         }
       }
       const inWorkspace = current.workspace.find((widget) => widget.id === id)
