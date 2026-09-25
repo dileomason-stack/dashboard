@@ -2931,9 +2931,35 @@ a.canvas-title:hover {
   padding: 3px 4px 0 10px;
 }
 
+/* Clicks on the player go to Spotify, so its card gets a grab bar on top
+   (with a pill, like a phone's drawer handle) to move it by. */
 .card-spotify .card-top {
-  height: 0;
-  padding: 0;
+  position: relative;
+  height: 18px;
+  padding: 0 4px 2px 8px;
+  cursor: grab;
+}
+
+.card-spotify .card-top::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--text-muted);
+  opacity: 0.45;
+  transform: translateX(-50%);
+  transition: opacity 0.15s;
+}
+
+.card-spotify:hover .card-top::before {
+  opacity: 0.9;
+}
+
+.react-grid-item.react-draggable-dragging .card-spotify .card-top {
+  cursor: grabbing;
 }
 
 .card-top .card-handle {

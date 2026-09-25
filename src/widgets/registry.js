@@ -66,8 +66,9 @@ export const WIDGETS = {
     description: 'A playlist, album, or podcast player',
     component: SpotifyWidget,
     editLabel: 'Change playlist',
-    // Spotify's embed has fixed layouts; 80px is the compact player.
-    sidebarHeight: 80,
+    // Spotify's embed has fixed layouts; 80px is the compact player, plus
+    // the 18px grab bar on top.
+    sidebarHeight: 98,
     colorable: false,
     size: { w: 16, h: 20, minW: 12, minH: 12 },
     tab: { title: 'Spotify', address: 'open.spotify.com', href: 'https://open.spotify.com', icon: SpotifyIcon },
