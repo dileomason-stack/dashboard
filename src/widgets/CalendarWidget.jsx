@@ -53,7 +53,13 @@ const VIEWS = [
   ['list', 'List', 'AGENDA'],
 ]
 const HOUR_LABELS = 72
-const RIGHT_MARGIN = 12
+// 12px margin, plus room for a scrollbar in browsers that show one, so the
+// next day never peeks in at the edge.
+const RIGHT_MARGIN = 12 + 16
+// Google's hours can't be restyled, so "compressing" them means zooming the
+// whole calendar out (text gets smaller too). − / + step through these.
+const ZOOMS = [0.55, 0.65, 0.75, 0.85, 1]
+const DEFAULT_ZOOM = 0.75
 
 const ymd = (date) =>
   `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`
@@ -75,25 +81,30 @@ function embedFor(embedUrl, view, day) {
   return url.toString()
 }
 
-function useWidth(ref) {
-  const [width, setWidth] = useState(0)
+function useSize(ref) {
+  const [size, setSize] = useState({ width: 0, height: 0 })
   useEffect(() => {
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    const observer = new ResizeObserver(([entry]) =>
+      setSize({ width: entry.contentRect.width, height: entry.contentRect.height }),
+    )
     observer.observe(ref.current)
     return () => observer.disconnect()
   }, [ref])
-  return width
+  return size
 }
 
-function EmbedCalendar({ embedUrl, view, onView }) {
+function EmbedCalendar({ embedUrl, view, onView, zoom, onZoom }) {
   const [day, setDay] = useState(() => new Date())
   const frameRef = useRef(null)
-  const width = useWidth(frameRef)
+  const size = useSize(frameRef)
+  // The frame is drawn larger and scaled down, so everything inside shrinks.
+  const width = size.width / zoom
+  const zoomIndex = ZOOMS.indexOf(zoom)
   const isToday = ymd(day) === ymd(new Date())
   const step = (days) => setDay(new Date(day.getFullYear(), day.getMonth(), day.getDate() + days))
   // Frame width that makes one day column fill the card.
   const column = Math.max(120, width - HOUR_LABELS)
-  const frameWidth = view === 'day' && width ? HOUR_LABELS + 7 * column + RIGHT_MARGIN : undefined
+  const frameWidth = view === 'day' ? HOUR_LABELS + 7 * column + RIGHT_MARGIN : width
 
   return (
     <div className="calendar-embed with-views">
@@ -112,6 +123,28 @@ function EmbedCalendar({ embedUrl, view, onView }) {
             </button>
           ))}
         </div>
+        <div className="calendar-zoom">
+          <button
+            type="button"
+            className="dayview-step"
+            onClick={() => onZoom(ZOOMS[zoomIndex - 1])}
+            disabled={zoomIndex <= 0}
+            aria-label="Zoom out (fit more hours)"
+            title="Zoom out (fit more hours)"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            className="dayview-step"
+            onClick={() => onZoom(ZOOMS[zoomIndex + 1])}
+            disabled={zoomIndex >= ZOOMS.length - 1}
+            aria-label="Zoom in (bigger text)"
+            title="Zoom in (bigger text)"
+          >
+            +
+          </button>
+        </div>
         {view === 'day' && (
           <div className="calendar-day-nav">
             <button type="button" className="dayview-step" onClick={() => step(-1)} aria-label="Previous day">
@@ -127,12 +160,12 @@ function EmbedCalendar({ embedUrl, view, onView }) {
         )}
       </div>
       <div className="calendar-frame" ref={frameRef}>
-        {width > 0 && (
+        {size.width > 0 && (
           <iframe
             title="Google Calendar"
             src={embedFor(embedUrl, view, day)}
             loading="lazy"
-            style={frameWidth ? { width: frameWidth } : undefined}
+            style={{ width: frameWidth, height: size.height / zoom, transform: `scale(${zoom})` }}
           />
         )}
       </div>
@@ -219,6 +252,8 @@ export default function CalendarWidget({ id }) {
       embedUrl={embed.embedUrl}
       view={settings.view ?? 'day'}
       onView={(view) => setSettings((current) => ({ ...current, view }))}
+      zoom={ZOOMS.includes(settings.zoom) ? settings.zoom : DEFAULT_ZOOM}
+      onZoom={(zoom) => setSettings((current) => ({ ...current, zoom }))}
     />
   )
 }
