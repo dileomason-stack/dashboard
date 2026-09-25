@@ -10,12 +10,17 @@ import { WIDGETS } from './widgets/registry.js'
 
 // Saved position + the widget type's min size. A widget with no saved
 // position goes at the bottom, and nothing is ever smaller than its minimum.
-function buildLayout(widgets, grid) {
+// Collapsed cards keep their saved (small) size and can't be resized.
+function buildLayout(widgets, grid, collapsed) {
   const layout = []
   for (const widget of widgets) {
     const { minW, minH, w, h } = WIDGETS[widget.type].size
     const saved = grid.find((item) => item.i === widget.id)
     const position = saved ?? { i: widget.id, x: 0, y: bottom(layout), w, h }
+    if (collapsed.has(widget.id)) {
+      layout.push({ ...position, minW: 1, minH: 1, isResizable: false })
+      continue
+    }
     layout.push({
       ...position,
       w: Math.max(position.w, minW),
@@ -35,9 +40,9 @@ const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
 // down, so cards never hide each other. Resize from the corner grip or the
 // right/bottom edges.
-export default function Workspace({ widgets, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
+export default function Workspace({ widgets, collapsed, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
-  const layout = buildLayout(widgets, grid)
+  const layout = buildLayout(widgets, grid, collapsed)
   // Created once. It remembers which card is being dragged/resized, since that
   // card wins any overlap.
   const [compactor] = useState(createPushDownCompactor)

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import AddWidgetMenu from './AddWidgetMenu.jsx'
+import CollapsedCard from './CollapsedCard.jsx'
 import ColorPicker from './ColorPicker.jsx'
 import ShareDialog from './ShareDialog.jsx'
 import Dock from './Dock.jsx'
 import { EXAMPLE_PERSON } from './example.js'
 import { bottom } from 'react-grid-layout'
-import { COLS, upgradeGrid } from './lib/grid.js'
+import { COLS, createPushDownCompactor, upgradeGrid } from './lib/grid.js'
 import { openExternal, setOpenMode, useOpenMode } from './lib/openExternal.js'
 import { classifyLink } from './lib/classifyLink.js'
 import { droppedLink, isLinkDrag } from './lib/drag.js'
@@ -42,12 +43,26 @@ function useWindowWidth() {
 
 const known = (widget) => WIDGETS[widget.type]
 
+function withoutKey(object, key) {
+  const { [key]: _removed, ...rest } = object ?? {}
+  return rest
+}
+
 // A new workspace widget goes where it was asked for (right-click → Add here),
 // or at the bottom of the grid, at its default size.
 function newGridItem(type, id, grid, at) {
   const { w, h } = WIDGETS[type].size
   if (at) return { i: id, x: Math.max(0, Math.min(at.x, COLS - w)), y: Math.max(0, at.y), w, h }
   return { i: id, x: 0, y: bottom(grid), w, h }
+}
+
+// A collapsed workspace card is one label tall (5 rows = 40px with its gap)
+// and about as wide as its name.
+const COLLAPSED_ROWS = 5
+
+function collapsedCols(title) {
+  const colWidth = (document.querySelector('.workspace')?.clientWidth ?? 1200) / COLS
+  return Math.max(4, Math.min(COLS, Math.ceil((title.length * 7.5 + 64) / colWidth)))
 }
 
 export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample }) {
@@ -72,6 +87,10 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const workspaceWidgets = layout.workspace.filter(visible)
   const dockWidgets = [...layout.sidebar, ...layout.workspace].filter((widget) => known(widget) && minimized.has(widget.id))
   const visibleGrid = layout.grid.filter((item) => !minimized.has(item.i))
+  // Collapsed cards show as a small label; each remembers its full size in
+  // the workspace ({ w, h }, or {} in the sidebar) for when it's opened again.
+  const collapsedSizes = layout.collapsed && typeof layout.collapsed === 'object' ? layout.collapsed : {}
+  const collapsed = new Set(Object.keys(collapsedSizes))
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
 
   // Layouts saved before the fine grid get converted once.
@@ -220,6 +239,37 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     setNewestId(id)
   }
 
+  function collapseWidget(id, title) {
+    update((current) => {
+      const item = current.grid.find((cell) => cell.i === id)
+      const inWorkspace = current.workspace.some((widget) => widget.id === id)
+      return {
+        collapsed: { ...current.collapsed, [id]: inWorkspace && item ? { w: item.w, h: item.h } : {} },
+        grid:
+          inWorkspace && item
+            ? current.grid.map((cell) => (cell.i === id ? { ...cell, w: collapsedCols(title), h: COLLAPSED_ROWS } : cell))
+            : current.grid,
+      }
+    })
+  }
+
+  // Back to full size; cards now in the way are pushed down, like when a
+  // card is resized over them.
+  function expandWidget(id) {
+    update((current) => {
+      const { [id]: size, ...rest } = current.collapsed ?? {}
+      let grid = current.grid
+      if (size?.w && size?.h) {
+        grid = grid.map((cell) => (cell.i === id ? { ...cell, w: size.w, h: size.h } : cell))
+        const compactor = createPushDownCompactor()
+        compactor.setActive(id, grid)
+        grid = compactor.compact(grid)
+      }
+      return { collapsed: rest, grid }
+    })
+    setNewestId(id)
+  }
+
   function removeWidget(id) {
     store.remove(widgetDataKey(id))
     store.remove(`style:${id}`)
@@ -229,10 +279,13 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       workspace: current.workspace.filter((widget) => widget.id !== id),
       grid: current.grid.filter((item) => item.i !== id),
       minimized: (current.minimized ?? []).filter((item) => item !== id),
+      collapsed: withoutKey(current.collapsed, id),
     }))
   }
 
+  // Moving a card opens it back up (it gets its default size in the workspace).
   function moveWidget(id) {
+    update((current) => ({ collapsed: withoutKey(current.collapsed, id) }))
     update((current) => {
       const inSidebar = current.sidebar.find((widget) => widget.id === id)
       if (inSidebar) {
@@ -275,6 +328,10 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       isMaximized
         ? { label: 'Exit full screen', onSelect: () => setMaximizedId(null) }
         : { label: 'Full screen', onSelect: () => setMaximizedId(widget.id) },
+      !isMaximized &&
+        (collapsed.has(widget.id)
+          ? { label: 'Expand', onSelect: () => expandWidget(widget.id) }
+          : { label: 'Collapse', onSelect: () => collapseWidget(widget.id, tab.title) }),
       { label: 'Minimize to dock', onSelect: () => minimizeWidget(widget.id) },
       !isMaximized && {
         label: area === 'sidebar' ? 'Move to workspace' : 'Move to sidebar',
@@ -339,6 +396,18 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     const { component: Component } = WIDGETS[widget.type]
     const tab = tabFor(widget)
     const isMaximized = maximizedId === widget.id
+    if (collapsed.has(widget.id) && !isMaximized) {
+      return (
+        <CollapsedCard
+          widgetId={widget.id}
+          title={tab.title}
+          Icon={tab.icon}
+          onExpand={() => expandWidget(widget.id)}
+          menuItems={() => menuItemsFor(widget, area, false)}
+          {...(area === 'sidebar' ? dragProps : {})}
+        />
+      )
+    }
     // Phones get the browser-window frame, whose buttons are always visible
     // (no hover or right-click there). Everywhere else widgets are cards.
     if (!stacked) {
@@ -387,6 +456,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const sidebar = (
     <Sidebar
       widgets={sidebarWidgets}
+      collapsed={collapsed}
       sizes={layout.sidebarSizes}
       onSizesChange={(sizes) => update(() => ({ sidebarSizes: sizes }))}
       onReorder={reorderSidebar}
@@ -397,6 +467,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const workspace = (
     <Workspace
       widgets={workspaceWidgets}
+      collapsed={collapsed}
       grid={visibleGrid}
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}

@@ -2,6 +2,9 @@ import { Fragment, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { WIDGETS } from './widgets/registry.js'
 
+// A collapsed card is a one-line label (see CollapsedCard).
+const COLLAPSED_HEIGHT = 40
+
 // Give every widget its saved share of the column (in %), splitting any
 // missing share evenly, then scale so the shares add up to 100.
 function sharesFor(ids, saved) {
@@ -16,7 +19,7 @@ function sharesFor(ids, saved) {
 // The collapsible column on the left: widgets stacked top to bottom, with a
 // draggable divider between each pair. Cards can be dragged to a new position
 // by grabbing any empty spot on them.
-export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, renderWidget, stacked }) {
+export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onReorder, renderWidget, stacked }) {
   const [dragId, setDragId] = useState(null)
   const [dropTarget, setDropTarget] = useState(null)
 
@@ -25,7 +28,7 @@ export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, rend
       event.dataTransfer.effectAllowed = 'move'
       event.dataTransfer.setData('text/plain', id)
       event.dataTransfer.setData('application/x-homeroom-card', id)
-      const card = event.currentTarget.closest('.card')
+      const card = event.currentTarget.closest('.card, .collapsed-card')
       const rect = card.getBoundingClientRect()
       event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top)
       // Changing the page during dragstart can cancel the drag in Chrome.
@@ -79,8 +82,9 @@ export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, rend
   const ids = widgets.map((widget) => widget.id)
   return (
     <Group
-      // Remount when the list of widgets changes so the new sizes apply.
-      key={ids.join('|')}
+      // Remount when the list of widgets (or which are collapsed) changes so
+      // the new sizes apply.
+      key={ids.map((id) => (collapsed.has(id) ? `${id}:c` : id)).join('|')}
       orientation="vertical"
       className={`sidebar-group${dragId ? ' dragging' : ''}`}
       defaultLayout={sharesFor(ids, sizes)}
@@ -93,8 +97,8 @@ export default function Sidebar({ widgets, sizes, onSizesChange, onReorder, rend
           {index > 0 && <Separator className="resize-handle horizontal" />}
           <Panel
             id={widget.id}
-            minSize={WIDGETS[widget.type].sidebarHeight ?? 70}
-            maxSize={WIDGETS[widget.type].sidebarHeight}
+            minSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : (WIDGETS[widget.type].sidebarHeight ?? 70)}
+            maxSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : WIDGETS[widget.type].sidebarHeight}
             className={`sidebar-panel${dropClass(widget.id)}`}
           >
             <div className="drop-zone" {...dropPropsFor(widget.id)}>
