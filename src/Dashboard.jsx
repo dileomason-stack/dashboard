@@ -133,7 +133,7 @@ function SidebarFrame({ onHide, dropping, children }) {
   )
 }
 
-export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample }) {
+export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample, onCopyTab }) {
   const store = useStore()
   const [layout, setLayout] = useStoreValue(layoutKey, OWN_DEFAULT_LAYOUT, isLayout)
   const [maximizedId, setMaximizedId] = useState(null)
@@ -689,9 +689,16 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
               <li>Paste any link (⌘V) to add it as a card</li>
             </ul>
           </div>
-          <button type="button" className="primary" onClick={onBuildOwn}>
-            {hasOwn ? 'Back to my dashboard →' : 'Build your own →'}
-          </button>
+          <div className="example-banner-actions">
+            {onCopyTab && (
+              <button type="button" onClick={onCopyTab} title="Copy this tab, with all its cards, into your own dashboards">
+                ⧉ Copy this tab
+              </button>
+            )}
+            <button type="button" className="primary" onClick={onBuildOwn}>
+              {hasOwn ? 'Back to my dashboard →' : 'Build your own →'}
+            </button>
+          </div>
         </div>
       )}
 

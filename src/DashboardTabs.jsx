@@ -9,7 +9,8 @@ import { MAX_NAME_LENGTH } from './useDashboards.js'
 // `editingId` lives in the parent: switching dashboards rebuilds the page
 // (tabs included), and a new dashboard must still open with its name ready
 // to edit.
-export default function DashboardTabs({ dashboards, editingId, setEditingId }) {
+// onCopy (example only): copies a tab into the visitor's own dashboards.
+export default function DashboardTabs({ dashboards, editingId, setEditingId, onCopy }) {
   const { list, active, select, create, rename, remove } = dashboards
   const [menu, setMenu] = useState(null)
   const closeMenu = useCallback(() => setMenu(null), [])
@@ -83,6 +84,7 @@ export default function DashboardTabs({ dashboards, editingId, setEditingId }) {
                   onSelect: () => setEditingId(create(key)),
                 }))
               : [
+                  onCopy && { label: '⧉ Copy to my dashboards', onSelect: () => onCopy(menu.item) },
                   { label: 'Rename', onSelect: () => setEditingId(menu.item.id) },
                   list.length > 1 && {
                     label: 'Delete dashboard',

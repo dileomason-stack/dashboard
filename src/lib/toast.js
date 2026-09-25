@@ -6,8 +6,9 @@ let timer = null
 const listeners = new Set()
 const notify = () => listeners.forEach((listener) => listener())
 
-export function showToast(text, ms = 6000) {
-  current = { text, id: Date.now() }
+// action: optional { label, onClick } shown as a button in the message.
+export function showToast(text, ms = 6000, action = null) {
+  current = { text, action, id: Date.now() }
   clearTimeout(timer)
   timer = setTimeout(() => {
     current = null

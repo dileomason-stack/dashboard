@@ -5,9 +5,9 @@ import { useStore, useStoreValue, widgetDataKey } from './storage.js'
 // The list of dashboards and which one is showing. Each dashboard's layout is
 // stored separately (see layoutKeyFor), and every widget has its own data key,
 // so dashboards never share cards or to-do lists.
-const DEFAULT = { list: [{ id: 'main', name: 'My dashboard' }], activeId: 'main' }
+export const DEFAULT_DASHBOARDS = { list: [{ id: 'main', name: 'My dashboard' }], activeId: 'main' }
 
-const isDashboards = (value) =>
+export const isDashboards = (value) =>
   value &&
   Array.isArray(value.list) &&
   value.list.length > 0 &&
@@ -21,7 +21,7 @@ export const MAX_NAME_LENGTH = 30
 
 export function useDashboards() {
   const store = useStore()
-  const [state, setState] = useStoreValue('dashboards', DEFAULT, isDashboards)
+  const [state, setState] = useStoreValue('dashboards', DEFAULT_DASHBOARDS, isDashboards)
   const active = state.list.find((item) => item.id === state.activeId) ?? state.list[0]
 
   return {

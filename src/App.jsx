@@ -3,14 +3,14 @@ import Dashboard from './Dashboard.jsx'
 import Toast from './Toast.jsx'
 import DashboardTabs from './DashboardTabs.jsx'
 import { exampleSeed } from './example.js'
-import { createStore, readJSON, removeKey, StoreContext, writeJSON } from './storage.js'
+import { createStore, readJSON, removeKey, StoreContext, useStore, writeJSON } from './storage.js'
 import { layoutKeyFor, useDashboards } from './useDashboards.js'
+import { copyToOwnDashboards, HAS_OWN_KEY, OWN_PREFIX } from './lib/copyDashboard.js'
+import { showToast } from './lib/toast.js'
 
 // "example": Alex's sample dashboard (memory only, resets on reload).
 // "own": the visitor's own dashboard, saved in this browser.
 const MODE_KEY = 'dashboard:mode'
-const HAS_OWN_KEY = 'dashboard:hasOwn'
-const OWN_PREFIX = 'dashboard:own:'
 
 // Layouts saved by earlier versions of the app.
 removeKey('dashboard:v1')
@@ -53,13 +53,23 @@ export default function App() {
 // Shows the active dashboard, with tabs to switch between dashboards. Each
 // switch remounts Dashboard so nothing (like a full-screen card) carries over.
 function DashboardSwitcher(props) {
+  const store = useStore()
   const dashboards = useDashboards()
   const [editingId, setEditingId] = useState(null)
+
+  // In the example: copy one of Alex's tabs into your own dashboards.
+  function copyToMine(item) {
+    if (!copyToOwnDashboards(store, item)) return
+    showToast(`Copied “${item.name}” to your dashboards.`, 8000, { label: 'See it →', onClick: props.onBuildOwn })
+  }
+  const onCopy = store.example ? copyToMine : undefined
+
   return (
     <Dashboard
       key={dashboards.active.id}
       layoutKey={layoutKeyFor(dashboards.active.id)}
-      tabs={<DashboardTabs dashboards={dashboards} editingId={editingId} setEditingId={setEditingId} />}
+      tabs={<DashboardTabs dashboards={dashboards} editingId={editingId} setEditingId={setEditingId} onCopy={onCopy} />}
+      onCopyTab={onCopy && (() => onCopy(dashboards.active))}
       {...props}
     />
   )
