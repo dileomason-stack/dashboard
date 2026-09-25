@@ -4065,3 +4065,54 @@ a.canvas-title:hover {
   line-height: 1.35;
   color: var(--text-muted);
 }
+
+.mail-why-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: 1px;
+}
+
+.mail-why-toggle[aria-expanded='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.mail-explain {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--page));
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.mail-explain p {
+  margin: 0 0 6px;
+}
+
+.mail-explain ul {
+  margin: 0 0 6px;
+  padding-left: 18px;
+}
+
+.mail-explain li + li {
+  margin-top: 3px;
+}
+
+.mail-explain p:last-child {
+  margin-bottom: 0;
+  color: var(--text-muted);
+}

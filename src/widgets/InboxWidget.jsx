@@ -81,6 +81,7 @@ const SAMPLE_EMAILS = [
 export default function InboxWidget({ id }) {
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)
   const [query, setQuery] = useState('')
+  const [explaining, setExplaining] = useState(false)
   const read = settings.read ?? {}
   const unread = SAMPLE_EMAILS.filter((email) => !read[email.id]).length
 
@@ -123,8 +124,41 @@ export default function InboxWidget({ id }) {
         </button>
       </div>
       <p className="mail-why">
-        🔒 Gmail and Outlook don’t let other websites show your inbox, so they open beside your dashboard instead.
+        🔒 Gmail and Outlook don’t let other websites show your inbox, so they open beside your dashboard instead.{' '}
+        <button
+          type="button"
+          className="mail-why-toggle"
+          onClick={() => setExplaining(!explaining)}
+          aria-expanded={explaining}
+          aria-label="Why can't my inbox show here?"
+          title="Why can't my inbox show here?"
+        >
+          ?
+        </button>
       </p>
+      {explaining && (
+        <div className="mail-explain">
+          <p>
+            <strong>Why not?</strong> Gmail and Outlook tell browsers never to show them inside another website, even when you’re
+            signed in. It’s a security rule, so no page can quietly load your email.
+          </p>
+          <p>
+            <strong>Could it show my real inbox?</strong> Yes, with “Sign in with Google” or Microsoft and their official email
+            APIs:
+          </p>
+          <ul>
+            <li>
+              <b>Gmail:</b> Google treats reading email as a restricted permission. An app needs Google’s verification and an
+              independent security review before the public can use it.
+            </li>
+            <li>
+              <b>Outlook:</b> the app is registered with Microsoft, and for school accounts like Cal Poly’s, the school’s IT may
+              need to approve it.
+            </li>
+          </ul>
+          <p>That’s the plan for after Build Day. Until then, the emails below are a made-up sample.</p>
+        </div>
+      )}
       <form className="inline-form" onSubmit={search}>
         <input
           type="search"
