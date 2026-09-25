@@ -927,6 +927,34 @@ a.canvas-title:hover {
 
 /* ---------- Calendar (Day view, like Google Calendar's) ---------- */
 
+.calendar-embed.with-switch {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-embed.with-switch iframe {
+  flex: 1;
+  min-height: 0;
+}
+
+.calendar-switch {
+  flex: none;
+  margin: 0;
+  padding: 6px 10px;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--surface-muted);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.calendar-switch:hover {
+  background: var(--surface);
+}
+
 .calendar-sample {
   height: 100%;
   display: flex;

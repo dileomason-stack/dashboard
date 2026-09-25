@@ -118,9 +118,13 @@ export default function CalendarWidget({ id }) {
     )
   }
 
+  // Google's embed can't be restyled; offer the Day view (needs the secret address).
   return (
-    <div className="calendar-embed">
+    <div className="calendar-embed with-switch">
       <iframe title="Google Calendar" src={embed.embedUrl} loading="lazy" />
+      <button type="button" className="calendar-switch" onClick={() => setSettings({})}>
+        Switch to Day view (colored bubbles) →
+      </button>
     </div>
   )
 }
