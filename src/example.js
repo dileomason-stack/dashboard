@@ -103,61 +103,15 @@ export function exampleSeed() {
   fun.layout.theme = 'light'
 
   return {
-    // Alex's dashboards. "main" uses the "layout" key.
+    // Alex's dashboards.
     dashboards: {
-      // Opens on Morning check: the clearest first impression. Everything
-      // (the busiest view) comes last.
+      // Opens on Morning check: the clearest first impression.
       list: [
         { id: 'morning', name: '☀️ Morning check' },
-        { id: 'project', name: '💻 CSC 202 project' },
         { id: 'fun', name: '🎮 Fun' },
-        { id: 'main', name: '⭐ Everything' },
       ],
       activeId: 'morning',
     },
-    layout: {
-      theme: 'light',
-      sidebarOpen: true,
-      sidebarSize: 28,
-      sidebar: [
-        { id: 'ex-spotify', type: 'spotify' },
-        { id: 'ex-todo', type: 'todo' },
-        { id: 'ex-canvas', type: 'canvas' },
-        { id: 'ex-calendar', type: 'calendar' },
-      ],
-      sidebarSizes: { 'ex-spotify': 12, 'ex-todo': 26, 'ex-canvas': 33, 'ex-calendar': 29 },
-      workspace: [
-        { id: 'ex-search', type: 'search' },
-        { id: 'ex-claude', type: 'claude' },
-        { id: 'ex-scores', type: 'scores' },
-        { id: 'ex-news', type: 'news' },
-        { id: 'ex-sleeper', type: 'sleeper' },
-      ],
-      grid: [
-        { i: 'ex-search', x: 0, y: 0, w: 20, h: 46 },
-        { i: 'ex-claude', x: 20, y: 0, w: 12, h: 46 },
-        { i: 'ex-scores', x: 32, y: 0, w: 16, h: 46 },
-        { i: 'ex-news', x: 0, y: 46, w: 28, h: 52 },
-        { i: 'ex-sleeper', x: 28, y: 46, w: 20, h: 52 },
-      ],
-      gridVersion: 2,
-    },
-    'widget:ex-spotify': { url: EXAMPLE_PLAYLIST },
-    'widget:ex-todo': [
-      { id: 't1', text: 'Email Prof. Kim about lab partners', done: true },
-      { id: 't2', text: 'Book a study room for Thursday', done: false },
-      { id: 't3', text: 'Pick up textbook from El Corral', done: false },
-      { id: 't4', text: 'Call mom back', done: true },
-      { id: 't5', text: 'Start CSC 202 project proposal', done: false },
-    ],
-    'widget:ex-canvas': { sample: true, done: {} },
-    'widget:ex-calendar': { sample: true },
-    // Alex roots for the 49ers and reads the Cal Poly student paper.
-    'widget:ex-scores': { league: 'nfl', teams: ['SF'] },
-    'widget:ex-news': { source: 'mustang' },
-    'widget:ex-sleeper': { sample: true },
-    // Sleeper's card wears Sleeper's own navy.
-    // ☀️ Morning check: what's today, what's due, and the news.
     // ☀️ Morning check: school stuff down the sidebar, AI helpers and search in
     // the middle, a doc and fantasy football on the right.
     'layout:morning': {
@@ -194,41 +148,6 @@ export function exampleSeed() {
     'widget:exm-sleeper': { sample: true },
     // Real shared class notes ("Anyone with the link" can view).
     'widget:exm-doc': { url: 'https://docs.google.com/document/d/1SvlWrpX5kxDIx_D9QJfH7iP6KKnoNao-eCAoJJH0-p8/edit' },
-    // 💻 CSC 202 project: music, project tasks, and help when stuck.
-    'layout:project': {
-      theme: 'light',
-      sidebarOpen: true,
-      sidebarSize: 26,
-      sidebar: [
-        { id: 'exp-spotify', type: 'spotify' },
-        { id: 'exp-todo', type: 'todo' },
-      ],
-      sidebarSizes: { 'exp-spotify': 12, 'exp-todo': 88 },
-      workspace: [
-        { id: 'exp-claude', type: 'claude' },
-        { id: 'exp-search', type: 'search' },
-        { id: 'exp-canvas', type: 'canvas' },
-        { id: 'exp-drive', type: 'googlefile' },
-      ],
-      grid: [
-        { i: 'exp-claude', x: 0, y: 0, w: 22, h: 50 },
-        { i: 'exp-search', x: 22, y: 0, w: 26, h: 50 },
-        { i: 'exp-canvas', x: 0, y: 50, w: 22, h: 44 },
-        { i: 'exp-drive', x: 22, y: 50, w: 26, h: 44 },
-      ],
-      gridVersion: 2,
-    },
-    'widget:exp-spotify': { url: EXAMPLE_PLAYLIST },
-    'widget:exp-todo': [
-      { id: 'p1', text: 'Read the project spec', done: true },
-      { id: 'p2', text: 'Implement the LinkedList class', done: false },
-      { id: 'p3', text: 'Write test cases for remove()', done: false },
-      { id: 'p4', text: 'Office hours Thursday 2pm', done: false },
-      { id: 'p5', text: 'Push to GitHub before 11:59', done: false },
-    ],
-    'widget:exp-canvas': { sample: true, done: {} },
-    // A real shared Google Drive folder ("Anyone with the link" can view).
-    'widget:exp-drive': { url: 'https://drive.google.com/drive/folders/13uCwzCKaJvj9dXLJOqZotZX4Zpdk3reb' },
     'layout:fun': fun.layout,
     ...funData,
   }
