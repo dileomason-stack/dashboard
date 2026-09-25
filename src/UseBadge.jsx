@@ -9,7 +9,8 @@ const TEXT = {
   preview: ['👁 Preview', 'See it here at a glance; click an item to open it in the real app'],
 }
 
-export default function UseBadge({ use }) {
+// compact: just the symbol (the full label is in its tooltip).
+export default function UseBadge({ use, compact }) {
   const openMode = useOpenMode()
   if (!use) return null
   const [label, help] =
@@ -17,8 +18,8 @@ export default function UseBadge({ use }) {
       ? [`↗ ${openModeLabel(openMode)}`, 'This app can’t run inside other websites, so it opens in one click']
       : TEXT[use]
   return (
-    <span className={`use-badge use-${use}`} title={help}>
-      {label}
+    <span className={`use-badge use-${use}${compact ? ' compact' : ''}`} title={compact ? `${label}: ${help}` : help}>
+      {compact ? label.split(' ')[0] : label}
     </span>
   )
 }
