@@ -4002,3 +4002,66 @@ a.canvas-title:hover {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+
+/* Mail: Gmail and Outlook as app-icon tiles that open beside the dashboard. */
+.mail-apps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.mail-app {
+  flex: 1 1 120px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--page);
+  text-align: left;
+}
+
+.mail-app:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--page));
+}
+
+.mail-app svg {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+.mail-app span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.mail-app strong {
+  font-size: 0.92rem;
+}
+
+.mail-app small {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.mail-compose {
+  flex: 0 0 auto;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.mail-why {
+  margin: 0 0 8px;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
