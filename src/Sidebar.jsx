@@ -1,9 +1,15 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { WIDGETS } from './widgets/registry.js'
 
 // A collapsed card is a one-line label (see CollapsedCard).
 const COLLAPSED_HEIGHT = 40
+
+// Card heights (px) where Spotify's player fills the card: its 80px compact,
+// 152px standard and 352px track-list layouts, plus the 18px grab bar. A
+// Spotify card snaps to the nearest one when resized (above the tallest,
+// the track list simply grows).
+const SPOTIFY_HEIGHTS = [98, 170, 370]
 
 // Empty space under the last card, so cards don't have to fill the whole
 // column: drag the pill under the last card up to make it shorter.
@@ -33,6 +39,8 @@ function sharesFor(ids, saved) {
 export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onReorder, incoming = null, renderWidget, stacked }) {
   const [dragId, setDragId] = useState(null)
   const [dropTarget, setDropTarget] = useState(null)
+  // Each card's panel, to resize it from code (see snapSpotify).
+  const panelRefs = useRef({})
 
   const dragPropsFor = (id) => ({
     onDragStart: (event) => {
@@ -103,6 +111,18 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
   }
 
   const ids = widgets.map((widget) => widget.id)
+
+  // After a resize, snap Spotify cards to a height its player fills.
+  function snapSpotify() {
+    for (const widget of widgets) {
+      if (widget.type !== 'spotify' || collapsed.has(widget.id)) continue
+      const height = document.querySelector(`[data-sidebar-card="${widget.id}"]`)?.parentElement?.offsetHeight
+      if (!height || height >= SPOTIFY_HEIGHTS.at(-1)) continue
+      const target = SPOTIFY_HEIGHTS.reduce((best, h) => (Math.abs(h - height) < Math.abs(best - height) ? h : best))
+      if (Math.abs(target - height) > 2) panelRefs.current[widget.id]?.resize(target)
+    }
+  }
+
   return (
     <Group
       // Remount when the list of widgets (or which are collapsed) changes so
@@ -115,7 +135,9 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
       className={`sidebar-group${dragId ? ' dragging' : ''}`}
       defaultLayout={sharesFor(ids, sizes)}
       onLayoutChanged={(layout, meta) => {
-        if (meta?.isUserInteraction) onSizesChange(layout)
+        if (!meta?.isUserInteraction) return
+        onSizesChange(layout)
+        snapSpotify()
       }}
     >
       {widgets.map((widget, index) => (
@@ -124,10 +146,11 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
           <Panel
             id={widget.id}
             minSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : (WIDGETS[widget.type].sidebarHeight ?? 70)}
-            maxSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : WIDGETS[widget.type].sidebarHeight}
+            maxSize={collapsed.has(widget.id) ? COLLAPSED_HEIGHT : undefined}
             className={`sidebar-panel${dropClass(widget.id)}`}
+            panelRef={(handle) => (panelRefs.current[widget.id] = handle)}
           >
-            <div className="drop-zone" {...dropPropsFor(widget.id)}>
+            <div className="drop-zone" data-sidebar-card={widget.id} {...dropPropsFor(widget.id)}>
               {renderWidget(widget, dragPropsFor(widget.id))}
             </div>
           </Panel>

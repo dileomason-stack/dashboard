@@ -49,8 +49,8 @@ import {
 //
 // size: default and minimum size in the workspace grid, which is 48 columns
 //   wide with 8px rows (see Workspace.jsx), so h: 50 is about 400px tall.
-// sidebarHeight: fixed card height (px) in the sidebar, for embeds that only
-//   come in set sizes.
+// sidebarHeight: smallest card height (px) in the sidebar, for embeds that
+//   need a set height to show their controls (default 70).
 // brandColor: the app's own color, offered as "App color" in color pickers.
 // colorable: false hides "Card color…" (the Spotify player covers its card).
 // tabFor(settings): optional; per-card title/address/link based on the card's
@@ -66,8 +66,8 @@ export const WIDGETS = {
     description: 'A playlist, album, or podcast player',
     component: SpotifyWidget,
     editLabel: 'Change playlist',
-    // Spotify's embed has fixed layouts; 80px is the compact player, plus
-    // the 18px grab bar on top.
+    // 80px is Spotify's compact player, plus the 18px grab bar on top. Taller
+    // cards get Spotify's bigger layouts (larger art, then the track list).
     sidebarHeight: 98,
     colorable: false,
     size: { w: 16, h: 20, minW: 12, minH: 12 },
