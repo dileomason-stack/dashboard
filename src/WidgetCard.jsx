@@ -11,6 +11,7 @@ const isStyle = (value) => value && typeof value === 'object'
 
 // Widgets are plain cards: no tab bar or address bar. Options live in a menu
 // opened by right-click, double-click, or the ⋯ button that appears on hover.
+// The − button (top left, also on hover) collapses the card to a label.
 //
 // Grab a card anywhere (except buttons, links, text boxes, see NOT_DRAGGABLE)
 // to move it. In the workspace the grid library handles that; in the sidebar
@@ -30,6 +31,7 @@ export default function WidgetCard({
   appColor,
   use,
   highlight,
+  onCollapse,
   onDragStart,
   onDragEnd,
   children,
@@ -77,6 +79,17 @@ export default function WidgetCard({
       }}
     >
       <div className="card-top">
+        {onCollapse && (
+          <button
+            type="button"
+            className="card-collapse-button"
+            aria-label={`Collapse ${title}`}
+            title="Collapse"
+            onClick={onCollapse}
+          >
+            −
+          </button>
+        )}
         <UseBadge use={use} />
         <div className="card-handle">
           <span className="card-grip" aria-hidden="true">

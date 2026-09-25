@@ -424,6 +424,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           appColor={WIDGETS[widget.type].brandColor}
           use={WIDGETS[widget.type].use}
           highlight={widget.id === newestId}
+          onCollapse={isMaximized ? undefined : () => collapseWidget(widget.id, tab.title)}
           {...(area === 'sidebar' && !isMaximized ? dragProps : {})}
         >
           <Component id={widget.id} />
