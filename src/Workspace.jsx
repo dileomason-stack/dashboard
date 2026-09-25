@@ -11,21 +11,20 @@ import { WIDGETS } from './widgets/registry.js'
 // Saved position + the widget type's min size. A widget with no saved
 // position goes at the bottom, and nothing is ever smaller than its minimum.
 // Collapsed cards keep their saved (small) size and can't be resized.
-function buildLayout(widgets, grid, collapsed, cols, offset) {
+function buildLayout(widgets, grid, collapsed) {
   const layout = []
   for (const widget of widgets) {
     const { minW, minH, w, h } = WIDGETS[widget.type].size
     const saved = grid.find((item) => item.i === widget.id)
     const found = saved ?? { i: widget.id, x: 0, y: bottom(layout), w, h }
-    // Saved x counts from the open sidebar's edge; see `offset` below.
-    const position = { ...found, x: Math.max(0, found.x + offset) }
+    const position = { ...found, x: Math.max(0, found.x) }
     if (collapsed.has(widget.id)) {
       layout.push({ ...position, minW: 1, minH: 1, isResizable: false })
       continue
     }
     layout.push({
       ...position,
-      w: Math.min(cols, Math.max(position.w, minW)),
+      w: Math.min(COLS, Math.max(position.w, minW)),
       h: Math.max(position.h, minH),
       minW,
       minH,
@@ -34,24 +33,18 @@ function buildLayout(widgets, grid, collapsed, cols, offset) {
   return layout
 }
 
-// Keep only the fields worth saving (x back in saved terms, see `offset`).
-const pickPosition =
-  (offset) =>
-  ({ i, x, y, w, h }) => ({ i, x: x - offset, y, w, h })
+// Keep only the fields worth saving.
+const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 
 // The open area next to the sidebar. Grab a card anywhere (except its buttons,
 // links and text boxes) to move it; it stays exactly where it's dropped and
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
 // down, so cards never hide each other. Resize from any edge or corner.
-// offset: extra columns on the left (where a hidden sidebar was); saved
-// positions are shifted right by this much so cards don't move on screen.
 // onCardDrag / onCardDrop: (id, event) while a card is dragged and when it's
 // let go, so a card can be dropped outside the grid (into the sidebar).
 export default function Workspace({
   widgets,
   collapsed,
-  cols = COLS,
-  offset = 0,
   onCardDrag,
   onCardDrop,
   // (id, cell) when a sidebar card is dropped onto the workspace.
@@ -65,7 +58,7 @@ export default function Workspace({
   stacked,
 }) {
   const { width, containerRef, mounted } = useContainerWidth()
-  const layout = buildLayout(widgets, grid, collapsed, cols, offset)
+  const layout = buildLayout(widgets, grid, collapsed)
   // Created once. It remembers which card is being dragged/resized, since that
   // card wins any overlap.
   const [compactor] = useState(createPushDownCompactor)
@@ -75,9 +68,9 @@ export default function Workspace({
   // The grid cell under a point on screen.
   function cellAt(event) {
     const rect = containerRef.current.getBoundingClientRect()
-    const colWidth = (rect.width - GAP) / cols
+    const colWidth = (rect.width - GAP) / COLS
     return {
-      x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth) - offset,
+      x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
       y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
     }
   }
@@ -133,7 +126,7 @@ export default function Workspace({
   )
 
   function handleLayoutChange(newLayout) {
-    const positions = newLayout.map(pickPosition(offset))
+    const positions = newLayout.map(pickPosition)
     if (JSON.stringify(positions) !== JSON.stringify(grid)) onGridChange(positions)
   }
 
@@ -191,7 +184,7 @@ export default function Workspace({
         <ReactGridLayout
           width={width}
           layout={layout}
-          gridConfig={{ cols, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
+          gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
           dragConfig={{ cancel: `${NOT_DRAGGABLE}, .widget-control` }}
           resizeConfig={{ handles: ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'] }}
           compactor={compactor}

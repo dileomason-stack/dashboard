@@ -29,7 +29,7 @@ const SECTIONS = [
       ['Collapse', 'Hover a card and click − (top left). Click the label to open it again.'],
       ['More options', 'Click ⋯, right-click, or double-click a card: full screen, minimize to the dock, move, color, remove.'],
       ['Between sidebar and workspace', 'Drag a workspace card over the sidebar and let go, or drag a sidebar card out onto the workspace.'],
-      ['Hide the sidebar', 'Click “‹ Hide”. Its space opens up for cards; “› Sidebar” (top left) brings it back.'],
+      ['Hide the sidebar', 'Click “‹ Hide”. Your other cards stretch to fill the screen; “› Sidebar” (top left) brings it back.'],
     ],
   },
   {
