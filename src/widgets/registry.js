@@ -1,6 +1,6 @@
 import CalendarWidget from './CalendarWidget.jsx'
 import CanvasWidget from './CanvasWidget.jsx'
-import ClaudeWidget from './ClaudeWidget.jsx'
+import ClaudeWidget, { ChatGPTWidget } from './ClaudeWidget.jsx'
 import NewsWidget from './NewsWidget.jsx'
 import NotesWidget from './NotesWidget.jsx'
 import ScoresWidget from './ScoresWidget.jsx'
@@ -24,6 +24,7 @@ import {
   ArcadeIcon,
   CalendarIcon,
   CanvasIcon,
+  ChatGPTIcon,
   ClaudeIcon,
   DriveIcon,
   GameIcon,
@@ -116,6 +117,13 @@ export const WIDGETS = {
     component: ClaudeWidget,
     size: { w: 20, h: 46, minW: 12, minH: 26 },
     tab: { title: 'Claude', address: 'claude.ai', href: 'https://claude.ai/new', icon: ClaudeIcon },
+  },
+  chatgpt: {
+    title: 'ChatGPT',
+    description: 'Ask ChatGPT; opens with your question filled in',
+    component: ChatGPTWidget,
+    size: { w: 20, h: 46, minW: 12, minH: 26 },
+    tab: { title: 'ChatGPT', address: 'chatgpt.com', href: 'https://chatgpt.com', icon: ChatGPTIcon },
   },
   scores: {
     title: 'Sports scores',
@@ -254,7 +262,7 @@ export const WIDGETS = {
 const USE = {
   live: ['todo', 'spotify', 'website', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
   preview: ['canvas', 'calendar', 'scores', 'news', 'sleeper', 'googlefile'],
-  jump: ['claude', 'inbox', 'links'],
+  jump: ['claude', 'chatgpt', 'inbox', 'links'],
 }
 for (const [use, types] of Object.entries(USE)) for (const type of types) WIDGETS[type].use = use
 

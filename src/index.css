@@ -1443,6 +1443,35 @@ a.canvas-title:hover {
   background: #c6613f;
 }
 
+/* ChatGPT's look: plain background, sans-serif greeting, a pill-shaped gray
+   box and a round black send button. */
+.card:has(.chatgpt),
+.widget-body:has(.chatgpt) {
+  background: var(--page);
+}
+
+.chatgpt .claude-greeting {
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.chatgpt .claude-box {
+  border-color: transparent;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--text) 6%, var(--page));
+  box-shadow: none;
+}
+
+.chatgpt .claude-send {
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--page);
+}
+
+.chatgpt .claude-send:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 80%, var(--page));
+}
+
 /* ---------- Sidebar cards (no browser frame) ---------- */
 
 .drop-zone {

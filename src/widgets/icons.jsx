@@ -111,6 +111,19 @@ export function CalendarIcon() {
   )
 }
 
+export function ChatGPTIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
+      <rect x="0" y="0" width="16" height="16" rx="4" fill="#0d0d0d" />
+      <g fill="none" stroke="#fff" strokeWidth="1.2">
+        {[0, 60, 120].map((angle) => (
+          <ellipse key={angle} cx="8" cy="8" rx="4.6" ry="2.2" transform={`rotate(${angle} 8 8)`} />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
 export function ClaudeIcon() {
   return (
     <svg viewBox="0 0 16 16" className="tab-icon" aria-hidden="true">
