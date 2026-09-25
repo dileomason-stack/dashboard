@@ -155,10 +155,19 @@ button:focus-visible {
   font-size: 1.2rem;
 }
 
-.sidebar-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Shown at the top left while the sidebar is hidden. */
+.sidebar-show {
+  padding: 4px 10px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.sidebar-show:hover {
+  border-style: solid;
+  color: var(--text);
 }
 
 .example-banner {
@@ -197,6 +206,52 @@ button:focus-visible {
 .sidebar {
   height: 100%;
   padding: 4px 0 4px 4px;
+}
+
+/* The sidebar is outlined and labeled so it reads as its own column. */
+.sidebar-frame {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+}
+
+.sidebar-frame > .sidebar-group,
+.sidebar-frame > .sidebar-empty {
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sidebar-head button {
+  padding: 2px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.sidebar-head button:hover {
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .sidebar-group {

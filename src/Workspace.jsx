@@ -11,12 +11,14 @@ import { WIDGETS } from './widgets/registry.js'
 // Saved position + the widget type's min size. A widget with no saved
 // position goes at the bottom, and nothing is ever smaller than its minimum.
 // Collapsed cards keep their saved (small) size and can't be resized.
-function buildLayout(widgets, grid, collapsed, cols) {
+function buildLayout(widgets, grid, collapsed, cols, offset) {
   const layout = []
   for (const widget of widgets) {
     const { minW, minH, w, h } = WIDGETS[widget.type].size
     const saved = grid.find((item) => item.i === widget.id)
-    const position = saved ?? { i: widget.id, x: 0, y: bottom(layout), w, h }
+    const found = saved ?? { i: widget.id, x: 0, y: bottom(layout), w, h }
+    // Saved x counts from the open sidebar's edge; see `offset` below.
+    const position = { ...found, x: Math.max(0, found.x + offset) }
     if (collapsed.has(widget.id)) {
       layout.push({ ...position, minW: 1, minH: 1, isResizable: false })
       continue
@@ -32,16 +34,18 @@ function buildLayout(widgets, grid, collapsed, cols) {
   return layout
 }
 
-// Keep only the fields worth saving.
-const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
+// Keep only the fields worth saving (x back in saved terms, see `offset`).
+const pickPosition = (offset) => ({ i, x, y, w, h }) => ({ i, x: x - offset, y, w, h })
 
 // The open area next to the sidebar. Grab a card anywhere (except its buttons,
 // links and text boxes) to move it; it stays exactly where it's dropped and
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
 // down, so cards never hide each other. Resize from any edge or corner.
-export default function Workspace({ widgets, collapsed, cols = COLS, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
+// offset: extra columns on the left (where a hidden sidebar was); saved
+// positions are shifted right by this much so cards don't move on screen.
+export default function Workspace({ widgets, collapsed, cols = COLS, offset = 0, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
-  const layout = buildLayout(widgets, grid, collapsed, cols)
+  const layout = buildLayout(widgets, grid, collapsed, cols, offset)
   // Created once. It remembers which card is being dragged/resized, since that
   // card wins any overlap.
   const [compactor] = useState(createPushDownCompactor)
@@ -53,7 +57,7 @@ export default function Workspace({ widgets, collapsed, cols = COLS, grid, onGri
     const rect = containerRef.current.getBoundingClientRect()
     const colWidth = (rect.width - GAP) / cols
     return {
-      x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
+      x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth) - offset,
       y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
     }
   }
@@ -91,7 +95,7 @@ export default function Workspace({ widgets, collapsed, cols = COLS, grid, onGri
   )
 
   function handleLayoutChange(newLayout) {
-    const positions = newLayout.map(pickPosition)
+    const positions = newLayout.map(pickPosition(offset))
     if (JSON.stringify(positions) !== JSON.stringify(grid)) onGridChange(positions)
   }
 

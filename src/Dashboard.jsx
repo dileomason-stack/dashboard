@@ -52,21 +52,22 @@ function withoutKey(object, key) {
 // workspace on screen (top to bottom, left to right). If nothing on screen is
 // free, it goes at the top of what's showing and the cards there are pushed
 // down to make room.
-function newGridItem(type, id, grid, at, hidden = [], cols = COLS) {
+function newGridItem(type, id, grid, at, hidden = [], cols = COLS, leftCols = 0) {
   const { h } = WIDGETS[type].size
   const w = Math.min(WIDGETS[type].size.w, cols)
-  if (at) return pushedIn(grid, { i: id, x: Math.max(0, Math.min(at.x, cols - w)), y: Math.max(0, at.y), w, h })
+  const minX = -leftCols
+  if (at) return pushedIn(grid, { i: id, x: Math.max(minX, Math.min(at.x, cols - leftCols - w)), y: Math.max(0, at.y), w, h })
   const others = grid.filter((item) => !hidden.includes(item.i))
   const { top, bottom: last } = visibleRows()
   const free = (x, y) => !others.some((o) => x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h)
   for (let y = top; y + h <= Math.max(last, top + h); y++) {
-    for (let x = 0; x + w <= cols; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
+    for (let x = minX; x + w <= cols - leftCols; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
   }
-  return pushedIn(grid, { i: id, x: 0, y: top, w, h })
+  return pushedIn(grid, { i: id, x: minX, y: top, w, h })
 }
 
 // Place `item` exactly there, pushing any cards it covers down.
-function withNewItem(layout, type, id, at, cols) {
+function withNewItem(layout, type, id, at, cols, leftCols) {
   // Cards show at least their type's minimum size (see Workspace), so plan
   // with the sizes they actually take up on screen.
   const collapsed = layout.collapsed ?? {}
@@ -75,7 +76,7 @@ function withNewItem(layout, type, id, at, cols) {
     const size = widget && !collapsed[cell.i] && WIDGETS[widget.type]?.size
     return size ? { ...cell, w: Math.max(cell.w, size.minW), h: Math.max(cell.h, size.minH) } : cell
   })
-  const { item, grid } = newGridItem(type, id, shown, at, layout.minimized ?? [], cols)
+  const { item, grid } = newGridItem(type, id, shown, at, layout.minimized ?? [], cols, leftCols)
   return [...grid, item]
 }
 
@@ -110,6 +111,21 @@ function collapsedCols(title, cols) {
   return Math.max(4, Math.min(cols, Math.ceil((title.length * 7.5 + 64) / colWidth)))
 }
 
+// The sidebar's outline and header, so it reads as its own column.
+function SidebarFrame({ onHide, children }) {
+  return (
+    <section className="sidebar-frame" aria-label="Sidebar">
+      <div className="sidebar-head">
+        <span>Sidebar</span>
+        <button type="button" onClick={onHide} title="Hide the sidebar (bring it back from the top left)">
+          ‹ Hide
+        </button>
+      </div>
+      {children}
+    </section>
+  )
+}
+
 export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample }) {
   const store = useStore()
   const [layout, setLayout] = useStoreValue(layoutKey, OWN_DEFAULT_LAYOUT, isLayout)
@@ -138,10 +154,13 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const collapsed = new Set(Object.keys(collapsedSizes))
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
   // COLS columns fill the workspace next to an open sidebar. With the sidebar
-  // hidden, columns keep the same width and extra ones fill the freed space,
-  // so cards stay put and new room opens up on the right for more cards.
+  // hidden, columns keep the same width and extra ones fill the sidebar's old
+  // spot on the left: cards stay exactly where they were on screen, and that
+  // space is free for cards. (Cards placed there get negative x; they move
+  // back inside when the sidebar opens again.)
   const sidebarHidden = !layout.sidebarOpen && sidebarWidgets.length > 0 && !stacked
-  const workspaceCols = sidebarHidden ? Math.round((COLS * 100) / (100 - (layout.sidebarSize ?? 28))) : COLS
+  const leftCols = sidebarHidden ? Math.round((COLS * 100) / (100 - (layout.sidebarSize ?? 28))) - COLS : 0
+  const workspaceCols = COLS + leftCols
 
   // Layouts saved before the fine grid get converted once.
   useEffect(() => {
@@ -189,7 +208,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         ? { sidebar: [...current.sidebar, { id, type }], sidebarOpen: true }
         : {
             workspace: [...current.workspace, { id, type }],
-            grid: withNewItem(current, type, id, at, workspaceCols),
+            grid: withNewItem(current, type, id, at, workspaceCols, leftCols),
           },
     )
     setNewestId(id)
@@ -342,7 +361,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         return {
           sidebar: current.sidebar.filter((widget) => widget.id !== id),
           workspace: [...current.workspace, inSidebar],
-          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id, undefined, workspaceCols),
+          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id, undefined, workspaceCols, leftCols),
         }
       }
       const inWorkspace = current.workspace.find((widget) => widget.id === id)
@@ -520,6 +539,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       widgets={workspaceWidgets}
       collapsed={collapsed}
       cols={workspaceCols}
+      offset={leftCols}
       grid={visibleGrid}
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}
@@ -535,15 +555,17 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     <div className="app">
       <header className="toolbar">
         <div className="toolbar-start">
-          <button
-            type="button"
-            className="sidebar-toggle"
-            onClick={() => update((current) => ({ sidebarOpen: !current.sidebarOpen }))}
-            aria-pressed={layout.sidebarOpen}
-            title={layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          >
-            <span aria-hidden="true">◧</span> {layout.sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          </button>
+          {/* While the sidebar is open, its own header has "Hide". */}
+          {!layout.sidebarOpen && (
+            <button
+              type="button"
+              className="sidebar-show"
+              onClick={() => update(() => ({ sidebarOpen: true }))}
+              title="Show the sidebar"
+            >
+              › Sidebar
+            </button>
+          )}
           {sidebarWidgets.length + workspaceWidgets.length > 0 && !stacked && (
             <button
               type="button"
@@ -611,7 +633,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       <main className="main">
         {stacked ? (
           <div className="stacked-page">
-            {layout.sidebarOpen && sidebar}
+            {layout.sidebarOpen && <SidebarFrame onHide={() => update(() => ({ sidebarOpen: false }))}>{sidebar}</SidebarFrame>}
             {workspace}
           </div>
         ) : layout.sidebarOpen ? (
@@ -635,7 +657,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
               }}
               className="sidebar"
             >
-              {sidebar}
+              <SidebarFrame onHide={() => update(() => ({ sidebarOpen: false }))}>{sidebar}</SidebarFrame>
             </Panel>
             <Separator className="resize-handle vertical" />
             <Panel id="workspace" className="workspace-panel">
