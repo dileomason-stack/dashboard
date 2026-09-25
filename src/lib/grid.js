@@ -3,7 +3,7 @@
 // padding inside each cell (see .grid-cell), so a row is exactly 8px.
 export const ROW_HEIGHT = 8
 export const COLS = 48
-export const GAP = 12
+export const GAP = 4
 
 // Layouts saved before the fine grid used 12 columns and 40px rows with 12px
 // gaps (52px per row). Convert them so cards keep their size and place.

@@ -196,7 +196,7 @@ button:focus-visible {
 
 .sidebar {
   height: 100%;
-  padding: 4px;
+  padding: 4px 0 4px 4px;
 }
 
 .sidebar-group {
@@ -224,11 +224,27 @@ button:focus-visible {
 }
 
 .resize-handle.vertical {
-  width: 8px;
+  width: 4px;
+}
+
+.resize-handle.vertical::before {
+  content: '';
+  position: absolute;
+  inset: 0 -4px;
+  z-index: 3;
 }
 
 .resize-handle.horizontal {
-  height: 8px;
+  height: 4px;
+}
+
+/* The gap between sidebar cards is thin; this invisible strip keeps the
+   divider easy to grab. */
+.resize-handle.horizontal::before {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+  z-index: 3;
 }
 
 .resize-handle::after {
@@ -241,7 +257,7 @@ button:focus-visible {
 
 .resize-handle.vertical::after {
   top: 50%;
-  left: 3px;
+  left: 1px;
   width: 2px;
   height: 40px;
   transform: translateY(-50%);
@@ -249,7 +265,7 @@ button:focus-visible {
 
 .resize-handle.horizontal::after {
   left: 50%;
-  top: 3px;
+  top: 1px;
   height: 2px;
   width: 40px;
   transform: translateX(-50%);
@@ -1691,7 +1707,7 @@ a.canvas-title:hover {
 
 /* The gap between cards lives inside each cell, so grid rows are exact. */
 .grid-cell {
-  padding: 6px;
+  padding: 2px; /* half of GAP in lib/grid.js */
 }
 
 .react-grid-layout .react-grid-item.react-grid-placeholder {
