@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 import {
   canPlay,
   checkUsername,
@@ -10,6 +10,7 @@ import {
   swapIntoSlot,
   teamLogo,
 } from '../lib/sleeper.js'
+import { loadLiveNflTeams } from '../lib/sports.js'
 import { useLoader } from '../lib/useFetch.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
 import LinkSetup from './LinkSetup.jsx'
@@ -18,6 +19,18 @@ import LinkSetup from './LinkSetup.jsx'
 // lineup } for Alex's example (lineup = his starters/bench after any swaps).
 const isSettings = (value) => value && typeof value === 'object'
 const NO_SETTINGS = {}
+
+// NFL teams in a game right now (see loadLiveNflTeams); their players' rows
+// are highlighted with the game clock and score.
+const LiveTeams = createContext({})
+
+function LiveNote({ game }) {
+  return (
+    <>
+      <span className="live-tag">LIVE</span> {game.clock} · {game.score}
+    </>
+  )
+}
 
 const record = (team) => `${team.wins}-${team.losses}${team.ties ? `-${team.ties}` : ''}`
 
@@ -49,13 +62,16 @@ function Lineup({ lineup, onChange }) {
     }
   }
 
+  const liveTeams = useContext(LiveTeams)
+
   const row = (id, label, isSelected, isTarget, onClick) => {
     const p = SAMPLE_PLAYERS[id]
+    const game = liveTeams[p.team]
     return (
       <li key={`${label}-${id}`}>
         <button
           type="button"
-          className={`player-row${isSelected ? ' selected' : ''}${isTarget ? ' target' : ''}`}
+          className={`player-row${isSelected ? ' selected' : ''}${isTarget ? ' target' : ''}${game ? ' live' : ''}`}
           onClick={onClick}
           aria-pressed={isSelected}
         >
@@ -67,7 +83,7 @@ function Lineup({ lineup, onChange }) {
               {p.status && <span className="injury-tag">{p.status}</span>}
             </span>
             <span className="player-meta">
-              {p.pos} · {p.team} · {p.game}
+              {p.pos} · {p.team} · {game ? <LiveNote game={game} /> : p.game}
             </span>
           </span>
           <span className="player-points">
@@ -110,11 +126,12 @@ function formatAdds(count) {
 // One read-only player row (real accounts): slot, logo, name + injury,
 // position/team/opponent, and live points or projection.
 function PlayerRow({ label, player, extra }) {
+  const game = useContext(LiveTeams)[player.team]
   const empty = player.id === '0'
   const hasPoints = player.points !== null && player.points !== undefined && player.points > 0
   return (
     <li>
-      <div className="player-row static">
+      <div className={`player-row static${game ? ' live' : ''}`}>
         <span className={`slot slot-${label}`}>{label}</span>
         {player.team ? (
           <img className="player-logo" src={teamLogo(player.team)} alt="" width="26" height="26" loading="lazy" />
@@ -128,7 +145,13 @@ function PlayerRow({ label, player, extra }) {
           </span>
           {!empty && (
             <span className="player-meta">
-              {[player.pos, player.team, player.opponent && `vs ${player.opponent}`, extra].filter(Boolean).join(' · ')}
+              {[player.pos, player.team, !game && player.opponent && `vs ${player.opponent}`, extra].filter(Boolean).join(' · ')}
+              {game && (
+                <>
+                  {' · '}
+                  <LiveNote game={game} />
+                </>
+              )}
             </span>
           )}
         </span>
@@ -217,78 +240,82 @@ function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
   const [view, setView] = useState(views[0][0])
   const matchup = data.matchup && lineup ? { ...data.matchup, myPoints: lineupProjection(lineup) } : data.matchup
   const winning = matchup && matchup.myPoints >= matchup.theirPoints
+  // Checked every minute; if ESPN can't be reached, nothing is highlighted.
+  const { data: liveTeams } = useLoader('nfl-live', loadLiveNflTeams, 60 * 1000)
 
   return (
-    <div className="sleeper">
-      <div className="widget-toolbar">
-        {data.leagues.length > 1 ? (
-          <select value={data.leagueId} onChange={(event) => onLeagueChange(event.target.value)} aria-label="League">
-            {data.leagues.map((league) => (
-              <option key={league.id} value={league.id}>
-                {league.name}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <strong className="sleeper-league">{data.leagueName}</strong>
-        )}
-        <span className="toolbar-note">
-          Week {data.week}
-          {matchup?.projected && ' · projected'}
-        </span>
-      </div>
-
-      {matchup ? (
-        <div className="matchup">
-          <div className={`matchup-side${winning ? ' ahead' : ''}`}>
-            <span className="matchup-name">{matchup.me.name}</span>
-            <span className="matchup-record">{record(matchup.me)}</span>
-            <span className="matchup-points">{matchup.myPoints.toFixed(2)}</span>
-          </div>
-          <span className="matchup-vs">vs</span>
-          <div className={`matchup-side${!winning ? ' ahead' : ''}`}>
-            <span className="matchup-name">{matchup.opponent?.name ?? 'Bye week'}</span>
-            <span className="matchup-record">{matchup.opponent ? record(matchup.opponent) : ''}</span>
-            <span className="matchup-points">{matchup.theirPoints.toFixed(2)}</span>
-          </div>
+    <LiveTeams.Provider value={liveTeams ?? {}}>
+      <div className="sleeper">
+        <div className="widget-toolbar">
+          {data.leagues.length > 1 ? (
+            <select value={data.leagueId} onChange={(event) => onLeagueChange(event.target.value)} aria-label="League">
+              {data.leagues.map((league) => (
+                <option key={league.id} value={league.id}>
+                  {league.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <strong className="sleeper-league">{data.leagueName}</strong>
+          )}
+          <span className="toolbar-note">
+            Week {data.week}
+            {matchup?.projected && ' · projected'}
+          </span>
         </div>
-      ) : (
-        <p className="empty-state">No matchup this week.</p>
-      )}
 
-      <div className="segmented-tabs" role="tablist">
-        {views.map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={view === key}
-            className={view === key ? 'active' : undefined}
-            onClick={() => setView(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+        {matchup ? (
+          <div className="matchup">
+            <div className={`matchup-side${winning ? ' ahead' : ''}`}>
+              <span className="matchup-name">{matchup.me.name}</span>
+              <span className="matchup-record">{record(matchup.me)}</span>
+              <span className="matchup-points">{matchup.myPoints.toFixed(2)}</span>
+            </div>
+            <span className="matchup-vs">vs</span>
+            <div className={`matchup-side${!winning ? ' ahead' : ''}`}>
+              <span className="matchup-name">{matchup.opponent?.name ?? 'Bye week'}</span>
+              <span className="matchup-record">{matchup.opponent ? record(matchup.opponent) : ''}</span>
+              <span className="matchup-points">{matchup.theirPoints.toFixed(2)}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="empty-state">No matchup this week.</p>
+        )}
 
-      {view === 'lineup' && lineup ? (
-        <Lineup lineup={lineup} onChange={onLineupChange} />
-      ) : view === 'team' && data.roster ? (
-        <MyTeam roster={data.roster} />
-      ) : view === 'waivers' && data.waivers ? (
-        <Waivers waivers={data.waivers} />
-      ) : (
-        <ol className="standings">
-          {data.standings.map((team) => (
-            <li key={team.name} className={team.isMe ? 'me' : undefined}>
-              <span className="standings-name">{team.name}</span>
-              <span className="standings-record">{record(team)}</span>
-              <span className="standings-points">{team.points.toFixed(1)}</span>
-            </li>
+        <div className="segmented-tabs" role="tablist">
+          {views.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              className={view === key ? 'active' : undefined}
+              onClick={() => setView(key)}
+            >
+              {label}
+            </button>
           ))}
-        </ol>
-      )}
-    </div>
+        </div>
+
+        {view === 'lineup' && lineup ? (
+          <Lineup lineup={lineup} onChange={onLineupChange} />
+        ) : view === 'team' && data.roster ? (
+          <MyTeam roster={data.roster} />
+        ) : view === 'waivers' && data.waivers ? (
+          <Waivers waivers={data.waivers} />
+        ) : (
+          <ol className="standings">
+            {data.standings.map((team) => (
+              <li key={team.name} className={team.isMe ? 'me' : undefined}>
+                <span className="standings-name">{team.name}</span>
+                <span className="standings-record">{record(team)}</span>
+                <span className="standings-points">{team.points.toFixed(1)}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </LiveTeams.Provider>
   )
 }
 
@@ -296,11 +323,7 @@ export default function SleeperWidget({ id }) {
   const [settings, setSettings] = useStoreValue(widgetDataKey(id), NO_SETTINGS, isSettings)
   const sample = useMemo(() => (settings.sample ? sampleSleeper() : null), [settings.sample])
   const key = settings.username ? `${settings.username}|${settings.leagueId ?? ''}` : null
-  const { data, error, loading, reload } = useLoader(
-    key,
-    () => loadSleeper(settings.username, settings.leagueId),
-    2 * 60 * 1000,
-  )
+  const { data, error, loading, reload } = useLoader(key, () => loadSleeper(settings.username, settings.leagueId), 2 * 60 * 1000)
 
   if (sample) {
     const lineup = settings.lineup?.starters ? settings.lineup : SAMPLE_LINEUP
@@ -350,7 +373,9 @@ export default function SleeperWidget({ id }) {
   if (data.leagues.length === 0) {
     return (
       <div className="widget-message">
-        <p>No {data.season} NFL leagues found for {settings.username}.</p>
+        <p>
+          No {data.season} NFL leagues found for {settings.username}.
+        </p>
         <button type="button" onClick={() => setSettings({})}>
           Use a different username
         </button>

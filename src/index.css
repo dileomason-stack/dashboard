@@ -2175,6 +2175,42 @@ a.canvas-title:hover {
 }
 
 .slot-IR { background: #b91c1c; }
+
+/* Players whose NFL game is on right now. */
+.player-row.live,
+.player-row.static.live:hover {
+  border-color: color-mix(in srgb, #22c55e 55%, transparent);
+  background: color-mix(in srgb, #22c55e 16%, var(--surface-muted));
+}
+
+.live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.card-dark .live-tag {
+  color: #4ade80;
+}
+
+.live-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-tag::before { animation: none; }
+}
 .slot-SF { background: #d9468f; }
 
 /* ---------- Daily word game ---------- */

@@ -63,3 +63,19 @@ export async function loadTeams(league) {
   if (!response.ok || !data) throw new Error(data?.error ?? 'Couldn’t load teams. Try again in a minute.')
   return data.teams
 }
+
+// ESPN and Sleeper spell a few NFL teams differently.
+const SLEEPER_TEAM = { WSH: 'WAS' }
+
+// NFL teams playing right now, by Sleeper team abbreviation:
+// { GB: { clock: '4:32 - 1st', score: 'GB 7 – 3 ATL' }, ATL: { ... } }.
+export async function loadLiveNflTeams() {
+  const { games } = await loadScoreboard('nfl')
+  const live = {}
+  for (const game of games) {
+    if (game.state !== 'in') continue
+    const info = { clock: game.status, score: `${game.away.abbr} ${game.away.score} – ${game.home.score} ${game.home.abbr}` }
+    for (const side of [game.away, game.home]) live[SLEEPER_TEAM[side.abbr] ?? side.abbr] = info
+  }
+  return live
+}
