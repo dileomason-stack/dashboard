@@ -98,6 +98,9 @@ export function exampleSeed() {
     return `exf-${type}-${funCount[type]}`
   })
   const funData = Object.fromEntries(Object.entries(fun.data).map(([id, settings]) => [`widget:${id}`, settings]))
+  // Alex's example is all white, like the other tabs (a new Fun dashboard made
+  // from the template is still dark).
+  fun.layout.theme = 'light'
 
   return {
     // Alex's dashboards. "main" uses the "layout" key.
@@ -122,7 +125,7 @@ export function exampleSeed() {
         { id: 'ex-canvas', type: 'canvas' },
         { id: 'ex-calendar', type: 'calendar' },
       ],
-      sidebarSizes: { 'ex-spotify': 20, 'ex-todo': 24, 'ex-canvas': 30, 'ex-calendar': 26 },
+      sidebarSizes: { 'ex-spotify': 12, 'ex-todo': 26, 'ex-canvas': 33, 'ex-calendar': 29 },
       workspace: [
         { id: 'ex-search', type: 'search' },
         { id: 'ex-claude', type: 'claude' },
@@ -154,11 +157,9 @@ export function exampleSeed() {
     'widget:ex-news': { source: 'mustang' },
     'widget:ex-sleeper': { sample: true },
     // Sleeper's card wears Sleeper's own navy.
-    'style:ex-sleeper': { background: '#18202f' },
     // ☀️ Morning check: what's today, what's due, and the news.
-    // ☀️ Morning check: school stuff down the sidebar (in dark gray cards),
-    // AI helpers and search in the middle, a doc and fantasy football on the
-    // right.
+    // ☀️ Morning check: school stuff down the sidebar, AI helpers and search in
+    // the middle, a doc and fantasy football on the right.
     'layout:morning': {
       theme: 'light',
       sidebarOpen: true,
@@ -193,10 +194,6 @@ export function exampleSeed() {
     'widget:exm-sleeper': { sample: true },
     // Real shared class notes ("Anyone with the link" can view).
     'widget:exm-doc': { url: 'https://docs.google.com/document/d/1SvlWrpX5kxDIx_D9QJfH7iP6KKnoNao-eCAoJJH0-p8/edit' },
-    'style:exm-canvas': { background: '#4d4d4d' },
-    'style:exm-calendar': { background: '#4d4d4d' },
-    'style:exm-mail': { background: '#4d4d4d' },
-    'style:exm-sleeper': { background: '#4d4d4d' },
     // 💻 CSC 202 project: music, project tasks, and help when stuck.
     'layout:project': {
       theme: 'light',
@@ -206,7 +203,7 @@ export function exampleSeed() {
         { id: 'exp-spotify', type: 'spotify' },
         { id: 'exp-todo', type: 'todo' },
       ],
-      sidebarSizes: { 'exp-spotify': 20, 'exp-todo': 80 },
+      sidebarSizes: { 'exp-spotify': 12, 'exp-todo': 88 },
       workspace: [
         { id: 'exp-claude', type: 'claude' },
         { id: 'exp-search', type: 'search' },

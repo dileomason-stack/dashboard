@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { WIDGETS } from './widgets/registry.js'
 
@@ -41,6 +41,24 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
   const [dropTarget, setDropTarget] = useState(null)
   // Each card's panel, to resize it from code (see snapSpotify).
   const panelRefs = useRef({})
+
+  // Snap Spotify cards to a height its player fills: when the sidebar first
+  // shows them, and after each resize.
+  function snapSpotify() {
+    for (const widget of widgets) {
+      if (widget.type !== 'spotify' || collapsed.has(widget.id)) continue
+      const height = document.querySelector(`[data-sidebar-card="${widget.id}"]`)?.parentElement?.offsetHeight
+      if (!height || height >= SPOTIFY_HEIGHTS.at(-1)) continue
+      const target = SPOTIFY_HEIGHTS.reduce((best, h) => (Math.abs(h - height) < Math.abs(best - height) ? h : best))
+      if (Math.abs(target - height) > 2) panelRefs.current[widget.id]?.resize(target)
+    }
+  }
+  const layoutKey = widgets.map((widget) => (collapsed.has(widget.id) ? `${widget.id}:c` : widget.id)).join('|')
+  useEffect(() => {
+    const frame = requestAnimationFrame(snapSpotify)
+    return () => cancelAnimationFrame(frame)
+    // Only when the set of cards changes (snapSpotify reads the latest ones).
+  }, [layoutKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const dragPropsFor = (id) => ({
     onDragStart: (event) => {
@@ -112,16 +130,6 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
 
   const ids = widgets.map((widget) => widget.id)
 
-  // After a resize, snap Spotify cards to a height its player fills.
-  function snapSpotify() {
-    for (const widget of widgets) {
-      if (widget.type !== 'spotify' || collapsed.has(widget.id)) continue
-      const height = document.querySelector(`[data-sidebar-card="${widget.id}"]`)?.parentElement?.offsetHeight
-      if (!height || height >= SPOTIFY_HEIGHTS.at(-1)) continue
-      const target = SPOTIFY_HEIGHTS.reduce((best, h) => (Math.abs(h - height) < Math.abs(best - height) ? h : best))
-      if (Math.abs(target - height) > 2) panelRefs.current[widget.id]?.resize(target)
-    }
-  }
 
   return (
     <Group
