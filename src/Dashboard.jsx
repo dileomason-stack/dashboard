@@ -52,20 +52,21 @@ function withoutKey(object, key) {
 // workspace on screen (top to bottom, left to right). If nothing on screen is
 // free, it goes at the top of what's showing and the cards there are pushed
 // down to make room.
-function newGridItem(type, id, grid, at, hidden = []) {
-  const { w, h } = WIDGETS[type].size
-  if (at) return pushedIn(grid, { i: id, x: Math.max(0, Math.min(at.x, COLS - w)), y: Math.max(0, at.y), w, h })
+function newGridItem(type, id, grid, at, hidden = [], cols = COLS) {
+  const { h } = WIDGETS[type].size
+  const w = Math.min(WIDGETS[type].size.w, cols)
+  if (at) return pushedIn(grid, { i: id, x: Math.max(0, Math.min(at.x, cols - w)), y: Math.max(0, at.y), w, h })
   const others = grid.filter((item) => !hidden.includes(item.i))
   const { top, bottom: last } = visibleRows()
   const free = (x, y) => !others.some((o) => x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h)
   for (let y = top; y + h <= Math.max(last, top + h); y++) {
-    for (let x = 0; x + w <= COLS; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
+    for (let x = 0; x + w <= cols; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
   }
   return pushedIn(grid, { i: id, x: 0, y: top, w, h })
 }
 
 // Place `item` exactly there, pushing any cards it covers down.
-function withNewItem(layout, type, id, at) {
+function withNewItem(layout, type, id, at, cols) {
   // Cards show at least their type's minimum size (see Workspace), so plan
   // with the sizes they actually take up on screen.
   const collapsed = layout.collapsed ?? {}
@@ -74,7 +75,7 @@ function withNewItem(layout, type, id, at) {
     const size = widget && !collapsed[cell.i] && WIDGETS[widget.type]?.size
     return size ? { ...cell, w: Math.max(cell.w, size.minW), h: Math.max(cell.h, size.minH) } : cell
   })
-  const { item, grid } = newGridItem(type, id, shown, at, layout.minimized ?? [])
+  const { item, grid } = newGridItem(type, id, shown, at, layout.minimized ?? [], cols)
   return [...grid, item]
 }
 
@@ -104,9 +105,9 @@ function visibleRows() {
 // and about as wide as its name.
 const COLLAPSED_ROWS = 5
 
-function collapsedCols(title) {
-  const colWidth = (document.querySelector('.workspace')?.clientWidth ?? 1200) / COLS
-  return Math.max(4, Math.min(COLS, Math.ceil((title.length * 7.5 + 64) / colWidth)))
+function collapsedCols(title, cols) {
+  const colWidth = (document.querySelector('.workspace')?.clientWidth ?? 1200) / cols
+  return Math.max(4, Math.min(cols, Math.ceil((title.length * 7.5 + 64) / colWidth)))
 }
 
 export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewExample, onResetExample }) {
@@ -136,6 +137,11 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
   const collapsedSizes = layout.collapsed && typeof layout.collapsed === 'object' ? layout.collapsed : {}
   const collapsed = new Set(Object.keys(collapsedSizes))
   const maximized = [...sidebarWidgets, ...workspaceWidgets].find((widget) => widget.id === maximizedId)
+  // COLS columns fill the workspace next to an open sidebar. With the sidebar
+  // hidden, columns keep the same width and extra ones fill the freed space,
+  // so cards stay put and new room opens up on the right for more cards.
+  const sidebarHidden = !layout.sidebarOpen && sidebarWidgets.length > 0 && !stacked
+  const workspaceCols = sidebarHidden ? Math.round((COLS * 100) / (100 - (layout.sidebarSize ?? 28))) : COLS
 
   // Layouts saved before the fine grid get converted once.
   useEffect(() => {
@@ -183,7 +189,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         ? { sidebar: [...current.sidebar, { id, type }], sidebarOpen: true }
         : {
             workspace: [...current.workspace, { id, type }],
-            grid: withNewItem(current, type, id, at),
+            grid: withNewItem(current, type, id, at, workspaceCols),
           },
     )
     setNewestId(id)
@@ -291,7 +297,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         collapsed: { ...current.collapsed, [id]: inWorkspace && item ? { w: item.w, h: item.h } : {} },
         grid:
           inWorkspace && item
-            ? current.grid.map((cell) => (cell.i === id ? { ...cell, w: collapsedCols(title), h: COLLAPSED_ROWS } : cell))
+            ? current.grid.map((cell) => (cell.i === id ? { ...cell, w: collapsedCols(title, workspaceCols), h: COLLAPSED_ROWS } : cell))
             : current.grid,
       }
     })
@@ -336,7 +342,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         return {
           sidebar: current.sidebar.filter((widget) => widget.id !== id),
           workspace: [...current.workspace, inSidebar],
-          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id),
+          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id, undefined, workspaceCols),
         }
       }
       const inWorkspace = current.workspace.find((widget) => widget.id === id)
@@ -513,6 +519,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     <Workspace
       widgets={workspaceWidgets}
       collapsed={collapsed}
+      cols={workspaceCols}
       grid={visibleGrid}
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}

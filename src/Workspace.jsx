@@ -11,7 +11,7 @@ import { WIDGETS } from './widgets/registry.js'
 // Saved position + the widget type's min size. A widget with no saved
 // position goes at the bottom, and nothing is ever smaller than its minimum.
 // Collapsed cards keep their saved (small) size and can't be resized.
-function buildLayout(widgets, grid, collapsed) {
+function buildLayout(widgets, grid, collapsed, cols) {
   const layout = []
   for (const widget of widgets) {
     const { minW, minH, w, h } = WIDGETS[widget.type].size
@@ -23,7 +23,7 @@ function buildLayout(widgets, grid, collapsed) {
     }
     layout.push({
       ...position,
-      w: Math.max(position.w, minW),
+      w: Math.min(cols, Math.max(position.w, minW)),
       h: Math.max(position.h, minH),
       minW,
       minH,
@@ -39,9 +39,9 @@ const pickPosition = ({ i, x, y, w, h }) => ({ i, x, y, w, h })
 // links and text boxes) to move it; it stays exactly where it's dropped and
 // nothing slides up to fill gaps. Dropping onto another card pushes that card
 // down, so cards never hide each other. Resize from any edge or corner.
-export default function Workspace({ widgets, collapsed, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
+export default function Workspace({ widgets, collapsed, cols = COLS, grid, onGridChange, onAddWidget, onDropLink, showStarter, renderWidget, stacked }) {
   const { width, containerRef, mounted } = useContainerWidth()
-  const layout = buildLayout(widgets, grid, collapsed)
+  const layout = buildLayout(widgets, grid, collapsed, cols)
   // Created once. It remembers which card is being dragged/resized, since that
   // card wins any overlap.
   const [compactor] = useState(createPushDownCompactor)
@@ -51,7 +51,7 @@ export default function Workspace({ widgets, collapsed, grid, onGridChange, onAd
   // The grid cell under a point on screen.
   function cellAt(event) {
     const rect = containerRef.current.getBoundingClientRect()
-    const colWidth = (rect.width - GAP) / COLS
+    const colWidth = (rect.width - GAP) / cols
     return {
       x: Math.floor((event.clientX - rect.left - GAP / 2) / colWidth),
       y: Math.floor((event.clientY - rect.top - GAP / 2) / ROW_HEIGHT),
@@ -149,7 +149,7 @@ export default function Workspace({ widgets, collapsed, grid, onGridChange, onAd
         <ReactGridLayout
           width={width}
           layout={layout}
-          gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
+          gridConfig={{ cols, rowHeight: ROW_HEIGHT, margin: [0, 0], containerPadding: [GAP / 2, GAP / 2] }}
           dragConfig={{ cancel: `${NOT_DRAGGABLE}, .widget-control` }}
           resizeConfig={{ handles: ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'] }}
           compactor={compactor}
