@@ -10,6 +10,7 @@ import {
   swapIntoSlot,
   teamLogo,
 } from '../lib/sleeper.js'
+import { useScoringFeed } from '../lib/useScoringFeed.js'
 import { loadLiveNflTeams } from '../lib/sports.js'
 import { useLoader } from '../lib/useFetch.js'
 import { useStoreValue, widgetDataKey } from '../storage.js'
@@ -23,6 +24,43 @@ const NO_SETTINGS = {}
 // NFL teams in a game right now (see loadLiveNflTeams); their players' rows
 // are highlighted with the game clock and score.
 const LiveTeams = createContext({})
+// This week's live stats by Sleeper ID, and which points field to read.
+const LiveStats = createContext({ stats: {}, pointsKey: 'pts_ppr' })
+
+// Scoring updates, newest first, like the Sleeper app's notifications:
+// the newest one shows as a banner; click it to see the rest.
+function ScoringTicker({ updates, liveTeams }) {
+  const [open, setOpen] = useState(false)
+  if (updates.length === 0) return null
+  const line = (update) => (
+    <>
+      <strong>{update.name}</strong>{' '}
+      <span className={update.points < 0 ? 'ticker-points down' : 'ticker-points'}>
+        {update.total ? '' : update.points > 0 ? '+' : ''}
+        {update.points.toFixed(1)} pts
+      </span>
+      {update.detail && <span className="ticker-detail"> · {update.detail}</span>}
+      {update.total && <span className="ticker-detail"> · {liveTeams[update.team] ? 'so far' : 'final'}</span>}
+    </>
+  )
+  const [latest, ...rest] = updates
+  return (
+    <div className={`scoring-ticker${open ? ' open' : ''}`}>
+      <button type="button" className="ticker-latest" onClick={() => setOpen(!open)} aria-expanded={open} key={latest.key}>
+        {liveTeams[latest.team] && <span className="live-tag" aria-hidden="true" />}
+        <span className="ticker-line">{line(latest)}</span>
+        {rest.length > 0 && <span className="ticker-more">{open ? 'Hide' : `+${rest.length}`}</span>}
+      </button>
+      {open && (
+        <ul className="ticker-list">
+          {rest.map((update) => (
+            <li key={update.key}>{line(update)}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 function LiveNote({ game }) {
   return (
@@ -63,6 +101,7 @@ function Lineup({ lineup, onChange }) {
   }
 
   const liveTeams = useContext(LiveTeams)
+  const { stats, pointsKey } = useContext(LiveStats)
 
   const row = (id, label, isSelected, isTarget, onClick) => {
     const p = SAMPLE_PLAYERS[id]
@@ -87,8 +126,8 @@ function Lineup({ lineup, onChange }) {
             </span>
           </span>
           <span className="player-points">
-            {p.proj.toFixed(2)}
-            <span className="player-proj">proj</span>
+            {stats[p.sleeperId] ? (stats[p.sleeperId][pointsKey] ?? 0).toFixed(2) : p.proj.toFixed(2)}
+            <span className="player-proj">{stats[p.sleeperId] ? 'pts' : 'proj'}</span>
           </span>
         </button>
       </li>
@@ -125,10 +164,13 @@ function formatAdds(count) {
 
 // One read-only player row (real accounts): slot, logo, name + injury,
 // position/team/opponent, and live points or projection.
-function PlayerRow({ label, player, extra }) {
-  const game = useContext(LiveTeams)[player.team]
+function PlayerRow({ label, player: listed, extra }) {
+  const game = useContext(LiveTeams)[listed.team]
+  const { stats, pointsKey } = useContext(LiveStats)
+  // The stats feed is checked more often than the league, so its points are fresher.
+  const player = stats[listed.id] ? { ...listed, points: stats[listed.id][pointsKey] ?? 0 } : listed
   const empty = player.id === '0'
-  const hasPoints = player.points !== null && player.points !== undefined && player.points > 0
+  const hasPoints = player.points !== null && player.points !== undefined && (player.points > 0 || !!stats[player.id])
   return (
     <li>
       <div className={`player-row static${game ? ' live' : ''}`}>
@@ -243,78 +285,99 @@ function SleeperView({ data, onLeagueChange, lineup, onLineupChange }) {
   // Checked every minute; if ESPN can't be reached, nothing is highlighted.
   const { data: liveTeams } = useLoader('nfl-live', loadLiveNflTeams, 60 * 1000)
 
+  // Everyone on the roster (Alex's players carry their real Sleeper IDs).
+  const players = useMemo(
+    () =>
+      lineup
+        ? [...lineup.starters, ...lineup.bench].map((id) => ({ ...SAMPLE_PLAYERS[id], id: SAMPLE_PLAYERS[id].sleeperId }))
+        : data.roster
+          ? [...data.roster.starters.map((slot) => slot.player), ...data.roster.bench].filter((player) => player.id !== '0')
+          : [],
+    [lineup, data.roster],
+  )
+  const feed = useScoringFeed(players, {
+    season: data.season,
+    week: data.week,
+    scoring: data.scoring,
+    gamesLive: Object.keys(liveTeams ?? {}).length > 0,
+  })
+
   return (
     <LiveTeams.Provider value={liveTeams ?? {}}>
-      <div className="sleeper">
-        <div className="widget-toolbar">
-          {data.leagues.length > 1 ? (
-            <select value={data.leagueId} onChange={(event) => onLeagueChange(event.target.value)} aria-label="League">
-              {data.leagues.map((league) => (
-                <option key={league.id} value={league.id}>
-                  {league.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <strong className="sleeper-league">{data.leagueName}</strong>
-          )}
-          <span className="toolbar-note">
-            Week {data.week}
-            {matchup?.projected && ' · projected'}
-          </span>
-        </div>
-
-        {matchup ? (
-          <div className="matchup">
-            <div className={`matchup-side${winning ? ' ahead' : ''}`}>
-              <span className="matchup-name">{matchup.me.name}</span>
-              <span className="matchup-record">{record(matchup.me)}</span>
-              <span className="matchup-points">{matchup.myPoints.toFixed(2)}</span>
-            </div>
-            <span className="matchup-vs">vs</span>
-            <div className={`matchup-side${!winning ? ' ahead' : ''}`}>
-              <span className="matchup-name">{matchup.opponent?.name ?? 'Bye week'}</span>
-              <span className="matchup-record">{matchup.opponent ? record(matchup.opponent) : ''}</span>
-              <span className="matchup-points">{matchup.theirPoints.toFixed(2)}</span>
-            </div>
+      <LiveStats.Provider value={feed}>
+        <div className="sleeper">
+          <div className="widget-toolbar">
+            {data.leagues.length > 1 ? (
+              <select value={data.leagueId} onChange={(event) => onLeagueChange(event.target.value)} aria-label="League">
+                {data.leagues.map((league) => (
+                  <option key={league.id} value={league.id}>
+                    {league.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <strong className="sleeper-league">{data.leagueName}</strong>
+            )}
+            <span className="toolbar-note">
+              Week {data.week}
+              {matchup?.projected && ' · projected'}
+            </span>
           </div>
-        ) : (
-          <p className="empty-state">No matchup this week.</p>
-        )}
 
-        <div className="segmented-tabs" role="tablist">
-          {views.map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={view === key}
-              className={view === key ? 'active' : undefined}
-              onClick={() => setView(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+          <ScoringTicker updates={feed.updates} liveTeams={liveTeams ?? {}} />
 
-        {view === 'lineup' && lineup ? (
-          <Lineup lineup={lineup} onChange={onLineupChange} />
-        ) : view === 'team' && data.roster ? (
-          <MyTeam roster={data.roster} />
-        ) : view === 'waivers' && data.waivers ? (
-          <Waivers waivers={data.waivers} />
-        ) : (
-          <ol className="standings">
-            {data.standings.map((team) => (
-              <li key={team.name} className={team.isMe ? 'me' : undefined}>
-                <span className="standings-name">{team.name}</span>
-                <span className="standings-record">{record(team)}</span>
-                <span className="standings-points">{team.points.toFixed(1)}</span>
-              </li>
+          {matchup ? (
+            <div className="matchup">
+              <div className={`matchup-side${winning ? ' ahead' : ''}`}>
+                <span className="matchup-name">{matchup.me.name}</span>
+                <span className="matchup-record">{record(matchup.me)}</span>
+                <span className="matchup-points">{matchup.myPoints.toFixed(2)}</span>
+              </div>
+              <span className="matchup-vs">vs</span>
+              <div className={`matchup-side${!winning ? ' ahead' : ''}`}>
+                <span className="matchup-name">{matchup.opponent?.name ?? 'Bye week'}</span>
+                <span className="matchup-record">{matchup.opponent ? record(matchup.opponent) : ''}</span>
+                <span className="matchup-points">{matchup.theirPoints.toFixed(2)}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="empty-state">No matchup this week.</p>
+          )}
+
+          <div className="segmented-tabs" role="tablist">
+            {views.map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={view === key}
+                className={view === key ? 'active' : undefined}
+                onClick={() => setView(key)}
+              >
+                {label}
+              </button>
             ))}
-          </ol>
-        )}
-      </div>
+          </div>
+
+          {view === 'lineup' && lineup ? (
+            <Lineup lineup={lineup} onChange={onLineupChange} />
+          ) : view === 'team' && data.roster ? (
+            <MyTeam roster={data.roster} />
+          ) : view === 'waivers' && data.waivers ? (
+            <Waivers waivers={data.waivers} />
+          ) : (
+            <ol className="standings">
+              {data.standings.map((team) => (
+                <li key={team.name} className={team.isMe ? 'me' : undefined}>
+                  <span className="standings-name">{team.name}</span>
+                  <span className="standings-record">{record(team)}</span>
+                  <span className="standings-points">{team.points.toFixed(1)}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </LiveStats.Provider>
     </LiveTeams.Provider>
   )
 }

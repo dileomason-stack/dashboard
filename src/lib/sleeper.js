@@ -27,7 +27,7 @@ const SLOT_LABELS = { SUPER_FLEX: 'SF', WRRB_FLEX: 'W/R', REC_FLEX: 'W/T', IDP_F
 const slotLabel = (slot) => SLOT_LABELS[slot] ?? slot
 
 // Which projection matches the league's scoring (points per reception).
-function scoringKey(league) {
+export function scoringKey(league) {
   const rec = league.scoring_settings?.rec ?? 1
   return rec >= 1 ? 'ppr' : rec > 0 ? 'half' : 'std'
 }
@@ -124,6 +124,7 @@ export async function loadSleeper(username, leagueId) {
     leagues: leagues.map((item) => ({ id: item.league_id, name: item.name })),
     leagueId: league.league_id,
     leagueName: league.name,
+    scoring: key,
     season,
     week,
     matchup:
@@ -151,6 +152,8 @@ export function sampleSleeper() {
     leagues: [{ id: 'sample', name: 'Mustang Fantasy League' }],
     leagueId: 'sample',
     leagueName: 'Mustang Fantasy League',
+    scoring: 'ppr',
+    season: 2026,
     week: 3,
     // Week 3 hasn't been played: these are projected points.
     matchup: { me, opponent, myPoints: 0, theirPoints: 131.45, projected: true },
@@ -181,7 +184,35 @@ export const SLOT_POSITIONS = {
 }
 
 // status: injury tag shown next to the name (e.g. 'QUES' = questionable).
-const player = (id, name, pos, team, proj, game, status = '') => ({ id, name, pos, team, proj, game, status })
+// sleeperId: the real player's Sleeper ID, so live stats show for them.
+const SLEEPER_IDS = {
+  lawrence: '7523',
+  hampton: '12507',
+  barkley: '4866',
+  stbrown: '7547',
+  jwilliams: '8148',
+  kraft: '9484',
+  mcconkey: '11635',
+  hubbard: '7594',
+  mcpherson: '7839',
+  texans: 'HOU',
+  prescott: '3294',
+  monangai: '12534',
+  warren: '8228',
+  tucker: '10213',
+  mitchell: '11625',
+  ferguson: '8110',
+}
+const player = (id, name, pos, team, proj, game, status = '') => ({
+  id,
+  sleeperId: SLEEPER_IDS[id],
+  name,
+  pos,
+  team,
+  proj,
+  game,
+  status,
+})
 
 export const SAMPLE_PLAYERS = {
   lawrence: player('lawrence', 'Trevor Lawrence', 'QB', 'JAX', 18.98, 'Sun 10:00 AM vs NE'),
@@ -210,8 +241,7 @@ export const SAMPLE_LINEUP = {
 }
 
 // Games haven't started, so the matchup compares projected points.
-export const lineupProjection = (lineup) =>
-  lineup.starters.reduce((sum, id) => sum + (SAMPLE_PLAYERS[id]?.proj ?? 0), 0)
+export const lineupProjection = (lineup) => lineup.starters.reduce((sum, id) => sum + (SAMPLE_PLAYERS[id]?.proj ?? 0), 0)
 
 export const teamLogo = (team) => `https://a.espncdn.com/i/teamlogos/nfl/500/${team.toLowerCase()}.png`
 
@@ -226,3 +256,50 @@ export function swapIntoSlot(lineup, slotIndex, benchId) {
   starters[slotIndex] = benchId
   return { ...lineup, starters, bench: lineup.bench.map((id) => (id === benchId ? outgoing : id)) }
 }
+
+// ----- Live stats (for points as games happen, and the scoring updates) -----
+
+// Fantasy points in each scoring format, as Sleeper's stats name them.
+export const POINTS_KEY = { ppr: 'pts_ppr', half: 'pts_half_ppr', std: 'pts_std' }
+
+// This week's stats for every player who has played so far, by Sleeper ID.
+// (Sleeper's stats endpoint isn't officially documented, but the Sleeper app
+// uses it and it's readable from the browser.)
+export async function loadWeekStats(season, week) {
+  const response = await fetch(`https://api.sleeper.com/stats/nfl/${season}/${week}?season_type=regular`)
+  if (!response.ok) throw new Error('Sleeper stats aren’t available right now.')
+  const rows = await response.json()
+  return Object.fromEntries(rows.filter((row) => row.stats).map((row) => [row.player_id, row.stats]))
+}
+
+// How each stat reads in an update, in the order they're listed.
+const STAT_WORDS = [
+  ['pass_td', (n) => `${n} pass TD`],
+  ['rush_td', (n) => `${n} rush TD`],
+  ['rec_td', (n) => `${n} rec TD`],
+  ['rec', (n) => `${n} rec`],
+  ['rec_yd', (n) => `${n} rec yds`],
+  ['rush_yd', (n) => `${n} rush yds`],
+  ['pass_yd', (n) => `${n} pass yds`],
+  ['pass_int', (n) => `${n} INT`],
+  ['fum_lost', (n) => `${n} fumble lost`],
+  ['fgm', (n) => `${n} FG`],
+  ['xpm', (n) => `${n} XP`],
+  ['sack', (n) => `${n} sack`],
+  ['int', (n) => `${n} INT`],
+  ['fum_rec', (n) => `${n} fumble rec`],
+  ['def_td', (n) => `${n} TD`],
+]
+
+// "3 rec, 23 rec yds" for a stat line, or what changed between two of them.
+export function statWords(after, before = {}) {
+  return STAT_WORDS.map(([key, words]) => {
+    const change = Math.round((after[key] ?? 0) - (before[key] ?? 0))
+    return change > 0 ? words(change) : null
+  })
+    .filter(Boolean)
+    .join(', ')
+}
+
+// "Tucker Kraft" -> "Kraft", "Amon-Ra St. Brown" -> "St. Brown".
+export const shortName = (name) => name.split(' ').slice(1).join(' ') || name
