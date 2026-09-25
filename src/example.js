@@ -156,41 +156,47 @@ export function exampleSeed() {
     // Sleeper's card wears Sleeper's own navy.
     'style:ex-sleeper': { background: '#18202f' },
     // ☀️ Morning check: what's today, what's due, and the news.
+    // ☀️ Morning check: school stuff down the sidebar (in dark gray cards),
+    // AI helpers and search in the middle, a doc and fantasy football on the
+    // right.
     'layout:morning': {
       theme: 'light',
       sidebarOpen: true,
-      sidebarSize: 28,
+      sidebarSize: 27,
       sidebar: [
-        { id: 'exm-todo', type: 'todo' },
-        { id: 'exm-calendar', type: 'calendar' },
-      ],
-      sidebarSizes: { 'exm-todo': 40, 'exm-calendar': 60 },
-      workspace: [
         { id: 'exm-canvas', type: 'canvas' },
-        { id: 'exm-news', type: 'news' },
-        { id: 'exm-scores', type: 'scores' },
-        { id: 'exm-search', type: 'search' },
+        { id: 'exm-spotify', type: 'spotify' },
+        { id: 'exm-calendar', type: 'calendar' },
         { id: 'exm-mail', type: 'inbox' },
       ],
+      sidebarSizes: { 'exm-canvas': 24, 'exm-spotify': 13, 'exm-calendar': 51, 'exm-mail': 12, 'sidebar-space': 0 },
+      workspace: [
+        { id: 'exm-chatgpt', type: 'chatgpt' },
+        { id: 'exm-claude', type: 'claude' },
+        { id: 'exm-search', type: 'search' },
+        { id: 'exm-doc', type: 'googlefile' },
+        { id: 'exm-sleeper', type: 'sleeper' },
+      ],
       grid: [
-        { i: 'exm-canvas', x: 0, y: 0, w: 18, h: 42 },
-        { i: 'exm-news', x: 18, y: 0, w: 16, h: 42 },
-        { i: 'exm-scores', x: 34, y: 0, w: 14, h: 42 },
-        { i: 'exm-search', x: 0, y: 42, w: 30, h: 36 },
-        { i: 'exm-mail', x: 30, y: 42, w: 18, h: 36 },
+        { i: 'exm-chatgpt', x: 0, y: 0, w: 16, h: 32 },
+        { i: 'exm-claude', x: 0, y: 32, w: 16, h: 34 },
+        { i: 'exm-search', x: 0, y: 66, w: 16, h: 30 },
+        { i: 'exm-doc', x: 16, y: 0, w: 32, h: 60 },
+        { i: 'exm-sleeper', x: 16, y: 60, w: 32, h: 44 },
       ],
       gridVersion: 2,
     },
-    'widget:exm-todo': [
-      { id: 'm1', text: 'Reply to group chat about Friday', done: false },
-      { id: 'm2', text: 'Submit parking permit form', done: false },
-      { id: 'm3', text: 'Refill water bottle', done: true },
-    ],
-    'widget:exm-calendar': { sample: true },
     'widget:exm-canvas': { sample: true, done: {} },
-    'widget:exm-news': { source: 'npr' },
-    'widget:exm-scores': { league: 'nfl', teams: ['SF'] },
+    'widget:exm-spotify': { url: EXAMPLE_PLAYLIST },
+    'widget:exm-calendar': { sample: true },
     'widget:exm-mail': { sample: true, read: {} },
+    'widget:exm-sleeper': { sample: true },
+    // A real shared Google Drive folder ("Anyone with the link" can view).
+    'widget:exm-doc': { url: 'https://drive.google.com/drive/folders/13uCwzCKaJvj9dXLJOqZotZX4Zpdk3reb' },
+    'style:exm-canvas': { background: '#4d4d4d' },
+    'style:exm-calendar': { background: '#4d4d4d' },
+    'style:exm-mail': { background: '#4d4d4d' },
+    'style:exm-sleeper': { background: '#4d4d4d' },
     // 💻 CSC 202 project: music, project tasks, and help when stuck.
     'layout:project': {
       theme: 'light',
