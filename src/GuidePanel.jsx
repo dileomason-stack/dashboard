@@ -35,7 +35,7 @@ const SECTIONS = [
   {
     title: 'Shortcuts you might miss',
     items: [
-      ['Paste a link (⌘V / Ctrl+V)', 'Anywhere on the page: a Spotify, YouTube, Google Doc or website link becomes a card.'],
+      ['Paste a link (⌘V / Ctrl+V)', 'Anywhere on the page (click an empty spot first): a Spotify, YouTube, Google Doc or website link becomes a card. Sites that block being shown inside others get a preview card that opens them in one click.'],
       ['Drag a link in', 'Drag a link or a browser tab onto the dashboard to add it where you drop it.'],
       ['Add it right here', 'Right-click empty workspace space to add a card at that exact spot.'],
       ['Esc', 'Leaves full screen and closes menus.'],

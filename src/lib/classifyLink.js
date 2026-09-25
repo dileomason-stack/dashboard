@@ -4,8 +4,8 @@ import { GAMES, TOOLS } from './tools.js'
 // Turns a link someone dropped on the dashboard into the best card for it:
 // a Spotify player, a Google Doc/Drive view, a YouTube player, a known tool
 // or game, a live Website card (if the site allows being shown inside other
-// pages), or else a shortcut in a Links card. Returns
-// { type, settings, label } or { type: 'links', link } for shortcuts.
+// pages), or else a Link preview card (the site's picture, title and
+// description, one click to open it). Returns { type, settings, label }.
 
 export function youtubeEmbed(url) {
   const host = url.hostname.replace(/^www\.|^m\./, '')
@@ -57,5 +57,5 @@ export async function classifyLink(text) {
     embeddable = false
   }
   if (embeddable) return { type: 'website', settings: { url: url.href, title: host }, label: host }
-  return { type: 'links', link: { title: host, url: url.href }, label: host }
+  return { type: 'preview', settings: { url: url.href }, label: `Preview of ${host} (it can’t run inside other sites, so it opens in a new tab)` }
 }

@@ -4231,3 +4231,103 @@ a.canvas-title:hover {
   flex: 1;
   min-width: 0;
 }
+
+/* ---------- Link preview (sites that can't be embedded) ---------- */
+
+.card-body:has(.link-preview) {
+  container-type: size;
+}
+
+.link-preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.link-preview-image {
+  flex: 1 1 auto;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted);
+  cursor: pointer;
+}
+
+.link-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.link-preview-placeholder {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.link-preview-text {
+  flex: none;
+  min-width: 0;
+}
+
+.link-preview-text p {
+  margin: 0;
+}
+
+.link-preview-site {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.link-preview-site img {
+  flex: none;
+  border-radius: 3px;
+}
+
+.link-preview-title {
+  margin-top: 2px !important;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.link-preview-description {
+  margin-top: 2px !important;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.link-preview-open {
+  flex: none;
+  align-self: flex-start;
+}
+
+.link-preview.loading .link-preview-title {
+  color: var(--text-muted);
+}
+
+/* Short card: drop the picture, keep the text and the button. */
+@container (max-height: 200px) {
+  .link-preview-image {
+    display: none;
+  }
+}

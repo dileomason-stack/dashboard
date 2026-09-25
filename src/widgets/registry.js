@@ -1,6 +1,7 @@
 import CalendarWidget from './CalendarWidget.jsx'
 import CanvasWidget from './CanvasWidget.jsx'
 import ClaudeWidget, { ChatGPTWidget } from './ClaudeWidget.jsx'
+import PreviewWidget from './PreviewWidget.jsx'
 import NewsWidget from './NewsWidget.jsx'
 import NotesWidget from './NotesWidget.jsx'
 import ScoresWidget from './ScoresWidget.jsx'
@@ -243,6 +244,19 @@ export const WIDGETS = {
     size: { w: 32, h: 70, minW: 16, minH: 40 },
     tab: { title: 'Arcade', address: 'Arcade', icon: ArcadeIcon },
   },
+  preview: {
+    title: 'Link preview',
+    description: 'A preview of any website, one click to open it',
+    component: PreviewWidget,
+    editLabel: 'Change link',
+    size: { w: 16, h: 44, minW: 10, minH: 24 },
+    tab: { title: 'Link preview', address: 'Website', icon: GlobeIcon },
+    tabFor: (settings) => {
+      if (!settings?.url) return null
+      const host = new URL(settings.url).hostname.replace(/^www\./, '')
+      return { title: host, address: host, href: settings.url }
+    },
+  },
   website: {
     title: 'Website',
     description: 'Any site that allows it: a YouTube video, Wikipedia, a tool…',
@@ -262,7 +276,7 @@ export const WIDGETS = {
 const USE = {
   live: ['todo', 'spotify', 'website', 'search', 'tool', 'notes', 'game', 'word', 'snake', 'g2048', 'typing', 'arcade'],
   preview: ['canvas', 'calendar', 'scores', 'news', 'sleeper', 'googlefile'],
-  jump: ['claude', 'chatgpt', 'inbox', 'links'],
+  jump: ['claude', 'chatgpt', 'inbox', 'links', 'preview'],
 }
 for (const [use, types] of Object.entries(USE)) for (const type of types) WIDGETS[type].use = use
 
