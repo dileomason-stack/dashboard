@@ -4215,3 +4215,19 @@ a.canvas-title:hover {
   flex: none;
   padding: 3px 12px;
 }
+
+/* "+ Add widget": paste any link to add it as a card. */
+.add-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 6px 6px 6px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+.add-menu-link input {
+  flex: 1;
+  min-width: 0;
+}

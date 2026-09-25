@@ -69,7 +69,7 @@ function newGridItem(type, id, grid, at, hidden = []) {
   for (let y = top; y + h <= Math.max(last, top + h); y++) {
     for (let x = 0; x + w <= COLS; x++) if (free(x, y)) return { item: { i: id, x, y, w, h }, grid }
   }
-  return pushedIn(grid, { i: id, x: minX, y: top, w, h })
+  return pushedIn(grid, { i: id, x: 0, y: top, w, h })
 }
 
 // Place `item` exactly there, pushing any cards it covers down.
@@ -651,7 +651,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
           <button type="button" onClick={() => setSharing(true)} title="Show a QR code and link to this site">
             📱 Share
           </button>
-          <AddWidgetMenu onAdd={addWidget} />
+          <AddWidgetMenu onAdd={addWidget} onAddLink={(link) => dropLink(link, null)} />
           <button type="button" onClick={resetLayout}>
             {store.example ? 'Reset' : 'Clear all'}
           </button>

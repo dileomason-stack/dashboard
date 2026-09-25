@@ -21,10 +21,12 @@ const matches = (type, query) => {
   return `${title} ${description}`.toLowerCase().includes(query)
 }
 
-export default function AddWidgetMenu({ onAdd }) {
+// onAddLink: turns a pasted link into the best card for it (see classifyLink).
+export default function AddWidgetMenu({ onAdd, onAddLink }) {
   const [open, setOpen] = useState(false)
   const [area, setArea] = useState('workspace')
   const [query, setQuery] = useState('')
+  const [link, setLink] = useState('')
   const menuRef = useRef(null)
   const search = query.trim().toLowerCase()
   const sections = SECTIONS.map(([name, types]) => [name, types.filter((type) => matches(type, search))]).filter(
@@ -98,6 +100,31 @@ export default function AddWidgetMenu({ onAdd }) {
             }}
             autoFocus
           />
+          {onAddLink && (
+            <form
+              className="add-menu-link"
+              onSubmit={(event) => {
+                event.preventDefault()
+                const url = link.trim()
+                if (!/^https?:\/\/\S+$/i.test(url)) return
+                onAddLink(url)
+                setLink('')
+                setOpen(false)
+              }}
+            >
+              <span aria-hidden="true">🔗</span>
+              <input
+                type="url"
+                value={link}
+                onChange={(event) => setLink(event.target.value)}
+                placeholder="Or paste any link: YouTube, Spotify, a Google Doc, a website…"
+                aria-label="Paste a link to add it as a card"
+              />
+              <button type="submit" disabled={!/^https?:\/\/\S+$/i.test(link.trim())}>
+                Add
+              </button>
+            </form>
+          )}
           <p className="add-menu-key">
             <UseBadge use="live" /> works in the card · <UseBadge use="preview" /> at a glance · <UseBadge use="jump" /> opens in
             a new tab
