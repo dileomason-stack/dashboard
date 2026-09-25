@@ -191,8 +191,8 @@ export function exampleSeed() {
     'widget:exm-calendar': { sample: true },
     'widget:exm-mail': { sample: true, read: {} },
     'widget:exm-sleeper': { sample: true },
-    // A real shared Google Drive folder ("Anyone with the link" can view).
-    'widget:exm-doc': { url: 'https://drive.google.com/drive/folders/13uCwzCKaJvj9dXLJOqZotZX4Zpdk3reb' },
+    // Real shared class notes ("Anyone with the link" can view).
+    'widget:exm-doc': { url: 'https://docs.google.com/document/d/1SvlWrpX5kxDIx_D9QJfH7iP6KKnoNao-eCAoJJH0-p8/edit' },
     'style:exm-canvas': { background: '#4d4d4d' },
     'style:exm-calendar': { background: '#4d4d4d' },
     'style:exm-mail': { background: '#4d4d4d' },
