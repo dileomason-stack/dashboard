@@ -421,7 +421,9 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
     if (id && index !== null) moveWidget(id, index)
   }
 
-  function moveWidget(id, sidebarIndex) {
+  // `sidebarIndex`: where it goes in the sidebar; `at`: the workspace cell it
+  // was dropped on (else the first free spot on screen).
+  function moveWidget(id, sidebarIndex, at) {
     update((current) => ({ collapsed: withoutKey(current.collapsed, id) }))
     update((current) => {
       const inSidebar = current.sidebar.find((widget) => widget.id === id)
@@ -429,7 +431,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
         return {
           sidebar: current.sidebar.filter((widget) => widget.id !== id),
           workspace: [...current.workspace, inSidebar],
-          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id, undefined, workspaceCols, leftCols),
+          grid: withNewItem({ ...current, grid: current.grid.filter((item) => item.i !== id) }, inSidebar.type, id, at, workspaceCols, leftCols),
         }
       }
       const inWorkspace = current.workspace.find((widget) => widget.id === id)
@@ -611,6 +613,7 @@ export default function Dashboard({ layoutKey, tabs, hasOwn, onBuildOwn, onViewE
       offset={leftCols}
       onCardDrag={dragCard}
       onCardDrop={dropCard}
+      onDropCard={(id, at) => layout.sidebar.some((widget) => widget.id === id) && moveWidget(id, undefined, at)}
       grid={visibleGrid}
       // Keep minimized cards' saved positions when the visible ones move.
       onGridChange={(grid) => update((current) => ({ grid: [...grid, ...current.grid.filter((item) => minimized.has(item.i))] }))}

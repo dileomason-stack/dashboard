@@ -5,15 +5,24 @@ import { WIDGETS } from './widgets/registry.js'
 // A collapsed card is a one-line label (see CollapsedCard).
 const COLLAPSED_HEIGHT = 40
 
+// Empty space under the last card, so cards don't have to fill the whole
+// column: drag the pill under the last card up to make it shorter.
+const SPACE = 'sidebar-space'
+
 // Give every widget its saved share of the column (in %), splitting any
-// missing share evenly, then scale so the shares add up to 100.
+// missing share evenly, then scale so the shares add up to 100. The empty
+// space keeps its saved share, or none.
 function sharesFor(ids, saved) {
   const known = ids.filter((id) => saved[id] > 0)
   const knownTotal = known.reduce((sum, id) => sum + saved[id], 0)
   const fallback = known.length ? knownTotal / known.length : 100 / ids.length
   const raw = ids.map((id) => (saved[id] > 0 ? saved[id] : fallback))
-  const total = raw.reduce((sum, value) => sum + value, 0)
-  return Object.fromEntries(ids.map((id, index) => [id, (raw[index] / total) * 100]))
+  const space = saved[SPACE] > 0 ? saved[SPACE] : 0
+  const total = raw.reduce((sum, value) => sum + value, 0) + space
+  return {
+    ...Object.fromEntries(ids.map((id, index) => [id, (raw[index] / total) * 100])),
+    [SPACE]: (space / total) * 100,
+  }
 }
 
 // The collapsible column on the left: widgets stacked top to bottom, with a
@@ -34,11 +43,17 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
       const rect = card.getBoundingClientRect()
       event.dataTransfer.setDragImage(card, event.clientX - rect.left, event.clientY - rect.top)
       // Changing the page during dragstart can cancel the drag in Chrome.
-      setTimeout(() => setDragId(id))
+      setTimeout(() => {
+        setDragId(id)
+        // Embedded sites stop catching the mouse so the card can be dropped
+        // anywhere, including onto the workspace (CSS: .card-dragging).
+        document.documentElement.classList.add('card-dragging')
+      })
     },
     onDragEnd: () => {
       setDragId(null)
       setDropTarget(null)
+      document.documentElement.classList.remove('card-dragging')
     },
   })
 
@@ -118,6 +133,8 @@ export default function Sidebar({ widgets, collapsed, sizes, onSizesChange, onRe
           </Panel>
         </Fragment>
       ))}
+      <Separator className="resize-handle horizontal" title="Drag up to make the card above shorter" />
+      <Panel id={SPACE} minSize={0} className="sidebar-space" />
     </Group>
   )
 }

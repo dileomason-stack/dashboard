@@ -3,7 +3,7 @@ import ContextMenu from './ContextMenu.jsx'
 import ReactGridLayout, { bottom, useContainerWidth } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import { droppedLink, NOT_DRAGGABLE } from './lib/drag.js'
+import { CARD_TYPE, droppedLink, isCardDrag, NOT_DRAGGABLE } from './lib/drag.js'
 import { COLS, createPushDownCompactor, GAP, ROW_HEIGHT } from './lib/grid.js'
 import UseBadge from './UseBadge.jsx'
 import { WIDGETS } from './widgets/registry.js'
@@ -54,6 +54,8 @@ export default function Workspace({
   offset = 0,
   onCardDrag,
   onCardDrop,
+  // (id, cell) when a sidebar card is dropped onto the workspace.
+  onDropCard,
   grid,
   onGridChange,
   onAddWidget,
@@ -91,8 +93,26 @@ export default function Workspace({
 
   // A link dragged in from a browser tab or another page lands where dropped.
   // (Dashboard catches drops everywhere else; the flag tells it this one is handled.)
+  // A sidebar card dragged over the workspace can be dropped here too.
+  const [cardOver, setCardOver] = useState(false)
   const dropProps = {
+    onDragOver: (event) => {
+      if (!isCardDrag(event.dataTransfer) || !onDropCard) return
+      event.preventDefault()
+      event.dataTransfer.dropEffect = 'move'
+      if (!cardOver) setCardOver(true)
+    },
+    onDragLeave: (event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setCardOver(false)
+    },
     onDrop: (event) => {
+      if (isCardDrag(event.dataTransfer)) {
+        event.preventDefault()
+        setCardOver(false)
+        const id = event.dataTransfer.getData(CARD_TYPE)
+        if (id) onDropCard?.(id, stacked ? null : cellAt(event))
+        return
+      }
       const link = droppedLink(event.dataTransfer)
       if (!link) return
       event.preventDefault()
@@ -119,7 +139,7 @@ export default function Workspace({
 
   if (widgets.length === 0) {
     return (
-      <div className="workspace" ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
+      <div className={`workspace${cardOver ? ' card-drop' : ''}`} ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
         {addMenuElement}
         {showStarter ? (
           <div className="empty-area starter">
@@ -165,7 +185,7 @@ export default function Workspace({
   }
 
   return (
-    <div className="workspace" ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
+    <div className={`workspace${cardOver ? ' card-drop' : ''}`} ref={containerRef} onContextMenu={openAddMenu} {...dropProps}>
       {addMenuElement}
       {mounted && (
         <ReactGridLayout

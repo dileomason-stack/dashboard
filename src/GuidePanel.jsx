@@ -24,10 +24,10 @@ const SECTIONS = [
     title: 'Arranging cards',
     items: [
       ['Move', 'Drag a card from any empty spot. Spotify cards move by the gray bar on top.'],
-      ['Resize', 'Drag any edge or corner. In the sidebar, drag the gray pill between cards.'],
+      ['Resize', 'Drag any edge or corner. In the sidebar, drag the gray pills between cards; the one under the last card makes it shorter and leaves empty space.'],
       ['Collapse', 'Hover a card and click − (top left). Click the label to open it again.'],
       ['More options', 'Click ⋯, right-click, or double-click a card: full screen, minimize to the dock, move, color, remove.'],
-      ['Into the sidebar', 'Drag a workspace card over the sidebar and let go.'],
+      ['Between sidebar and workspace', 'Drag a workspace card over the sidebar and let go, or drag a sidebar card out onto the workspace.'],
       ['Hide the sidebar', 'Click “‹ Hide”. Its space opens up for cards; “› Sidebar” (top left) brings it back.'],
     ],
   },

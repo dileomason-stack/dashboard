@@ -4,7 +4,9 @@ export const NOT_DRAGGABLE =
   'input, textarea, select, button, a, label, iframe, [contenteditable], .react-resizable-handle, .no-drag'
 
 // Our own sidebar card drags carry this type; links from other tabs don't.
-const CARD_TYPE = 'application/x-homeroom-card'
+export const CARD_TYPE = 'application/x-homeroom-card'
+
+export const isCardDrag = (dataTransfer) => [...(dataTransfer?.types ?? [])].includes(CARD_TYPE)
 
 export function isLinkDrag(dataTransfer) {
   const types = [...(dataTransfer?.types ?? [])]

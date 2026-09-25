@@ -3904,3 +3904,16 @@ a.canvas-title:hover {
   line-height: 1.45;
   color: var(--text-muted);
 }
+
+/* A sidebar card is being dragged: embedded sites stop catching the mouse so
+   it can be dropped anywhere, and the workspace shows it can take it. */
+.card-dragging iframe {
+  pointer-events: none;
+}
+
+.workspace.card-drop {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
